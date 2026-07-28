@@ -372,6 +372,13 @@ body {
   color: rgba(255, 255, 255, 0.65);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .faq-chevron,
+  .faq-answer-wrapper {
+    transition-duration: 0.01ms;
+  }
+}
+
 @media (min-width: 640px) {
   .faq-section {
     padding: 5rem 2rem;
@@ -387,4 +394,4 @@ body {
     padding: 5rem 6rem;
   }
 }
-
+

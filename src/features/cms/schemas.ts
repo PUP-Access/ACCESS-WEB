@@ -12,11 +12,7 @@ export const AboutContentSchema = z.object({
   body: z.string().min(1),
   textAlign: z.enum(["left", "center", "right", "justify"]).optional().default("center"),
   carouselImages: z.array(z.string()).optional().default([
-    "/aboutCard1.JPG",
-    "/aboutCard2.jpg",
-    "/aboutCard3.jpg",
-    "/aboutCard4.jpg",
-    "/aboutCard5.jpg",
+    "/AboutUsPic.webp",
   ]),
 });
 
@@ -93,11 +89,7 @@ export const DEFAULT_ABOUT_CONTENT: AboutContent = {
   body: "We are the PUP Association of Concerned Computer Engineering Students for Service (PUP ACCESS), the official student organization of the Computer Engineering Department at the Polytechnic University of the Philippines. We are committed to unlocking the potential of computer engineering students by creating avenues and services that provide valuable knowledge, experiences, and opportunities to fulfill their academic, co-curricular, and extracurricular needs and concerns.\n\nCurrently, the organization comprises 19 dedicated Officers, along with Junior ACCESS Officers and Subordinates, serving over 1,500 students in the Computer Engineering Department of the university. The organization has been yearly revalidated by the PUP Student Council Commission on Student Organizations and Accreditation (PUP SC COSOA) and the PUP Student Council Commission on Audit (PUP SC COA), upholding transparency, accountability, and organizational excellence.",
   textAlign: "center",
   carouselImages: [
-    "/aboutCard1.JPG",
-    "/aboutCard2.jpg",
-    "/aboutCard3.jpg",
-    "/aboutCard4.jpg",
-    "/aboutCard5.jpg",
+    "/AboutUsPic.webp",
   ],
 };
 

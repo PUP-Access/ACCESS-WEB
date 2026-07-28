@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import BorrowRequestForm from "./BorrowRequestForm";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser-client";
+import { Reveal } from "./Reveal";
 
 export default function BorrowSection() {
   const [showForm, setShowForm] = useState(false);
@@ -47,8 +48,7 @@ export default function BorrowSection() {
 
       <div className="relative z-10 flex flex-col items-center max-w-5xl w-full text-center">
         {!showForm && (
-          <>
-            {/* Title */}
+          <Reveal>
             <h2
               className="text-[2.5rem] sm:text-5xl md:text-6xl lg:text-[4.5rem] font-extrabold pb-2 tracking-wide title-header"
               style={{
@@ -62,12 +62,10 @@ export default function BorrowSection() {
             >
               Want to Borrow?
             </h2>
-
-            {/* Subtitle */}
             <p className="mt-4 text-white/95 text-[15px] sm:text-base max-w-2xl leading-relaxed">
               Submit your request easily and track your borrowing anytime, anywhere.
             </p>
-          </>
+          </Reveal>
         )}
 
         {showForm ? (
@@ -81,40 +79,36 @@ export default function BorrowSection() {
           </motion.div>
         ) : (
           <>
-            {/* Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="mt-16 flex flex-col items-center justify-center p-8 w-[240px] h-[240px] shrink-0 hover:-translate-y-2 transition-transform duration-300"
-              style={glassCardStyle}
-            >
+            <Reveal y={30} delay={0.08}>
               <div
-                className="w-[4.5rem] h-[4.5rem] rounded-full flex items-center justify-center mb-5"
-                style={{ background: "#F26223", boxShadow: "0 6px 16px rgba(242,98,35,0.4)" }}
+                className="mt-16 flex flex-col items-center justify-center p-8 w-[240px] h-[240px] shrink-0 hover:-translate-y-2 transition-transform duration-300"
+                style={glassCardStyle}
               >
-                <svg
-                  width="36"
-                  height="36"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                <div
+                  className="w-[4.5rem] h-[4.5rem] rounded-full flex items-center justify-center mb-5"
+                  style={{ background: "#F26223", boxShadow: "0 6px 16px rgba(242,98,35,0.4)" }}
                 >
-                  <circle cx="12" cy="12" r="3" />
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                </svg>
+                  <svg
+                    width="36"
+                    height="36"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                  </svg>
+                </div>
+                <p className="text-white text-[14px] font-bold text-center whitespace-pre-line leading-relaxed z-10 drop-shadow-md">
+                  Borrow Equipments{"\n"}and Materials
+                </p>
               </div>
-              <p className="text-white text-[14px] font-bold text-center whitespace-pre-line leading-relaxed z-10 drop-shadow-md">
-                Borrow Equipments{"\n"}and Materials
-              </p>
-            </motion.div>
+            </Reveal>
 
-            {/* Action Buttons */}
-            <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-5 w-full">
+            <Reveal className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-5 w-full" delay={0.14}>
               <button
                 type="button"
                 onClick={handleOpenForm}
@@ -138,7 +132,7 @@ export default function BorrowSection() {
               >
                 Track my Request
               </button>
-            </div>
+            </Reveal>
           </>
         )}
       </div>

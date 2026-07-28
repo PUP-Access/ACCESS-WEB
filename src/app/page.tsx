@@ -1,5 +1,4 @@
 import { Navbar } from "@/components/ui";
-import Link from "next/link";
 import Image from "next/image";
 import {
   AboutSection,
@@ -8,6 +7,7 @@ import {
   EventsSection,
   FAQSection,
   FooterSection,
+  HeroCopy,
   MeetTheOfficersSection,
 } from "@/features/landing";
 import {
@@ -113,55 +113,12 @@ export default async function LandingPage() {
         {/* navbar spacer — fixed nav overlays hero */}
         <div className="relative z-10 h-[72px] shrink-0 md:h-[80px]" aria-hidden />
 
-        {/* hero copy */}
-        <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 pb-16 pt-4 text-center sm:px-8 sm:pb-12 md:px-16 lg:px-24">
-          <h1
-            className="max-w-xs text-3xl font-extrabold leading-tight tracking-tight
-                       sm:max-w-lg sm:text-4xl
-                       md:max-w-2xl md:text-5xl
-                       lg:max-w-4xl lg:text-6xl"
-            style={{
-              background: "linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(242,98,35,1) 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
-          >
-            {hero.titleLines.map((line, index) => (
-              <span key={`${line}-${index}`}>
-                {line}
-                {index < hero.titleLines.length - 1 && <br />}
-              </span>
-            ))}
-          </h1>
-
-          <p className="mt-5 max-w-sm text-sm leading-relaxed text-zinc-300
-                        sm:max-w-md sm:text-base
-                        md:max-w-lg">
-            {hero.subtitle}
-          </p>
-
-          <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4">
-            <Link
-              href="/#about"
-              className="rounded-lg py-3 text-sm font-semibold text-white text-center
-                         transition-opacity hover:opacity-90
-                         px-8 sm:px-9 md:px-10 md:py-3.5 md:text-base"
-              style={{ background: "#F26223" }}
-            >
-              {hero.primaryCtaLabel}
-            </Link>
-
-            <Link
-              href="/#contact"
-              className="rounded-lg border border-white/30 bg-white/10 py-3 text-sm font-semibold
-                         text-white text-center backdrop-blur-sm transition-colors hover:bg-white/20
-                         px-8 sm:px-9 md:px-10 md:py-3.5 md:text-base"
-            >
-              {hero.secondaryCtaLabel}
-            </Link>
-          </div>
-        </div>
+        <HeroCopy
+          titleLines={hero.titleLines}
+          subtitle={hero.subtitle}
+          primaryCtaLabel={hero.primaryCtaLabel}
+          secondaryCtaLabel={hero.secondaryCtaLabel}
+        />
       </section>
             
       <AboutSection content={about} />

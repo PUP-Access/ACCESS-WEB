@@ -25,7 +25,7 @@ export default function AuthScreenLayout({
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <Image src="/LogInBG/BG1.png" alt="" fill priority className="object-cover" />
+      <Image src="/LogInBG/BG1.webp" alt="" fill priority className="object-cover" />
       <div className="absolute inset-0 bg-black/25 backdrop-blur-[2px]" />
       <div
         className="pointer-events-none absolute inset-0"
@@ -73,7 +73,7 @@ export default function AuthScreenLayout({
               }}
             />
             <Image
-              src="/circle-access-logo.png"
+              src="/circle-access-logo.webp"
               alt="ACCESS emblem"
               width={380}
               height={380}
