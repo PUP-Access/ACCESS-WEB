@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Reveal, RevealStagger } from "./Reveal";
 
 interface FAQItem {
   question: string;
@@ -43,14 +44,16 @@ export default function FAQSection({ items }: FAQSectionProps) {
 
   return (
     <section id="faq" className="landing-section scroll-mt-24 faq-section">
-        {/* Title — full-width so whitespace-nowrap never gets clipped */}
-        <h2 className="mb-10 text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-widest title-header md:whitespace-nowrap">Frequently Ask Questions</h2>
+      <Reveal>
+        <h2 className="mb-10 text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-widest title-header md:whitespace-nowrap">
+          Frequently Ask Questions
+        </h2>
+      </Reveal>
 
       <div className="faq-container">
-        {/* Accordion list */}
-        <div className="faq-list">
+        <RevealStagger className="faq-list" itemClassName="faq-item">
           {items.map((item, i) => (
-            <div key={`${item.question}-${i}`} className="faq-item">
+            <div key={`${item.question}-${i}`}>
               <button
                 className="faq-question"
                 onClick={() => toggle(i)}
@@ -76,7 +79,7 @@ export default function FAQSection({ items }: FAQSectionProps) {
               </div>
             </div>
           ))}
-        </div>
+        </RevealStagger>
       </div>
     </section>
   );

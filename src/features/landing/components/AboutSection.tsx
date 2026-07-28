@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import type { AboutContent } from "@/features/cms";
+import { Reveal } from "./Reveal";
 
 
 
@@ -60,7 +61,7 @@ export default function AboutSection({ content }: AboutSectionProps) {
   return (
     <section id="about" className="landing-section relative overflow-hidden w-full bg-[#0d0d0d] flex flex-col scroll-mt-24">
       {/* ── IMAGE CAROUSEL CONTAINER (TOP HALF) ── */}
-      <div className="relative w-full h-[280px] sm:h-[380px] md:h-[480px] lg:h-[560px] overflow-hidden bg-black flex items-center justify-center">
+      <Reveal className="relative w-full h-[280px] sm:h-[380px] md:h-[480px] lg:h-[560px] overflow-hidden bg-black flex items-center justify-center" y={16}>
         <AnimatePresence initial={false}>
           <motion.div
             key={currentIndex}
@@ -120,7 +121,7 @@ export default function AboutSection({ content }: AboutSectionProps) {
             />
           ))}
         </div>
-      </div>
+      </Reveal>
 
       {/* ── TEXT CONTENT SECTION (BOTTOM HALF) ── */}
       <div
@@ -138,22 +139,18 @@ export default function AboutSection({ content }: AboutSectionProps) {
           }}
         />
 
-        <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
-          {/* Centered Title with a very subtle drop shadow */}
-          <h2
-            className="mb-10 text-center text-6xl font-extrabold tracking-widest title-header"
-          >
+        <Reveal className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+          <h2 className="mb-10 text-center text-6xl font-extrabold tracking-widest title-header">
             {content.title}
           </h2>
 
-          {/* Centered Description Text */}
-          <p 
+          <p
             className="text-zinc-200 text-sm sm:text-base md:text-lg leading-relaxed max-w-4xl px-4 font-normal tracking-wide whitespace-pre-wrap"
             style={{ textAlign: content.textAlign || "center" }}
           >
             {content.body}
           </p>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

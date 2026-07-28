@@ -5,4 +5,6 @@ export { default as CTASection } from "./components/CTASection";
 export { default as EventsSection } from "./components/EventsSection";
 export { default as FAQSection } from "./components/FAQSection";
 export { default as FooterSection } from "./components/FooterSection";
+export { default as HeroCopy } from "./components/HeroCopy";
 export { default as MeetTheOfficersSection } from "./components/MeetTheOfficersSection";
+export { Reveal, RevealStagger } from "./components/Reveal";

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import ContactUsForm from "./ContactUsForm";
+import { Reveal } from "./Reveal";
 
 export default function CTASection() {
   const [showForm, setShowForm] = useState(false);
@@ -20,7 +21,7 @@ export default function CTASection() {
             <ContactUsForm onBack={() => setShowForm(false)} />
           </motion.div>
         ) : (
-          <>
+          <Reveal className="flex flex-col items-center gap-4">
             <h2
               className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-widest title-header"
               style={{
@@ -44,7 +45,7 @@ export default function CTASection() {
             >
               Contact Us
             </button>
-          </>
+          </Reveal>
         )}
       </div>
     </section>
