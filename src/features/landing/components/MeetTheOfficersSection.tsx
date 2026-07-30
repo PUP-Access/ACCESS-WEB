@@ -3,12 +3,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { OfficersSectionContent } from "@/features/cms";
+import { Reveal, RevealStagger } from "./Reveal";
 
 type MeetTheOfficersSectionProps = {
   content: OfficersSectionContent;
 };
 
 export default function MeetTheOfficersSection({ content }: MeetTheOfficersSectionProps) {
+  const parts = content.parts || [];
+
   return (
     <section id="officers" className="landing-section scroll-mt-24 relative overflow-hidden py-16 px-5 sm:px-8 md:px-16 lg:px-24">
       <div
@@ -41,31 +44,36 @@ export default function MeetTheOfficersSection({ content }: MeetTheOfficersSecti
       </div>
 
       <div className="relative z-20 mx-auto max-w-5xl w-full">
-        <h2 className="mb-10 text-center text-6xl font-extrabold tracking-widest title-header">
-          {content.title}
-        </h2>
+        <Reveal>
+          <h2 className="mb-10 text-center text-6xl font-extrabold tracking-widest title-header">
+            {content.title}
+          </h2>
+          <p
+            className="mb-12 text-center text-sm sm:text-base max-w-lg mx-auto leading-relaxed"
+            style={{ color: "rgb(255, 255, 255)" }}
+          >
+            {content.subtitle}
+          </p>
+        </Reveal>
 
-        <p
-          className="mb-12 text-center text-sm sm:text-base max-w-lg mx-auto leading-relaxed"
-          style={{ color: "rgb(255, 255, 255)" }}
-        >
-          {content.subtitle}
-        </p>
-
-        <div className="mx-auto flex max-w-4xl flex-col sm:flex-row flex-wrap items-center justify-center gap-4 sm:gap-6">
-          {(content.parts || []).map((part) => (
-            <Link
-              key={part.id}
-              href={part.link}
-              className="inline-flex items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-8 py-5 text-sm sm:text-base font-semibold text-white shadow-[0_12px_40px_rgba(0,0,0,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#F26223]/60 hover:bg-[#F26223]/20 hover:shadow-[0_16px_48px_rgba(242,98,35,0.35)] text-center w-full sm:w-auto"
-            >
-              {part.label}
-            </Link>
-          ))}
-          {(!content.parts || content.parts.length === 0) && (
-            <div className="text-white/60">No buttons configured.</div>
-          )}
-        </div>
+        {parts.length > 0 ? (
+          <RevealStagger
+            className="mx-auto flex max-w-4xl flex-col sm:flex-row flex-wrap items-center justify-center gap-4 sm:gap-6"
+            itemClassName="w-full sm:w-auto"
+          >
+            {parts.map((part) => (
+              <Link
+                key={part.id}
+                href={part.link}
+                className="inline-flex w-full items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-8 py-5 text-sm sm:text-base font-semibold text-white shadow-[0_12px_40px_rgba(0,0,0,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#F26223]/60 hover:bg-[#F26223]/20 hover:shadow-[0_16px_48px_rgba(242,98,35,0.35)] text-center"
+              >
+                {part.label}
+              </Link>
+            ))}
+          </RevealStagger>
+        ) : (
+          <div className="text-center text-white/60">No buttons configured.</div>
+        )}
       </div>
     </section>
   );
