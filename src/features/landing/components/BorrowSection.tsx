@@ -6,7 +6,11 @@ import { useState } from "react";
 import BorrowRequestForm from "./BorrowRequestForm";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser-client";
 
-export default function BorrowSection() {
+type BorrowSectionProps = {
+  equipments?: { group: string; items: { name: string; available: number; unit?: string | null }[] }[];
+};
+
+export default function BorrowSection({ equipments = [] }: BorrowSectionProps) {
   const [showForm, setShowForm] = useState(false);
   const router = useRouter();
 
@@ -77,11 +81,11 @@ export default function BorrowSection() {
             transition={{ duration: 0.4 }}
             className="mt-10 w-full flex justify-center"
           >
-            <BorrowRequestForm onBackToLanding={() => setShowForm(false)} />
+            <BorrowRequestForm onBackToLanding={() => setShowForm(false)} equipments={equipments} />
           </motion.div>
         ) : (
           <>
-            {/* Card */}
+            {/* Card 
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -112,6 +116,7 @@ export default function BorrowSection() {
                 Borrow Equipments{"\n"}and Materials
               </p>
             </motion.div>
+            */}
 
             {/* Action Buttons */}
             <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-5 w-full">

@@ -9,6 +9,7 @@ import {
 } from "../components/admin-ui";
 import { getContactMessagesForAdmin } from "@/features/cms";
 import { markContactMessageReadAction } from "@/features/cms/actions/cms.actions";
+import AdminMessageReply from "./AdminMessageReply";
 
 export const dynamic = "force-dynamic";
 
@@ -71,14 +72,21 @@ export default async function AdminContactMessagesPage({
                   <p className="mt-1 text-xs text-white/35">{formatDate(message.created_at)}</p>
                 </div>
 
-                {!message.is_read && (
-                  <form action={handleMarkRead}>
-                    <input type="hidden" name="id" value={message.id} />
-                    <button type="submit" className={adminBtnMutedClass}>
-                      Mark as read
-                    </button>
-                  </form>
-                )}
+                <div className="flex items-center gap-2">
+                  <AdminMessageReply 
+                    messageId={message.id} 
+                    userEmail={message.email} 
+                    originalSubject={message.purpose || ""} 
+                  />
+                  {!message.is_read && (
+                    <form action={handleMarkRead}>
+                      <input type="hidden" name="id" value={message.id} />
+                      <button type="submit" className={adminBtnMutedClass}>
+                        Mark as read
+                      </button>
+                    </form>
+                  )}
+                </div>
               </div>
 
               <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">

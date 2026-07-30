@@ -25,7 +25,8 @@ const INITIAL_FORM: ContactFormData = {
   concern: "",
 };
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.com$/i;
+const PH_NUMBER_PATTERN = /^[9]\d{9}$/;
 
 type FormErrors = Partial<Record<keyof ContactFormData | "form", string>>;
 
@@ -47,10 +48,20 @@ function validateForm(form: ContactFormData): FormErrors {
     errors.email = "Enter a valid email address.";
   }
   if (!form.courseYearSection.trim()) errors.courseYearSection = "Course, year, and section is required.";
-  if (!form.contactNumber.trim()) errors.contactNumber = "Contact number is required.";
+  
+  if (!form.contactNumber.trim()) {
+    errors.contactNumber = "Contact number is required.";
+  } else if (!PH_NUMBER_PATTERN.test(form.contactNumber.trim())) {
+    errors.contactNumber = "Enter a valid PH number starting with 9 (e.g. 9123456789).";
+  }
+
   if (!form.organization.trim()) errors.organization = "Organization is required.";
   if (!form.purpose.trim()) errors.purpose = "Purpose is required.";
-  if (!form.concern.trim()) errors.concern = "Concern is required.";
+  if (!form.concern.trim()) {
+    errors.concern = "Concern is required.";
+  } else if (form.concern.trim().split(/\s+/).filter(Boolean).length > 512) {
+    errors.concern = "Concern cannot exceed 512 words.";
+  }
 
   return errors;
 }
@@ -133,7 +144,7 @@ export default function ContactUsForm({ onBack }: ContactUsFormProps) {
     formData.set("fullName", form.fullName);
     formData.set("email", form.email);
     formData.set("courseYearSection", form.courseYearSection);
-    formData.set("contactNumber", form.contactNumber);
+    formData.set("contactNumber", `+63 ${form.contactNumber}`);
     formData.set("organization", form.organization);
     formData.set("purpose", form.purpose);
     formData.set("concern", form.concern);
@@ -214,12 +225,32 @@ export default function ContactUsForm({ onBack }: ContactUsFormProps) {
               </div>
               <div>
                 <FieldLabel required>Contact Number</FieldLabel>
-                <TextInput
-                  value={form.contactNumber}
-                  onChange={(v) => updateField("contactNumber", v)}
-                  placeholder="(+63) 000 000 0000"
-                  error={fieldErrors.contactNumber}
-                />
+                <div className="flex gap-2 items-start">
+                  <div className="flex items-center justify-center gap-1.5 rounded-lg bg-white/20 px-3 py-2.5 text-sm font-medium text-white shadow-sm ring-1 ring-inset ring-white/10 w-[80px]">
+                    <span>🇵🇭</span>
+                    <span>+63</span>
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      value={form.contactNumber}
+                      onChange={(e) => {
+                        const cleaned = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        updateField("contactNumber", cleaned);
+                      }}
+                      placeholder="912 345 6789"
+                      aria-invalid={!!fieldErrors.contactNumber}
+                      className={`w-full rounded-lg border-0 bg-white px-3 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 outline-none focus:ring-2 ${
+                        fieldErrors.contactNumber
+                          ? "ring-2 ring-red-400 focus:ring-red-400"
+                          : "focus:ring-[#F26223]/50"
+                      }`}
+                    />
+                  </div>
+                </div>
+                {fieldErrors.contactNumber && (
+                  <p className="mt-1 text-xs text-red-300">{fieldErrors.contactNumber}</p>
+                )}
               </div>
               <div>
                 <FieldLabel required>Organization</FieldLabel>

@@ -45,12 +45,16 @@ export const UpdateFAQItemSchema = FAQItemSchema.partial().extend({
 
 export const ContactMessageSchema = z.object({
   fullName: z.string().min(1),
-  email: z.string().email(),
+  email: z.string().email().refine((val) => val.toLowerCase().endsWith('.com'), {
+    message: "Email must end with .com",
+  }),
   courseYearSection: z.string().min(1),
-  contactNumber: z.string().min(1),
+  contactNumber: z.string().regex(/^\+63\s9\d{9}$/, { message: "Enter a valid PH number starting with 9" }),
   organization: z.string().min(1),
   purpose: z.string().min(1),
-  concern: z.string().min(1),
+  concern: z.string().min(1).refine((val) => val.trim().split(/\s+/).length <= 512, {
+    message: "Concern cannot exceed 512 words",
+  }),
 });
 
 export const BorrowRequestSchema = z.object({

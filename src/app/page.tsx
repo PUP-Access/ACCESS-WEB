@@ -16,6 +16,7 @@ import {
   getHeroContent,
   getOfficersSectionContent,
 } from "@/features/cms";
+import { getAllEquipmentsPublic } from "@/features/inventory/services/equipments.admin.service";
 import { CrystalDice3D, FloatingBlocks, type CrystalConfig } from "@/features/effects";
 import { unstable_noStore as noStore } from "next/cache";
 
@@ -37,12 +38,25 @@ const COMBINED_CRYSTALS: CrystalConfig[] = [
 export default async function LandingPage() {
   noStore();
 
-  const [hero, about, officersSection, faqs] = await Promise.all([
+  const [hero, about, officersSection, faqs, equipmentsRaw] = await Promise.all([
     getHeroContent(),
     getAboutContent(),
     getOfficersSectionContent(),
     getActiveFAQs(),
+    getAllEquipmentsPublic(),
   ]);
+
+  // Group equipments by category for the form
+  const groupedEquipmentsMap = equipmentsRaw.reduce((acc, eq) => {
+    const cat = eq.category;
+    if (!acc[cat]) {
+      acc[cat] = { group: cat, items: [] };
+    }
+    acc[cat].items.push({ name: eq.name, available: eq.quantity, unit: eq.unit });
+    return acc;
+  }, {} as Record<string, { group: string; items: { name: string; available: number; unit: string | null }[] }>);
+
+  const groupedEquipments = Object.values(groupedEquipmentsMap).sort((a, b) => a.group.localeCompare(b.group));
 
   const faqItems =
     faqs.length > 0
@@ -168,19 +182,21 @@ export default async function LandingPage() {
       
       <div className="relative">
         {/* Sticky Background & Crystals seamlessly spanning the sections */}
-        <div className="sticky top-0 h-screen w-full z-0 overflow-hidden pointer-events-none">
-          <Image
-            src="/EventsBG.webp"
-            alt=""
-            fill
-            className="object-cover"
-          />
-          <div className="absolute inset-0" style={{ background: "#862520" }} />
-          <CrystalDice3D crystals={COMBINED_CRYSTALS} cameraZ={13} className="z-[1]" />
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="sticky top-0 h-screen w-full overflow-hidden">
+            <Image
+              src="/EventsBG.webp"
+              alt=""
+              fill
+              className="object-cover"
+            />
+            <div className="absolute inset-0" style={{ background: "#862520" }} />
+            <CrystalDice3D crystals={COMBINED_CRYSTALS} cameraZ={13} className="z-[1]" />
+          </div>
         </div>
         
         {/* Transparent Overlays */}
-        <div className="relative z-10 -mt-[100vh] overflow-hidden">
+        <div className="relative z-10 overflow-hidden">
           
           {/* ── Seamless Decorative Blobs ── */}
           {/* Black Blobs */}
@@ -200,7 +216,7 @@ export default async function LandingPage() {
 
           <EventsSection />
           <MeetTheOfficersSection content={officersSection} />
-          <BorrowSection />
+          <BorrowSection equipments={groupedEquipments} />
           <FAQSection items={faqItems} />
           <CTASection />
           <FooterSection />

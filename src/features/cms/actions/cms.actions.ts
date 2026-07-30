@@ -340,3 +340,51 @@ export async function markContactMessageReadAction(id: string): Promise<ActionSt
     };
   }
 }
+
+export async function replyContactMessageAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  try {
+    const id = formData.get("id") as string;
+    const email = formData.get("email") as string;
+    const subject = formData.get("subject") as string;
+    const message = formData.get("message") as string;
+
+    if (!id || !email || !subject || !message) {
+      return { status: "error", message: "Missing required fields" };
+    }
+
+    if (!process.env.RESEND_API_KEY) {
+      return { status: "error", message: "RESEND_API_KEY is not configured on the server." };
+    }
+
+    const { Resend } = await import("resend");
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    const { error } = await resend.emails.send({
+      from: "ACCESS <noreply@pupaccess.org>",
+      to: email,
+      subject: subject,
+      text: message,
+    });
+
+    if (error) {
+      console.error("Resend error:", error);
+      return { status: "error", message: error.message || "Failed to send email" };
+    }
+
+    // Mark as read after replying
+    await markContactMessageRead(id);
+    revalidatePath("/admin/contact-messages");
+    revalidatePath("/admin");
+
+    return { status: "success", message: "Reply sent successfully." };
+  } catch (err) {
+    console.error("Reply error:", err);
+    return {
+      status: "error",
+      message: getErrorMessage(err, "Failed to send reply"),
+    };
+  }
+}
