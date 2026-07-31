@@ -93,9 +93,62 @@ export async function updateBorrowRequestStatus(id: string, status: string) {
   await checkRole({ roles: "Admin" });
   const supabase = createSupabaseAdminClient();
 
+  const { data: request, error: fetchError } = await supabase
+    .from("BorrowRequests")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (fetchError || !request) {
+    throw new Error("Borrow request not found");
+  }
+
+  const deductedStatuses = ["Pending", "Approved", "Active"];
+  const wasDeducted = deductedStatuses.includes(request.status || "");
+  const willBeDeducted = deductedStatuses.includes(status);
+
+  if (wasDeducted !== willBeDeducted && request.requested_item) {
+    const items = request.requested_item.split(", ");
+    
+    for (const itemStr of items) {
+      const match = itemStr.match(/(.+?) x(\d+) \((.+?)\)/);
+      if (match) {
+        const name = match[1];
+        const qty = parseInt(match[2], 10);
+        const category = match[3];
+
+        const { data: equipment } = await supabase
+          .from("Equipments")
+          .select("*")
+          .eq("name", name)
+          .eq("category", category)
+          .single();
+
+        if (equipment) {
+          let newQuantity = equipment.quantity;
+          if (!wasDeducted && willBeDeducted) {
+            newQuantity -= qty;
+            if (newQuantity < 0) {
+              throw new Error(`Not enough inventory for ${name}. Available: ${equipment.quantity}, Requested: ${qty}`);
+            }
+          } else if (wasDeducted && !willBeDeducted) {
+            newQuantity += qty;
+          }
+
+          const { error: updateInvError } = await supabase
+            .from("Equipments")
+            .update({ quantity: newQuantity })
+            .eq("id", equipment.id);
+
+          if (updateInvError) throw updateInvError;
+        }
+      }
+    }
+  }
+
   const { error } = await supabase
     .from("BorrowRequests")
-    .update({ status })
+    .update({ status: status as any })
     .eq("id", id);
 
   throwSupabaseError(error);

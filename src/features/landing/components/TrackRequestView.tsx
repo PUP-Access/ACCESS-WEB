@@ -83,7 +83,7 @@ export default function TrackRequestView({ onBackToLanding }: TrackRequestViewPr
             <p>You have no borrow requests.</p>
           </div>
         ) : (
-          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
             {requests.map((req) => {
               const statusColor = statusColors[req.status] || "bg-gray-500/20 text-gray-200 border-gray-500/50";
               return (

@@ -258,6 +258,38 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (form.startDate && form.endDate) {
+      const start = toDateTime(form.startDate, form.startHour, form.startMinute, form.startPeriod);
+      const end = toDateTime(form.endDate, form.endHour, form.endMinute, form.endPeriod);
+      if (start && end && end <= start) {
+        const newEnd = new Date(start.getTime() + 30 * 60000);
+        const offset = newEnd.getTimezoneOffset();
+        const adjustedDateStr = new Date(newEnd.getTime() - offset * 60000).toISOString().split("T")[0];
+        let h24 = newEnd.getHours();
+        const m = newEnd.getMinutes();
+        const period = h24 >= 12 ? "PM" : "AM";
+        let h12 = h24 % 12;
+        if (h12 === 0) h12 = 12;
+        
+        setForm((prev) => ({
+          ...prev,
+          endDate: adjustedDateStr,
+          endHour: String(h12).padStart(2, "0"),
+          endMinute: String(m).padStart(2, "0"),
+          endPeriod: period,
+        }));
+        
+        setFieldErrors((prev) => {
+          if (!prev.endDate) return prev;
+          const next = { ...prev };
+          delete next.endDate;
+          return next;
+        });
+      }
+    }
+  }, [form.startDate, form.startHour, form.startMinute, form.startPeriod, form.endDate, form.endHour, form.endMinute, form.endPeriod]);
+
   const updateField = <K extends keyof BorrowFormData>(key: K, value: BorrowFormData[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setFieldErrors((prev) => {
@@ -462,10 +494,10 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                         }}
                         placeholder="912 345 6789"
                         aria-invalid={!!fieldErrors.contactNumber}
-                        className={`w-full rounded-lg border-0 bg-white px-3 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 outline-none focus:ring-2 ${
+                        className={`w-full rounded-lg border bg-white/10 backdrop-blur-md px-3 py-2.5 text-sm text-white placeholder:text-white/50 outline-none transition-colors focus:bg-white/20 ${
                           fieldErrors.contactNumber
-                            ? "ring-2 ring-red-400 focus:ring-red-400"
-                            : "focus:ring-[#F26223]/50"
+                            ? "border-red-400/50 focus:border-red-400 focus:ring-2 focus:ring-red-400/50"
+                            : "border-white/20 hover:border-white/30 focus:border-[#F26223] focus:ring-2 focus:ring-[#F26223]/30"
                         }`}
                       />
                     </div>
@@ -502,7 +534,7 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                   onChange={(e) => updateField("additionalInfo", e.target.value)}
                   placeholder="Type here..."
                   rows={4}
-                  className="w-full resize-none rounded-lg border-0 bg-white px-3 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-[#F26223]/50"
+                  className="w-full resize-none rounded-lg border bg-white/10 backdrop-blur-md px-3 py-2.5 text-sm text-white placeholder:text-white/50 outline-none transition-colors border-white/20 hover:border-white/30 focus:bg-white/20 focus:border-[#F26223] focus:ring-2 focus:ring-[#F26223]/30"
                 />
               </div>
             </div>
@@ -574,7 +606,7 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                           updateField("currentItemQuantity", 1);
                         }
                       }}
-                      className="w-full rounded-lg border bg-white/10 backdrop-blur-md px-3 py-2.5 text-center text-sm text-white placeholder:text-white/50 outline-none transition-colors border-white/20 hover:border-white/30 focus:bg-white/20 focus:border-[#F26223] focus:ring-2 focus:ring-[#F26223]/30"
+                      className="w-full rounded-lg border bg-white/10 backdrop-blur-md px-3 py-2.5 text-center text-sm text-white placeholder:text-white/50 outline-none transition-colors border-white/20 hover:border-white/30 focus:bg-white/20 focus:border-[#F26223] focus:ring-2 focus:ring-[#F26223]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                   </div>
 
@@ -877,6 +909,7 @@ function DateTimeRange({
             minute={endMinute}
             period={endPeriod}
             dateError={endDateError}
+            minDateObj={toDateTime(startDate, startHour, startMinute, startPeriod)}
             onDateChange={onEndDateChange}
             onHourChange={onEndHourChange}
             onMinuteChange={onEndMinuteChange}
@@ -929,6 +962,7 @@ function CustomDateTimePickerPopover({
   hour,
   minute,
   period,
+  minDateObj,
   onDateChange,
   onHourChange,
   onMinuteChange,
@@ -936,6 +970,10 @@ function CustomDateTimePickerPopover({
   onClose,
 }: any) {
   const [viewDate, setViewDate] = useState(() => (date ? new Date(date) : new Date()));
+
+  const minDateStr = minDateObj ? new Date(minDateObj.getTime() - minDateObj.getTimezoneOffset() * 60000).toISOString().split("T")[0] : null;
+  const minH24 = minDateObj ? minDateObj.getHours() : null;
+  const minMInt = minDateObj ? minDateObj.getMinutes() : null;
 
   const now = new Date();
   const todayOffset = now.getTimezoneOffset();
@@ -1034,7 +1072,7 @@ function CustomDateTimePickerPopover({
               .toISOString()
               .split("T")[0];
             const isSelected = adjustedDateStr === date;
-            const isPastDate = adjustedDateStr < todayStr;
+            const isPastDate = adjustedDateStr < todayStr || (minDateStr !== null && adjustedDateStr < minDateStr);
             return (
               <button
                 key={d}
@@ -1065,7 +1103,12 @@ function CustomDateTimePickerPopover({
           const isSelected =
             slot.hour === hour && slot.minute === minute && slot.period === period;
           
-          const isPastTime = date === todayStr && (slot.h24 < currentHour24 || (slot.h24 === currentHour24 && slot.mInt < currentMinute));
+          let isPastTime = date === todayStr && (slot.h24 < currentHour24 || (slot.h24 === currentHour24 && slot.mInt < currentMinute));
+          if (minDateStr && date === minDateStr) {
+            if (slot.h24 < minH24! || (slot.h24 === minH24 && slot.mInt <= minMInt!)) {
+              isPastTime = true;
+            }
+          }
 
           return (
             <button
@@ -1103,6 +1146,7 @@ function DateTimeGroup({
   minute,
   period,
   dateError,
+  minDateObj,
   onDateChange,
   onHourChange,
   onMinuteChange,
@@ -1113,6 +1157,7 @@ function DateTimeGroup({
   minute: string;
   period: string;
   dateError?: string;
+  minDateObj?: Date | null;
   onDateChange: (v: string) => void;
   onHourChange: (v: string) => void;
   onMinuteChange: (v: string) => void;
@@ -1165,6 +1210,7 @@ function DateTimeGroup({
             hour={hour}
             minute={minute}
             period={period}
+            minDateObj={minDateObj}
             onDateChange={onDateChange}
             onHourChange={onHourChange}
             onMinuteChange={onMinuteChange}

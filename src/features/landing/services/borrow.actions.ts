@@ -126,6 +126,38 @@ export async function submitBorrowRequestAction(
       .from("access_web_assets")
       .getPublicUrl(filePath);
 
+    const items = parsed.data.item.split(", ");
+    for (const itemStr of items) {
+      const match = itemStr.match(/(.+?) x(\d+) \((.+?)\)/);
+      if (match) {
+        const name = match[1];
+        const qty = parseInt(match[2], 10);
+        const category = match[3];
+
+        const { data: equipment } = await adminSupabase
+          .from("Equipments")
+          .select("*")
+          .eq("name", name)
+          .eq("category", category)
+          .single();
+
+        if (!equipment) {
+          throw new Error(`Equipment not found: ${name}`);
+        }
+
+        if (equipment.quantity < qty) {
+          throw new Error(`Not enough inventory for ${name}. Available: ${equipment.quantity}, Requested: ${qty}`);
+        }
+
+        const { error: updateInvError } = await adminSupabase
+          .from("Equipments")
+          .update({ quantity: equipment.quantity - qty })
+          .eq("id", equipment.id);
+
+        if (updateInvError) throw updateInvError;
+      }
+    }
+
     const { error: insertError } = await adminSupabase.from("BorrowRequests").insert({
       user_id: user.id,
       borrower_contact_name: parsed.data.fullName,
