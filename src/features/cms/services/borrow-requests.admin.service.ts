@@ -88,3 +88,15 @@ export async function getRecentBorrowRequests(limit = 5) {
   throwSupabaseError(error);
   return data ?? [];
 }
+
+export async function updateBorrowRequestStatus(id: string, status: string) {
+  await checkRole({ roles: "Admin" });
+  const supabase = createSupabaseAdminClient();
+
+  const { error } = await supabase
+    .from("BorrowRequests")
+    .update({ status })
+    .eq("id", id);
+
+  throwSupabaseError(error);
+}

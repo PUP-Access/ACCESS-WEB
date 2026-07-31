@@ -155,3 +155,33 @@ export async function submitBorrowRequestAction(
     };
   }
 }
+
+export async function getMyBorrowRequestsAction() {
+  try {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { status: "error", message: "Not authenticated", data: [] };
+    }
+
+    const adminSupabase = createSupabaseAdminClient();
+    const { data, error } = await adminSupabase
+      .from("BorrowRequests")
+      .select("id, requested_item, requested_start_date, requested_end_date, status, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return { status: "success", data };
+  } catch (err) {
+    return {
+      status: "error",
+      message: getErrorMessage(err, "Failed to fetch borrow requests"),
+      data: [],
+    };
+  }
+}

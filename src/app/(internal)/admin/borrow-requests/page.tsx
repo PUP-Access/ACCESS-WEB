@@ -7,6 +7,7 @@ import {
   AdminPageShell,
 } from "../components/admin-ui";
 import { getBorrowRequestsForAdmin } from "@/features/cms";
+import StatusSelect from "./components/StatusSelect";
 
 export const dynamic = "force-dynamic";
 
@@ -80,7 +81,7 @@ export default async function AdminBorrowRequestsPage({
                   <p>{formatDate(request.requested_end_date)}</p>
                 </td>
                 <td>
-                  <span className={statusBadgeClass(request.status)}>{request.status ?? "Pending"}</span>
+                  <StatusSelect id={request.id} currentStatus={request.status ?? "Pending"} />
                 </td>
                 <td className="text-white/45">{formatDate(request.created_at)}</td>
               </tr>

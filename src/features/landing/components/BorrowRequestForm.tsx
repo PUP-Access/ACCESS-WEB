@@ -15,7 +15,7 @@ export type BorrowFormData = {
   additionalInfo: string;
   currentItemCategory: string;
   currentItem: string;
-  currentItemQuantity: number;
+  currentItemQuantity: number | "";
   borrowItems: { category: string; item: string; quantity: number }[];
   startDate: string;
   startHour: string;
@@ -172,47 +172,47 @@ function SelectInput({
   error?: string;
 }) {
   return (
-    <div>
+    <div className="relative">
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={!!error}
-        className={`w-full rounded-lg border bg-white/10 backdrop-blur-md px-2 py-2.5 text-sm text-white outline-none transition-colors focus:bg-white/20 ${
+        className={`appearance-none w-full rounded-lg border bg-white/10 backdrop-blur-md px-3 py-2.5 pr-10 text-sm text-white outline-none transition-colors focus:bg-white/20 ${
           error ? "border-red-400/50 focus:border-red-400 focus:ring-2 focus:ring-red-400/50" : "border-white/20 hover:border-white/30 focus:border-[#F26223] focus:ring-2 focus:ring-[#F26223]/30"
         } ${className}`}
       >
         {placeholder && (
-          <option value="" disabled className="text-gray-900 bg-white">
+          <option value="" disabled className="bg-neutral-800 text-white/50">
             {placeholder}
           </option>
         )}
         {options.map((opt, i) => {
           if (typeof opt === "string") {
             return (
-              <option key={opt} value={opt} className="text-gray-900 bg-white">
+              <option key={opt} value={opt} className="bg-neutral-800 text-white">
                 {opt}
               </option>
             );
           }
           if ('value' in opt) {
             return (
-              <option key={opt.value} value={opt.value} disabled={opt.disabled} className="text-gray-900 bg-white disabled:text-gray-400 disabled:bg-gray-100">
+              <option key={opt.value} value={opt.value} disabled={opt.disabled} className="bg-neutral-800 text-white disabled:text-white/30 disabled:bg-neutral-900">
                 {opt.label}
               </option>
             );
           }
           return (
-            <optgroup key={opt.group} label={opt.group} className="text-gray-900 bg-gray-100 font-bold">
+            <optgroup key={opt.group} label={opt.group} className="bg-neutral-900 text-white/70 font-bold">
               {opt.items.map((item) => {
                 if (typeof item === "string") {
                   return (
-                    <option key={item} value={item} className="text-gray-900 bg-white font-normal">
+                    <option key={item} value={item} className="bg-neutral-800 text-white font-normal">
                       {item}
                     </option>
                   );
                 }
                 return (
-                  <option key={item.value} value={item.value} disabled={item.disabled} className="text-gray-900 bg-white font-normal disabled:text-gray-400 disabled:bg-gray-100">
+                  <option key={item.value} value={item.value} disabled={item.disabled} className="bg-neutral-800 text-white font-normal disabled:text-white/30 disabled:bg-neutral-900">
                     {item.label}
                   </option>
                 );
@@ -221,6 +221,11 @@ function SelectInput({
           );
         })}
       </select>
+      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white/70">
+        <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+        </svg>
+      </div>
       {error && <p className="mt-1 text-xs text-red-300">{error}</p>}
     </div>
   );
@@ -505,7 +510,7 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row gap-4 items-end">
-                  <div className="flex-1 w-full">
+                  <div className="w-full sm:w-[28%] shrink-0">
                     <FieldLabel>Choose category</FieldLabel>
                     <SelectInput
                       value={form.currentItemCategory}
@@ -539,7 +544,7 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                     />
                   </div>
 
-                  <div className="w-full sm:w-20">
+                  <div className="w-full sm:w-24 shrink-0">
                     <FieldLabel>Qty</FieldLabel>
                     <input
                       type="number"
@@ -551,15 +556,25 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                       }
                       value={form.currentItemQuantity}
                       onChange={(e) => {
-                        let val = parseInt(e.target.value, 10);
-                        if (isNaN(val) || val < 1) val = 1;
+                        const raw = e.target.value;
+                        if (raw === "") {
+                          updateField("currentItemQuantity", "");
+                          return;
+                        }
+                        let val = parseInt(raw, 10);
+                        if (isNaN(val)) return;
                         const max = equipments
                           .find(g => g.group === form.currentItemCategory)
                           ?.items.find(i => i.name === form.currentItem)?.available || 1;
                         if (val > max) val = max;
                         updateField("currentItemQuantity", val);
                       }}
-                      className="w-full rounded-lg border bg-white/10 backdrop-blur-md px-3 py-2.5 text-sm text-white placeholder:text-white/50 outline-none transition-colors border-white/20 hover:border-white/30 focus:bg-white/20 focus:border-[#F26223] focus:ring-2 focus:ring-[#F26223]/30"
+                      onBlur={() => {
+                        if (form.currentItemQuantity === "" || form.currentItemQuantity < 1) {
+                          updateField("currentItemQuantity", 1);
+                        }
+                      }}
+                      className="w-full rounded-lg border bg-white/10 backdrop-blur-md px-3 py-2.5 text-center text-sm text-white placeholder:text-white/50 outline-none transition-colors border-white/20 hover:border-white/30 focus:bg-white/20 focus:border-[#F26223] focus:ring-2 focus:ring-[#F26223]/30"
                     />
                   </div>
 
@@ -573,7 +588,7 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                         if (!exists) {
                           updateField("borrowItems", [
                             ...(form.borrowItems || []),
-                            { category: form.currentItemCategory, item: form.currentItem, quantity: form.currentItemQuantity }
+                            { category: form.currentItemCategory, item: form.currentItem, quantity: form.currentItemQuantity || 1 }
                           ]);
                           updateField("currentItem", "");
                           updateField("currentItemQuantity", 1);

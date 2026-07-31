@@ -19,6 +19,7 @@ import {
   updateFAQItem,
 } from "../services/faq.service";
 import { markContactMessageRead } from "../services/contact-messages.service";
+import { updateBorrowRequestStatus } from "../services/borrow-requests.admin.service";
 import { FAQItemSchema, UpdateFAQItemSchema } from "../schemas";
 
 type ActionState =
@@ -385,6 +386,20 @@ export async function replyContactMessageAction(
     return {
       status: "error",
       message: getErrorMessage(err, "Failed to send reply"),
+    };
+  }
+}
+
+export async function updateBorrowRequestStatusAction(id: string, status: string): Promise<ActionState> {
+  try {
+    await updateBorrowRequestStatus(id, status);
+    revalidatePath("/admin/borrow-requests");
+    return { status: "success", message: "Status updated successfully." };
+  } catch (err) {
+    console.error("Update status error:", err);
+    return {
+      status: "error",
+      message: getErrorMessage(err, "Failed to update status"),
     };
   }
 }

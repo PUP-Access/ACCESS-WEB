@@ -115,7 +115,7 @@ export default async function AdminInventoryPage({ searchParams }: PageProps) {
           buildHref={(option) => `?category=${option}&page=1${currentQuery ? `&q=${currentQuery}` : ""}`}
         />
 
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:justify-between">
+        <div className="flex flex-col gap-6 items-start">
           <form className="flex w-full sm:w-auto items-center gap-3">
             <input
               type="text"
