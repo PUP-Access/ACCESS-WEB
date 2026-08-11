@@ -172,6 +172,8 @@ export async function submitBorrowRequestAction(
       requested_end_date: end.toISOString(),
       letter_file_url: publicUrlData.publicUrl,
       status: "Pending",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     });
 
     if (insertError) throw insertError;

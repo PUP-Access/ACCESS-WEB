@@ -18,7 +18,12 @@ import {
   deleteFAQItem,
   updateFAQItem,
 } from "../services/faq.service";
-import { markContactMessageRead } from "../services/contact-messages.service";
+import {
+  markContactMessageRead,
+  markContactMessageUnread,
+  deleteContactMessage,
+  archiveContactMessage,
+} from "../services/contact-messages.service";
 import { updateBorrowRequestStatus } from "../services/borrow-requests.admin.service";
 import { FAQItemSchema, UpdateFAQItemSchema } from "../schemas";
 
@@ -338,6 +343,57 @@ export async function markContactMessageReadAction(id: string): Promise<ActionSt
     return {
       status: "error",
       message: getErrorMessage(err, "Failed to mark message as read"),
+    };
+  }
+}
+
+export async function markContactMessageUnreadAction(id: string): Promise<ActionState> {
+  try {
+    await markContactMessageUnread(id);
+    revalidatePath("/admin/contact-messages");
+    revalidatePath("/admin");
+
+    return { status: "success" };
+  } catch (err) {
+    return {
+      status: "error",
+      message: getErrorMessage(err, "Failed to mark message as unread"),
+    };
+  }
+}
+
+export async function archiveContactMessageAction(
+  id: string,
+  isArchived: boolean = true
+): Promise<ActionState> {
+  try {
+    await archiveContactMessage(id, isArchived);
+    revalidatePath("/admin/contact-messages");
+    revalidatePath("/admin");
+
+    return {
+      status: "success",
+      message: isArchived ? "Message moved to archive." : "Message unarchived.",
+    };
+  } catch (err) {
+    return {
+      status: "error",
+      message: getErrorMessage(err, "Failed to update archive status"),
+    };
+  }
+}
+
+export async function deleteContactMessageAction(id: string): Promise<ActionState> {
+  try {
+    await deleteContactMessage(id);
+    revalidatePath("/admin/contact-messages");
+    revalidatePath("/admin");
+
+    return { status: "success", message: "Message deleted permanently." };
+  } catch (err) {
+    return {
+      status: "error",
+      message: getErrorMessage(err, "Failed to delete message"),
     };
   }
 }

@@ -11,7 +11,9 @@ export function LogInForm() {
   return (
     <form action={formAction} className="w-full space-y-5">
       {state.status === "error" && (
-        <p className="rounded-xl bg-red-500/15 px-4 py-3 text-sm text-red-300">{state.message}</p>
+        <p className="rounded-xl bg-red-500/20 border border-red-500/30 px-4 py-3 text-sm text-red-200">
+          {state.message}
+        </p>
       )}
 
       <div>
@@ -22,7 +24,7 @@ export function LogInForm() {
           required
           placeholder="Student Number"
           autoComplete="username"
-          className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-sm text-gray-800 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-[#F26223]/60"
+          className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-3.5 text-sm text-white placeholder:text-white/50 outline-none transition-all hover:border-orange-500/40 hover:bg-white/15 focus:bg-white/20 focus:border-[#F26223] focus:ring-2 focus:ring-[#F26223]/30"
         />
       </div>
 
@@ -34,12 +36,12 @@ export function LogInForm() {
           required
           placeholder="Password"
           autoComplete="current-password"
-          className="w-full rounded-xl border-0 bg-white px-4 py-3.5 pr-12 text-sm text-gray-800 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-[#F26223]/60"
+          className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-3.5 pr-12 text-sm text-white placeholder:text-white/50 outline-none transition-all hover:border-orange-500/40 hover:bg-white/15 focus:bg-white/20 focus:border-[#F26223] focus:ring-2 focus:ring-[#F26223]/30"
         />
         <button
           type="button"
           onClick={() => setShowPassword((prev) => !prev)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600"
+          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/50 transition-colors hover:text-white cursor-pointer"
           aria-label={showPassword ? "Hide password" : "Show password"}
         >
           {showPassword ? <EyeOffIcon /> : <EyeIcon />}
@@ -49,39 +51,40 @@ export function LogInForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-xl px-4 py-3.5 text-sm font-semibold text-white transition-all hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full rounded-xl px-4 py-3.5 text-sm font-bold text-white transition-all hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer shadow-[0_6px_20px_rgba(242,98,35,0.35)] hover:shadow-[0_8px_25px_rgba(242,98,35,0.5)]"
         style={{
           background: "linear-gradient(180deg, #F26223 0%, #C93A12 100%)",
-          boxShadow: "0 6px 20px rgba(242, 98, 35, 0.35)",
         }}
       >
         {isPending ? "Loading..." : "Log in"}
       </button>
 
       <div className="flex items-center justify-between gap-3 text-sm">
-        <label className="flex cursor-pointer items-center gap-2 text-white/85">
+        <label className="flex cursor-pointer items-center gap-2 text-white/85 select-none">
           <input
             type="checkbox"
             name="remember"
-            className="h-4 w-4 rounded border-white/30 bg-transparent accent-[#F26223]"
+            className="h-4 w-4 rounded border-white/30 bg-transparent accent-[#F26223] cursor-pointer"
           />
-          Remember me
+          <span>Remember me</span>
         </label>
-        <Link href="/auth/forgot-password" className="font-medium text-[#F26223] hover:text-[#ff7a3d]">
+        <Link href="/auth/forgot-password" className="font-medium text-[#F26223] hover:text-[#ff7a3d] transition-colors">
           Forgot Password
         </Link>
       </div>
 
-      <div className="relative py-1">
-        <div className="absolute inset-x-0 top-1/2 h-px bg-white/15" />
-        <p className="relative mx-auto w-fit px-3 text-xs text-white/60 backdrop-blur-sm">
+      {/* Clean Divider */}
+      <div className="relative flex items-center my-4">
+        <div className="flex-grow border-t border-white/15" />
+        <span className="flex-shrink mx-4 text-xs font-medium text-white/60">
           Don&apos;t have an account?
-        </p>
+        </span>
+        <div className="flex-grow border-t border-white/15" />
       </div>
 
       <Link
         href="/auth/register"
-        className="flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/15"
+        className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-white/10 px-4 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/15 hover:border-orange-500/40"
       >
         Sign up
       </Link>

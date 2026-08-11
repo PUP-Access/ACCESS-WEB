@@ -32,10 +32,10 @@ type FormErrors = Partial<Record<keyof ContactFormData | "form", string>>;
 
 const glassCardStyle: React.CSSProperties = {
   background: "rgba(255, 255, 255, 0.08)",
-  backdropFilter: "blur(12px)",
-  WebkitBackdropFilter: "blur(12px)",
-  border: "1px solid rgba(255, 255, 255, 0.15)",
-  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
+  backdropFilter: "blur(16px)",
+  WebkitBackdropFilter: "blur(16px)",
+  border: "1px solid rgba(255, 255, 255, 0.18)",
+  boxShadow: "0 12px 40px rgba(0, 0, 0, 0.35), 0 0 30px rgba(242, 98, 35, 0.12)",
 };
 
 function validateForm(form: ContactFormData): FormErrors {
@@ -72,7 +72,7 @@ type ContactUsFormProps = {
 
 function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label className="mb-1.5 block text-xs font-medium text-white/90">
+    <label className="mb-1.5 block text-xs font-semibold tracking-wide text-white/90">
       {children}
       {required && <span className="text-[#FFB89A]"> *</span>}
     </label>
@@ -100,11 +100,13 @@ function TextInput({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         aria-invalid={!!error}
-        className={`w-full rounded-lg border-0 bg-white px-3 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 outline-none focus:ring-2 ${
-          error ? "ring-2 ring-red-400 focus:ring-red-400" : "focus:ring-[#F26223]/50"
+        className={`w-full rounded-xl border bg-white/10 backdrop-blur-md px-3.5 py-3 text-sm text-white placeholder:text-white/50 outline-none transition-all ${
+          error
+            ? "border-red-400/50 ring-2 ring-red-400/30"
+            : "border-white/20 hover:border-orange-500/40 hover:bg-white/15 focus:bg-white/20 focus:border-[#F26223] focus:ring-2 focus:ring-[#F26223]/30"
         }`}
       />
-      {error && <p className="mt-1 text-xs text-red-300">{error}</p>}
+      {error && <p className="mt-1.5 text-xs text-red-300">{error}</p>}
     </div>
   );
 }
@@ -226,7 +228,7 @@ export default function ContactUsForm({ onBack }: ContactUsFormProps) {
               <div>
                 <FieldLabel required>Contact Number</FieldLabel>
                 <div className="flex gap-2 items-start">
-                  <div className="flex items-center justify-center gap-1.5 rounded-lg bg-white/20 px-3 py-2.5 text-sm font-medium text-white shadow-sm ring-1 ring-inset ring-white/10 w-[80px]">
+                  <div className="flex items-center justify-center gap-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 px-3.5 py-3 text-sm font-semibold text-white/90 shadow-sm shrink-0">
                     <span>🇵🇭</span>
                     <span>+63</span>
                   </div>
@@ -240,16 +242,16 @@ export default function ContactUsForm({ onBack }: ContactUsFormProps) {
                       }}
                       placeholder="912 345 6789"
                       aria-invalid={!!fieldErrors.contactNumber}
-                      className={`w-full rounded-lg border-0 bg-white px-3 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 outline-none focus:ring-2 ${
+                      className={`w-full rounded-xl border bg-white/10 backdrop-blur-md px-3.5 py-3 text-sm text-white placeholder:text-white/50 outline-none transition-all ${
                         fieldErrors.contactNumber
-                          ? "ring-2 ring-red-400 focus:ring-red-400"
-                          : "focus:ring-[#F26223]/50"
+                          ? "border-red-400/50 ring-2 ring-red-400/30"
+                          : "border-white/20 hover:border-orange-500/40 hover:bg-white/15 focus:bg-white/20 focus:border-[#F26223] focus:ring-2 focus:ring-[#F26223]/30"
                       }`}
                     />
                   </div>
                 </div>
                 {fieldErrors.contactNumber && (
-                  <p className="mt-1 text-xs text-red-300">{fieldErrors.contactNumber}</p>
+                  <p className="mt-1.5 text-xs text-red-300">{fieldErrors.contactNumber}</p>
                 )}
               </div>
               <div>
@@ -280,14 +282,14 @@ export default function ContactUsForm({ onBack }: ContactUsFormProps) {
                   placeholder="Type here..."
                   rows={4}
                   aria-invalid={!!fieldErrors.concern}
-                  className={`w-full resize-none rounded-lg border-0 bg-white px-3 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 outline-none focus:ring-2 ${
+                  className={`w-full resize-none rounded-xl border bg-white/10 backdrop-blur-md px-3.5 py-3 text-sm text-white placeholder:text-white/50 outline-none transition-all ${
                     fieldErrors.concern
-                      ? "ring-2 ring-red-400 focus:ring-red-400"
-                      : "focus:ring-[#F26223]/50"
+                      ? "border-red-400/50 ring-2 ring-red-400/30"
+                      : "border-white/20 hover:border-orange-500/40 hover:bg-white/15 focus:bg-white/20 focus:border-[#F26223] focus:ring-2 focus:ring-[#F26223]/30"
                   }`}
                 />
                 {fieldErrors.concern && (
-                  <p className="mt-1 text-xs text-red-300">{fieldErrors.concern}</p>
+                  <p className="mt-1.5 text-xs text-red-300">{fieldErrors.concern}</p>
                 )}
               </div>
             </div>
@@ -298,7 +300,7 @@ export default function ContactUsForm({ onBack }: ContactUsFormProps) {
               <button
                 type="button"
                 onClick={onBack}
-                className="rounded-xl px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:opacity-90"
+                className="rounded-xl px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:opacity-90 cursor-pointer"
                 style={{ background: "rgba(60, 30, 20, 0.85)" }}
               >
                 Back
@@ -306,7 +308,7 @@ export default function ContactUsForm({ onBack }: ContactUsFormProps) {
               <button
                 type="submit"
                 disabled={isPending}
-                className="rounded-xl px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:opacity-95 hover:shadow-[0_6px_20px_rgba(242,98,35,0.5)] disabled:opacity-60"
+                className="rounded-xl px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:opacity-95 hover:shadow-[0_6px_20px_rgba(242,98,35,0.5)] disabled:opacity-60 cursor-pointer"
                 style={{
                   background: "#F26223",
                   boxShadow: "0 4px 16px rgba(242,98,35,0.35)",
@@ -318,7 +320,7 @@ export default function ContactUsForm({ onBack }: ContactUsFormProps) {
             <button
               type="button"
               onClick={clearForm}
-              className="text-sm font-medium text-white/90 underline-offset-2 transition-colors hover:text-white hover:underline"
+              className="text-sm font-medium text-white/90 underline-offset-2 transition-colors hover:text-white hover:underline cursor-pointer"
             >
               Clear Request
             </button>

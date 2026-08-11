@@ -156,76 +156,120 @@ function TextInput({
   );
 }
 
-function SelectInput({
+type DropdownOption = {
+  value: string;
+  label: string;
+  disabled?: boolean;
+  available?: number;
+};
+
+function CustomDropdown({
   value,
   onChange,
   options,
-  className = "",
-  placeholder,
+  placeholder = "Select an option",
   error,
+  className = "",
 }: {
   value: string;
   onChange: (value: string) => void;
-  options: (string | { value: string; label: string; disabled?: boolean } | { group: string; items: (string | { value: string; label: string; disabled?: boolean })[] })[];
-  className?: string;
+  options: (string | DropdownOption)[];
   placeholder?: string;
   error?: string;
+  className?: string;
 }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const normalizedOptions: DropdownOption[] = options.map((opt) => {
+    if (typeof opt === "string") {
+      return { value: opt, label: opt };
+    }
+    return opt;
+  });
+
+  const selectedOption = normalizedOptions.find((opt) => opt.value === value);
+
   return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        aria-invalid={!!error}
-        className={`appearance-none w-full rounded-lg border bg-white/10 backdrop-blur-md px-3 py-2.5 pr-10 text-sm text-white outline-none transition-colors focus:bg-white/20 ${
-          error ? "border-red-400/50 focus:border-red-400 focus:ring-2 focus:ring-red-400/50" : "border-white/20 hover:border-white/30 focus:border-[#F26223] focus:ring-2 focus:ring-[#F26223]/30"
-        } ${className}`}
+    <div className={`relative ${className}`} ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full rounded-xl border bg-white/10 backdrop-blur-md px-3.5 py-3 text-sm text-left text-white flex items-center justify-between transition-all cursor-pointer ${
+          error
+            ? "border-red-400/50 ring-2 ring-red-400/30"
+            : isOpen
+            ? "border-[#F26223] ring-2 ring-[#F26223]/30 bg-white/15"
+            : "border-white/20 hover:border-orange-500/40 hover:bg-white/15"
+        }`}
       >
-        {placeholder && (
-          <option value="" disabled className="bg-neutral-800 text-white/50">
-            {placeholder}
-          </option>
-        )}
-        {options.map((opt, i) => {
-          if (typeof opt === "string") {
-            return (
-              <option key={opt} value={opt} className="bg-neutral-800 text-white">
-                {opt}
-              </option>
-            );
-          }
-          if ('value' in opt) {
-            return (
-              <option key={opt.value} value={opt.value} disabled={opt.disabled} className="bg-neutral-800 text-white disabled:text-white/30 disabled:bg-neutral-900">
-                {opt.label}
-              </option>
-            );
-          }
-          return (
-            <optgroup key={opt.group} label={opt.group} className="bg-neutral-900 text-white/70 font-bold">
-              {opt.items.map((item) => {
-                if (typeof item === "string") {
-                  return (
-                    <option key={item} value={item} className="bg-neutral-800 text-white font-normal">
-                      {item}
-                    </option>
-                  );
-                }
-                return (
-                  <option key={item.value} value={item.value} disabled={item.disabled} className="bg-neutral-800 text-white font-normal disabled:text-white/30 disabled:bg-neutral-900">
-                    {item.label}
-                  </option>
-                );
-              })}
-            </optgroup>
-          );
-        })}
-      </select>
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white/70">
-        <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+        <span className={`truncate ${selectedOption ? "text-white font-medium" : "text-white/50"}`}>
+          {selectedOption ? selectedOption.label : placeholder}
+        </span>
+        <svg
+          className={`h-4 w-4 text-white/60 transition-transform duration-200 shrink-0 ml-2 ${
+            isOpen ? "rotate-180 text-[#F26223]" : ""
+          }`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
         </svg>
-      </div>
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 z-50 mt-2 w-full min-w-[240px] overflow-hidden rounded-2xl border border-orange-500/30 bg-gradient-to-b from-[#221008]/98 via-[#1a0c06]/98 to-[#120603]/98 p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.85),0_0_25px_rgba(242,98,35,0.2)] backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-orange-500/30 scrollbar-track-transparent">
+          {normalizedOptions.length === 0 ? (
+            <div className="px-3 py-3 text-xs text-white/40 text-center">
+              No options available
+            </div>
+          ) : (
+            normalizedOptions.map((opt, i) => {
+              const isDisabled = Boolean(opt.disabled);
+              const isSelected = opt.value === value;
+
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  disabled={isDisabled}
+                  onClick={() => {
+                    if (isDisabled) return;
+                    onChange(opt.value);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full rounded-xl px-3.5 py-2.5 text-left text-xs sm:text-sm transition-all flex items-center justify-between gap-2 ${
+                    isDisabled
+                      ? "opacity-35 cursor-not-allowed text-white/40 bg-transparent"
+                      : isSelected
+                      ? "bg-gradient-to-r from-[#F26223]/35 to-[#F26223]/10 text-orange-200 font-semibold border-l-2 border-[#F26223] shadow-sm"
+                      : "text-white/85 hover:bg-gradient-to-r hover:from-orange-500/20 hover:to-transparent hover:text-white cursor-pointer"
+                  }`}
+                >
+                  <span className="truncate">{opt.label}</span>
+                  {isSelected && (
+                    <svg className="h-4 w-4 text-[#F26223] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </button>
+              );
+            })
+          )}
+        </div>
+      )}
+
       {error && <p className="mt-1 text-xs text-red-300">{error}</p>}
     </div>
   );
@@ -542,9 +586,9 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row gap-4 items-end">
-                  <div className="w-full sm:w-[28%] shrink-0">
+                  <div className="w-full sm:w-[32%] shrink-0">
                     <FieldLabel>Choose category</FieldLabel>
-                    <SelectInput
+                    <CustomDropdown
                       value={form.currentItemCategory}
                       onChange={(v) => {
                         updateField("currentItemCategory", v);
@@ -558,7 +602,7 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                   </div>
                   <div className="flex-1 w-full">
                     <FieldLabel>Choose item</FieldLabel>
-                    <SelectInput
+                    <CustomDropdown
                       value={form.currentItem}
                       onChange={(v) => {
                         updateField("currentItem", v);
@@ -568,10 +612,11 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                         equipments.find((g) => g.group === form.currentItemCategory)?.items.map(i => ({
                           value: i.name,
                           label: `${i.name} (${i.available > 0 ? `${i.available} available` : 'Not available'})`,
-                          disabled: i.available === 0
+                          disabled: i.available === 0,
+                          available: i.available,
                         })) || []
                       }
-                      placeholder="Select an item"
+                      placeholder={form.currentItemCategory ? "Select an item" : "Select a category first"}
                       className="w-full"
                     />
                   </div>
@@ -1025,42 +1070,42 @@ function CustomDateTimePickerPopover({
 
   return (
     <div
-      className="flex flex-col sm:flex-row bg-[#151515] text-white border border-white/10 rounded-2xl shadow-2xl p-4 sm:p-5 gap-4 sm:gap-6 w-[280px] sm:w-[460px] mt-2 origin-top-left"
+      className="flex flex-col sm:flex-row bg-gradient-to-b from-[#221008]/98 via-[#180c06]/98 to-[#120603]/98 text-white border border-orange-500/30 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.85),0_0_35px_rgba(242,98,35,0.2)] backdrop-blur-2xl p-5 gap-5 sm:gap-6 w-[300px] sm:w-[480px] mt-2 origin-top-left animate-in fade-in zoom-in-95 duration-150"
       onClick={(e) => e.stopPropagation()}
     >
       {/* Calendar */}
-      <div className="w-full sm:w-[260px] shrink-0">
-        <div className="flex justify-between items-center mb-4 px-2">
+      <div className="w-full sm:w-[270px] shrink-0">
+        <div className="flex justify-between items-center mb-4 px-1">
           <button
             type="button"
             onClick={handlePrevMonth}
-            className="p-1 hover:bg-white/10 rounded-md text-white/50 hover:text-white transition-colors"
+            className="p-1.5 hover:bg-orange-500/20 rounded-xl text-white/60 hover:text-orange-300 ring-1 ring-white/10 hover:ring-orange-500/30 transition-all cursor-pointer"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="m15 18-6-6 6-6" />
             </svg>
           </button>
-          <span className="text-white font-medium text-[14px]">
+          <span className="font-bold text-sm tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white via-orange-100 to-orange-300">
             {monthNames[month]} {year}
           </span>
           <button
             type="button"
             onClick={handleNextMonth}
-            className="p-1 hover:bg-white/10 rounded-md text-white/50 hover:text-white transition-colors"
+            className="p-1.5 hover:bg-orange-500/20 rounded-xl text-white/60 hover:text-orange-300 ring-1 ring-white/10 hover:ring-orange-500/30 transition-all cursor-pointer"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="m9 18 6-6-6-6" />
             </svg>
           </button>
         </div>
         <div className="grid grid-cols-7 gap-1 text-center mb-2">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-            <div key={d} className="text-[11px] font-medium text-white/40">
+            <div key={d} className="text-[11px] font-bold text-orange-300/75 uppercase tracking-wider">
               {d}
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-y-1 gap-x-1">
+        <div className="grid grid-cols-7 gap-1.5">
           {Array.from({ length: firstDay }).map((_, i) => (
             <div key={`empty-${i}`} />
           ))}
@@ -1072,7 +1117,9 @@ function CustomDateTimePickerPopover({
               .toISOString()
               .split("T")[0];
             const isSelected = adjustedDateStr === date;
-            const isPastDate = adjustedDateStr < todayStr || (minDateStr !== null && adjustedDateStr < minDateStr);
+            const isToday = adjustedDateStr === todayStr;
+            const isPastDate =
+              adjustedDateStr < todayStr || (minDateStr !== null && adjustedDateStr < minDateStr);
             return (
               <button
                 key={d}
@@ -1082,12 +1129,14 @@ function CustomDateTimePickerPopover({
                   if (isPastDate) return;
                   handleDayClick(d, e);
                 }}
-                className={`h-8 w-8 sm:h-9 sm:w-9 mx-auto rounded-xl flex items-center justify-center text-sm transition-all ${
+                className={`h-8 w-8 sm:h-8.5 sm:w-8.5 mx-auto rounded-xl flex items-center justify-center text-xs sm:text-sm transition-all cursor-pointer ${
                   isPastDate
-                    ? "opacity-30 cursor-not-allowed text-white/50"
+                    ? "opacity-25 cursor-not-allowed text-white/30"
                     : isSelected
-                    ? "bg-white text-black font-semibold"
-                    : "text-white/90 hover:bg-white/10"
+                    ? "bg-gradient-to-br from-[#FF6B35] to-[#EB551D] text-white font-black shadow-[0_4px_16px_rgba(255,107,53,0.55)] scale-105"
+                    : isToday
+                    ? "text-orange-300 font-bold ring-1 ring-orange-500/50 hover:bg-orange-500/20"
+                    : "text-white/90 hover:bg-orange-500/20 hover:text-orange-200"
                 }`}
               >
                 {d}
@@ -1098,43 +1147,54 @@ function CustomDateTimePickerPopover({
       </div>
 
       {/* Time Slots */}
-      <div className="w-full sm:w-[150px] shrink-0 border-t sm:border-t-0 sm:border-l border-white/10 pt-4 sm:pt-0 sm:pl-6 max-h-[200px] sm:max-h-[300px] overflow-y-auto pr-2 flex flex-col gap-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-        {timeSlots.map((slot, i) => {
-          const isSelected =
-            slot.hour === hour && slot.minute === minute && slot.period === period;
-          
-          let isPastTime = date === todayStr && (slot.h24 < currentHour24 || (slot.h24 === currentHour24 && slot.mInt < currentMinute));
-          if (minDateStr && date === minDateStr) {
-            if (slot.h24 < minH24! || (slot.h24 === minH24 && slot.mInt <= minMInt!)) {
-              isPastTime = true;
-            }
-          }
+      <div className="w-full sm:w-[160px] shrink-0 border-t sm:border-t-0 sm:border-l border-orange-500/20 pt-4 sm:pt-0 sm:pl-5 flex flex-col">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-orange-300/80 mb-2.5 flex items-center gap-1.5">
+          <svg className="w-3.5 h-3.5 text-[#F26223]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <circle cx="12" cy="12" r="10" strokeWidth="2"/>
+            <polyline points="12 6 12 12 16 14" strokeWidth="2"/>
+          </svg>
+          Select Time
+        </div>
+        <div className="max-h-[220px] sm:max-h-[260px] overflow-y-auto pr-1.5 flex flex-col gap-1.5 scrollbar-thin scrollbar-thumb-orange-500/30 scrollbar-track-transparent">
+          {timeSlots.map((slot, i) => {
+            const isSelected =
+              slot.hour === hour && slot.minute === minute && slot.period === period;
 
-          return (
-            <button
-              key={i}
-              type="button"
-              disabled={isPastTime}
-              onClick={(e) => {
-                if (isPastTime) return;
-                e.stopPropagation();
-                onHourChange(slot.hour);
-                onMinuteChange(slot.minute);
-                onPeriodChange(slot.period);
-                if (date) onClose(); // Auto-close if date is also selected
-              }}
-              className={`py-2 px-3 rounded-lg text-sm transition-all text-center border ${
-                isPastTime
-                  ? "opacity-30 cursor-not-allowed border-transparent text-white/50"
-                  : isSelected
-                  ? "bg-white text-black border-white font-bold shadow-[0_0_12px_rgba(255,255,255,0.3)]"
-                  : "border-transparent text-white/90 bg-white/5 hover:border-white/10 hover:bg-white/10"
-              }`}
-            >
-              {slot.display}
-            </button>
-          );
-        })}
+            let isPastTime =
+              date === todayStr &&
+              (slot.h24 < currentHour24 || (slot.h24 === currentHour24 && slot.mInt < currentMinute));
+            if (minDateStr && date === minDateStr) {
+              if (slot.h24 < minH24! || (slot.h24 === minH24 && slot.mInt <= minMInt!)) {
+                isPastTime = true;
+              }
+            }
+
+            return (
+              <button
+                key={i}
+                type="button"
+                disabled={isPastTime}
+                onClick={(e) => {
+                  if (isPastTime) return;
+                  e.stopPropagation();
+                  onHourChange(slot.hour);
+                  onMinuteChange(slot.minute);
+                  onPeriodChange(slot.period);
+                  if (date) onClose();
+                }}
+                className={`py-2 px-3 rounded-xl text-xs sm:text-sm transition-all text-center border font-medium ${
+                  isPastTime
+                    ? "opacity-25 cursor-not-allowed border-transparent text-white/30"
+                    : isSelected
+                    ? "bg-gradient-to-r from-[#FF6B35] to-[#EB551D] text-white border-transparent font-bold shadow-[0_4px_14px_rgba(255,107,53,0.5)]"
+                    : "border-white/10 text-white/85 bg-white/[0.04] hover:border-orange-500/40 hover:bg-orange-500/20 hover:text-white cursor-pointer"
+                }`}
+              >
+                {slot.display}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -1188,19 +1248,23 @@ function DateTimeGroup({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`relative flex items-center bg-white/10 backdrop-blur-md border rounded-xl px-4 py-3.5 transition-colors w-full focus-within:bg-white/20 focus-within:border-[#F26223] ${
-          dateError ? "border-red-400/50" : "border-white/20 hover:border-white/30"
+        className={`relative flex items-center bg-white/10 backdrop-blur-md border rounded-xl px-4 py-3.5 transition-all w-full cursor-pointer ${
+          dateError
+            ? "border-red-400/50 ring-2 ring-red-400/30"
+            : isOpen
+            ? "border-[#F26223] ring-2 ring-[#F26223]/30 bg-white/15"
+            : "border-white/20 hover:border-orange-500/40 hover:bg-white/15"
         }`}
       >
-        <CalendarIcon className="w-5 h-5 text-white/70 mr-3 shrink-0" />
-        <span className="flex-1 text-left text-white font-medium text-[15px]">
+        <CalendarIcon className="w-5 h-5 text-orange-400/80 mr-3 shrink-0" />
+        <span className="flex-1 text-left text-white font-medium text-[14px]">
           {date
             ? `${formatDateDisplay(date)}${
                 hour && minute && period ? ` at ${hour}:${minute} ${period}` : ""
               }`
             : "Select Date and Time"}
         </span>
-        <ChevronDownIcon className="w-5 h-5 text-white/50 shrink-0 ml-2 pointer-events-none" />
+        <ChevronDownIcon className={`w-5 h-5 text-white/50 shrink-0 ml-2 pointer-events-none transition-transform duration-200 ${isOpen ? "rotate-180 text-[#F26223]" : ""}`} />
       </button>
 
       {isOpen && (

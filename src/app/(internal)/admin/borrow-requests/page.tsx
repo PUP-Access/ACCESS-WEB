@@ -8,14 +8,14 @@ import {
 } from "../components/admin-ui";
 import { getBorrowRequestsForAdmin } from "@/features/cms";
 import StatusSelect from "./components/StatusSelect";
+import { formatFullDateTime } from "@/lib/date-utils";
 
 export const dynamic = "force-dynamic";
 
 const STATUS_OPTIONS = ["All", "Pending", "Approved", "Rejected", "Active", "Returned", "Cancelled"] as const;
 
 function formatDate(value: string | null) {
-  if (!value) return "—";
-  return new Date(value).toLocaleString();
+  return formatFullDateTime(value);
 }
 
 function statusBadgeClass(status: string | null) {

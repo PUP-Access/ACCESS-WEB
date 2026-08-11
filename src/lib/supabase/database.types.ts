@@ -279,6 +279,7 @@ export type Database = {
           full_name: string
           id: string
           is_read: boolean | null
+          is_archived: boolean | null
           organization: string | null
           purpose: string | null
         }
@@ -291,6 +292,7 @@ export type Database = {
           full_name: string
           id?: string
           is_read?: boolean | null
+          is_archived?: boolean | null
           organization?: string | null
           purpose?: string | null
         }
@@ -303,6 +305,7 @@ export type Database = {
           full_name?: string
           id?: string
           is_read?: boolean | null
+          is_archived?: boolean | null
           organization?: string | null
           purpose?: string | null
         }
