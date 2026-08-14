@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { Reveal } from "./Reveal";
 
 const SOCIALS = [
   {
@@ -59,9 +62,9 @@ const RESOURCE_LINKS = [
 ];
 
 const BOTTOM_LINKS = [
-  { label: "Privacy Center", href: "/#contact" },
-  { label: "Terms of Service", href: "/#contact" },
-  { label: "Cookie Policy", href: "/#contact" },
+  { label: "Privacy Center", href: "#" },
+  { label: "Terms of Service", href: "#" },
+  { label: "Cookie Policy", href: "#" },
 ];
 
 const ACCESS_ADDRESS =
@@ -70,9 +73,16 @@ const ACCESS_ADDRESS =
 function FooterAnchor({ href, label }: { href: string; label: string }) {
   const isExternal = href.startsWith("http");
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (href === "#") {
+      e.preventDefault();
+    }
+  };
+
   return (
     <Link
       href={href}
+      onClick={handleClick}
       target={isExternal ? "_blank" : undefined}
       rel={isExternal ? "noopener noreferrer" : undefined}
       className="text-sm transition-colors duration-150 hover:text-white"
@@ -90,102 +100,104 @@ export default function FooterSection() {
       className="landing-section scroll-mt-24 relative w-full"
       style={{ background: "#0f0300", fontFamily: `'Josefin Sans', sans-serif` }}
     >
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 pb-12 pt-14 sm:grid-cols-2 sm:px-10 lg:grid-cols-4 lg:gap-8 lg:px-16">
-        <div className="flex flex-col gap-5" style={{ fontFamily: `'Josefin Sans', sans-serif` }}>
-          <Image
-            src="/AccessLogo.webp"
-            alt="ACCESS"
-            width={130}
-            height={46}
-            className="object-contain object-left"
-          />
-          <p
-            className="max-w-[260px] text-xs leading-relaxed text-justify sm:max-w-[280px]"
-            style={{ color: "rgb(255, 255, 255)", fontFamily: `'Josefin Sans', sans-serif` }}
-          >
-            Association of Computer Engineering Students — College of Engineering and Architecture,
-            Polytechnic University of the Philippines.
-          </p>
-          <address
-            className="max-w-[260px] not-italic text-xs leading-relaxed text-white/70 sm:max-w-[280px]"
-            style={{ fontFamily: `'Josefin Sans', sans-serif` }}
-          >
-            {ACCESS_ADDRESS}
-          </address>
-        </div>
+      <Reveal y={16}>
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 pb-12 pt-14 sm:grid-cols-2 sm:px-10 lg:grid-cols-4 lg:gap-8 lg:px-16">
+          <div className="flex flex-col gap-5" style={{ fontFamily: `'Josefin Sans', sans-serif` }}>
+            <Image
+              src="/AccessLogo.webp"
+              alt="ACCESS"
+              width={130}
+              height={46}
+              className="object-contain object-left"
+            />
+            <p
+              className="max-w-[260px] text-xs leading-relaxed text-justify sm:max-w-[280px]"
+              style={{ color: "rgb(255, 255, 255)", fontFamily: `'Josefin Sans', sans-serif` }}
+            >
+              Association of Concern Computer Engineering Students for Service — College of Engineering and Architecture,
+              Polytechnic University of the Philippines.
+            </p>
+            <address
+              className="max-w-[260px] not-italic text-xs leading-relaxed text-white/70 sm:max-w-[280px]"
+              style={{ fontFamily: `'Josefin Sans', sans-serif` }}
+            >
+              {ACCESS_ADDRESS}
+            </address>
+          </div>
 
-        <div className="flex flex-col gap-5" style={{ fontFamily: `'Josefin Sans', sans-serif` }}>
-          <h3
-            className="text-xs font-bold uppercase tracking-[0.18em]"
-            style={{ color: "rgba(255,255,255,0.9)", fontFamily: `'Josefin Sans', sans-serif` }}
-          >
-            Socials
-          </h3>
-          <ul className="flex flex-col gap-4">
-            {SOCIALS.map((social) => (
-              <li key={social.href}>
-                <a
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={social.label}
-                  className="group flex items-center gap-4 transition-opacity duration-200 hover:opacity-80"
-                  style={{ fontFamily: `'Josefin Sans', sans-serif` }}
-                >
-                  <span
-                    className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl"
-                    style={{
-                      background: "rgba(255,255,255,0.07)",
-                      border: "1px solid rgba(255,255,255,0.10)",
-                      color: "rgba(255,255,255,0.85)",
-                    }}
+          <div className="flex flex-col gap-5" style={{ fontFamily: `'Josefin Sans', sans-serif` }}>
+            <h3
+              className="text-xs font-bold uppercase tracking-[0.18em]"
+              style={{ color: "rgba(255,255,255,0.9)", fontFamily: `'Josefin Sans', sans-serif` }}
+            >
+              Socials
+            </h3>
+            <ul className="flex flex-col gap-4">
+              {SOCIALS.map((social) => (
+                <li key={social.href}>
+                  <a
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.label}
+                    className="group flex items-center gap-4 transition-opacity duration-200 hover:opacity-80"
+                    style={{ fontFamily: `'Josefin Sans', sans-serif` }}
                   >
-                    {social.icon}
-                  </span>
-                  <span
-                    className="text-sm font-medium"
-                    style={{ color: "rgba(255,255,255,0.75)", fontFamily: `'Josefin Sans', sans-serif` }}
-                  >
-                    {social.handle}
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+                    <span
+                      className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl"
+                      style={{
+                        background: "rgba(255,255,255,0.07)",
+                        border: "1px solid rgba(255,255,255,0.10)",
+                        color: "rgba(255,255,255,0.85)",
+                      }}
+                    >
+                      {social.icon}
+                    </span>
+                    <span
+                      className="text-sm font-medium"
+                      style={{ color: "rgba(255,255,255,0.75)", fontFamily: `'Josefin Sans', sans-serif` }}
+                    >
+                      {social.handle}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        <div className="flex flex-col gap-5" style={{ fontFamily: `'Josefin Sans', sans-serif` }}>
-          <h3
-            className="text-xs font-bold uppercase tracking-[0.18em]"
-            style={{ color: "rgba(255,255,255,0.9)", fontFamily: `'Josefin Sans', sans-serif` }}
-          >
-            Organization
-          </h3>
-          <ul className="flex flex-col gap-3">
-            {ORG_LINKS.map((link) => (
-              <li key={link.label}>
-                <FooterAnchor href={link.href} label={link.label} />
-              </li>
-            ))}
-          </ul>
-        </div>
+          <div className="flex flex-col gap-5" style={{ fontFamily: `'Josefin Sans', sans-serif` }}>
+            <h3
+              className="text-xs font-bold uppercase tracking-[0.18em]"
+              style={{ color: "rgba(255,255,255,0.9)", fontFamily: `'Josefin Sans', sans-serif` }}
+            >
+              Organization
+            </h3>
+            <ul className="flex flex-col gap-3">
+              {ORG_LINKS.map((link) => (
+                <li key={link.label}>
+                  <FooterAnchor href={link.href} label={link.label} />
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        <div className="flex flex-col gap-5" style={{ fontFamily: `'Josefin Sans', sans-serif` }}>
-          <h3
-            className="text-xs font-bold uppercase tracking-[0.18em]"
-            style={{ color: "rgba(255,255,255,0.9)", fontFamily: `'Josefin Sans', sans-serif` }}
-          >
-            Quick Links
-          </h3>
-          <ul className="flex flex-col gap-3">
-            {RESOURCE_LINKS.map((link) => (
-              <li key={link.label}>
-                <FooterAnchor href={link.href} label={link.label} />
-              </li>
-            ))}
-          </ul>
+          <div className="flex flex-col gap-5" style={{ fontFamily: `'Josefin Sans', sans-serif` }}>
+            <h3
+              className="text-xs font-bold uppercase tracking-[0.18em]"
+              style={{ color: "rgba(255,255,255,0.9)", fontFamily: `'Josefin Sans', sans-serif` }}
+            >
+              Quick Links
+            </h3>
+            <ul className="flex flex-col gap-3">
+              {RESOURCE_LINKS.map((link) => (
+                <li key={link.label}>
+                  <FooterAnchor href={link.href} label={link.label} />
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-      </div>
+      </Reveal>
 
       <div
         className="w-full"

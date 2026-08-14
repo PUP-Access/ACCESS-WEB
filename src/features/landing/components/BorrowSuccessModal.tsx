@@ -30,12 +30,16 @@ export default function BorrowSuccessModal({ onClose }: BorrowSuccessModalProps)
           id="borrow-success-title"
           className="text-2xl font-extrabold tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]"
         >
-          Borrow Successful!
+          Form Submitted!
         </h3>
-        <p className="mt-4 text-sm leading-relaxed text-white/95">
-          Please bring the hard copy of the letter together with an ID upon going to ACCESS
-          office to get the items borrowed.
-        </p>
+        <div className="mt-4 text-sm leading-relaxed text-white/95 space-y-3">
+          <p>
+            Your borrowing request has been successfully submitted.
+          </p>
+          <p className="font-medium bg-white/10 p-3 rounded-lg border border-white/20">
+            <strong>Important Notice:</strong> You are required to surrender a valid ID upon visiting the ACCESS Office in order to claim your requested item/s. Our office is located at Room 424, College of Engineering and Architecture Building.
+          </p>
+        </div>
         <button
           type="button"
           onClick={onClose}

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { signUpAction } from "../actions/auth.actions";
 
 const inputClassName =
-  "w-full rounded-xl border-0 bg-white px-4 py-3.5 text-sm text-gray-800 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-[#F26223]/60";
+  "w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-3.5 text-sm text-white placeholder:text-white/50 outline-none transition-all hover:border-orange-500/40 hover:bg-white/15 focus:bg-white/20 focus:border-[#F26223] focus:ring-2 focus:ring-[#F26223]/30";
 
 export function RegistrationForm() {
   const [state, formAction, isPending] = useActionState(signUpAction, { status: "idle" });
@@ -23,10 +23,12 @@ export function RegistrationForm() {
   return (
     <form action={formAction} className="w-full space-y-5">
       {state.status === "error" && (
-        <p className="rounded-xl bg-red-500/15 px-4 py-3 text-sm text-red-300">{state.message}</p>
+        <p className="rounded-xl bg-red-500/20 border border-red-500/30 px-4 py-3 text-sm text-red-200">
+          {state.message}
+        </p>
       )}
       {state.status === "success" && (
-        <p className="rounded-xl bg-green-500/15 px-4 py-3 text-sm text-green-300">
+        <p className="rounded-xl bg-green-500/20 border border-green-500/30 px-4 py-3 text-sm text-green-200">
           Account created! Check your email to confirm, redirecting you shortly...
         </p>
       )}
@@ -64,7 +66,7 @@ export function RegistrationForm() {
         <button
           type="button"
           onClick={() => setShowPassword((prev) => !prev)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600"
+          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/50 transition-colors hover:text-white cursor-pointer"
           aria-label={showPassword ? "Hide password" : "Show password"}
         >
           {showPassword ? <EyeOffIcon /> : <EyeIcon />}
@@ -74,25 +76,26 @@ export function RegistrationForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-xl px-4 py-3.5 text-sm font-semibold text-white transition-all hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full rounded-xl px-4 py-3.5 text-sm font-bold text-white transition-all hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer shadow-[0_6px_20px_rgba(242,98,35,0.35)] hover:shadow-[0_8px_25px_rgba(242,98,35,0.5)]"
         style={{
           background: "linear-gradient(180deg, #F26223 0%, #C93A12 100%)",
-          boxShadow: "0 6px 20px rgba(242, 98, 35, 0.35)",
         }}
       >
         {isPending ? "Loading..." : "Sign up"}
       </button>
 
-      <div className="relative py-1">
-        <div className="absolute inset-x-0 top-1/2 h-px bg-white/15" />
-        <p className="relative mx-auto w-fit px-3 text-xs text-white/60 backdrop-blur-sm">
+      {/* Clean Divider */}
+      <div className="relative flex items-center my-4">
+        <div className="flex-grow border-t border-white/15" />
+        <span className="flex-shrink mx-4 text-xs font-medium text-white/60">
           Already have an account?
-        </p>
+        </span>
+        <div className="flex-grow border-t border-white/15" />
       </div>
 
       <Link
         href="/auth/login"
-        className="flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/15"
+        className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-white/10 px-4 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/15 hover:border-orange-500/40"
       >
         Log in
       </Link>

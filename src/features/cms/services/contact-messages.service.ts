@@ -66,6 +66,48 @@ export async function markContactMessageRead(id: string) {
   return data;
 }
 
+export async function markContactMessageUnread(id: string) {
+  await checkRole({ roles: "Admin" });
+  const supabase = createSupabaseAdminClient();
+
+  const { data, error } = await supabase
+    .from("ContactMessages")
+    .update({ is_read: false })
+    .eq("id", id)
+    .select()
+    .single();
+
+  throwSupabaseError(error);
+  return data;
+}
+
+export async function deleteContactMessage(id: string) {
+  await checkRole({ roles: "Admin" });
+  const supabase = createSupabaseAdminClient();
+
+  const { error } = await supabase
+    .from("ContactMessages")
+    .delete()
+    .eq("id", id);
+
+  throwSupabaseError(error);
+}
+
+export async function archiveContactMessage(id: string, isArchived: boolean = true) {
+  await checkRole({ roles: "Admin" });
+  const supabase = createSupabaseAdminClient();
+
+  const { data, error } = await supabase
+    .from("ContactMessages")
+    .update({ is_archived: isArchived } as any)
+    .eq("id", id)
+    .select()
+    .single();
+
+  throwSupabaseError(error);
+  return data;
+}
+
 export async function getUnreadContactMessageCount(): Promise<number> {
   await checkRole({ roles: "Admin" });
   const supabase = createSupabaseAdminClient();
@@ -78,3 +120,4 @@ export async function getUnreadContactMessageCount(): Promise<number> {
   throwSupabaseError(error);
   return count ?? 0;
 }
+

@@ -1,5 +1,4 @@
 import { Navbar } from "@/components/ui";
-import Link from "next/link";
 import Image from "next/image";
 import {
   AboutSection,
@@ -8,6 +7,7 @@ import {
   EventsSection,
   FAQSection,
   FooterSection,
+  HeroCopy,
   MeetTheOfficersSection,
 } from "@/features/landing";
 import {
@@ -16,6 +16,7 @@ import {
   getHeroContent,
   getOfficersSectionContent,
 } from "@/features/cms";
+import { getAllEquipmentsPublic } from "@/features/inventory/services/equipments.admin.service";
 import { CrystalDice3D, FloatingBlocks, type CrystalConfig } from "@/features/effects";
 import { unstable_noStore as noStore } from "next/cache";
 
@@ -37,12 +38,25 @@ const COMBINED_CRYSTALS: CrystalConfig[] = [
 export default async function LandingPage() {
   noStore();
 
-  const [hero, about, officersSection, faqs] = await Promise.all([
+  const [hero, about, officersSection, faqs, equipmentsRaw] = await Promise.all([
     getHeroContent(),
     getAboutContent(),
     getOfficersSectionContent(),
     getActiveFAQs(),
+    getAllEquipmentsPublic(),
   ]);
+
+  // Group equipments by category for the form
+  const groupedEquipmentsMap = equipmentsRaw.reduce((acc, eq) => {
+    const cat = eq.category;
+    if (!acc[cat]) {
+      acc[cat] = { group: cat, items: [] };
+    }
+    acc[cat].items.push({ name: eq.name, available: eq.quantity, unit: eq.unit });
+    return acc;
+  }, {} as Record<string, { group: string; items: { name: string; available: number; unit: string | null }[] }>);
+
+  const groupedEquipments = Object.values(groupedEquipmentsMap).sort((a, b) => a.group.localeCompare(b.group));
 
   const faqItems =
     faqs.length > 0
@@ -113,74 +127,33 @@ export default async function LandingPage() {
         {/* navbar spacer — fixed nav overlays hero */}
         <div className="relative z-10 h-[72px] shrink-0 md:h-[80px]" aria-hidden />
 
-        {/* hero copy */}
-        <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 pb-16 pt-4 text-center sm:px-8 sm:pb-12 md:px-16 lg:px-24">
-          <h1
-            className="max-w-xs text-3xl font-extrabold leading-tight tracking-tight
-                       sm:max-w-lg sm:text-4xl
-                       md:max-w-2xl md:text-5xl
-                       lg:max-w-4xl lg:text-6xl"
-            style={{
-              background: "linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(242,98,35,1) 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
-          >
-            {hero.titleLines.map((line, index) => (
-              <span key={`${line}-${index}`}>
-                {line}
-                {index < hero.titleLines.length - 1 && <br />}
-              </span>
-            ))}
-          </h1>
-
-          <p className="mt-5 max-w-sm text-sm leading-relaxed text-zinc-300
-                        sm:max-w-md sm:text-base
-                        md:max-w-lg">
-            {hero.subtitle}
-          </p>
-
-          <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4">
-            <Link
-              href="/#about"
-              className="rounded-lg py-3 text-sm font-semibold text-white text-center
-                         transition-opacity hover:opacity-90
-                         px-8 sm:px-9 md:px-10 md:py-3.5 md:text-base"
-              style={{ background: "#F26223" }}
-            >
-              {hero.primaryCtaLabel}
-            </Link>
-
-            <Link
-              href="/#contact"
-              className="rounded-lg border border-white/30 bg-white/10 py-3 text-sm font-semibold
-                         text-white text-center backdrop-blur-sm transition-colors hover:bg-white/20
-                         px-8 sm:px-9 md:px-10 md:py-3.5 md:text-base"
-            >
-              {hero.secondaryCtaLabel}
-            </Link>
-          </div>
-        </div>
+        <HeroCopy
+          titleLines={hero.titleLines}
+          subtitle={hero.subtitle}
+          primaryCtaLabel={hero.primaryCtaLabel}
+          secondaryCtaLabel={hero.secondaryCtaLabel}
+        />
       </section>
             
       <AboutSection content={about} />
       
       <div className="relative">
         {/* Sticky Background & Crystals seamlessly spanning the sections */}
-        <div className="sticky top-0 h-screen w-full z-0 overflow-hidden pointer-events-none">
-          <Image
-            src="/EventsBG.webp"
-            alt=""
-            fill
-            className="object-cover"
-          />
-          <div className="absolute inset-0" style={{ background: "#862520" }} />
-          <CrystalDice3D crystals={COMBINED_CRYSTALS} cameraZ={13} className="z-[1]" />
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="sticky top-0 h-screen w-full overflow-hidden">
+            <Image
+              src="/EventsBG.webp"
+              alt=""
+              fill
+              className="object-cover"
+            />
+            <div className="absolute inset-0" style={{ background: "#862520" }} />
+            <CrystalDice3D crystals={COMBINED_CRYSTALS} cameraZ={13} className="z-[1]" />
+          </div>
         </div>
         
         {/* Transparent Overlays */}
-        <div className="relative z-10 -mt-[100vh] overflow-hidden">
+        <div className="relative z-10 overflow-hidden">
           
           {/* ── Seamless Decorative Blobs ── */}
           {/* Black Blobs */}
@@ -200,7 +173,7 @@ export default async function LandingPage() {
 
           <EventsSection />
           <MeetTheOfficersSection content={officersSection} />
-          <BorrowSection />
+          <BorrowSection equipments={groupedEquipments} />
           <FAQSection items={faqItems} />
           <CTASection />
           <FooterSection />

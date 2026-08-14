@@ -28,6 +28,7 @@ const NAV_GROUPS: {
       { href: "/admin/officers", label: "Officers Records" },
       { href: "/admin/events", label: "Events" },
       { href: "/admin/borrow-requests", label: "Borrow Requests" },
+      { href: "/admin/inventory", label: "Inventory" },
       { href: "/admin/contact-messages", label: "Contact Messages" },
     ],
   },

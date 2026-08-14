@@ -26,16 +26,20 @@ export const landingNavItems: NavItem[] = [
   { label: "Contact", href: "/#contact" },
 ];
 
+const SECTION_IDS = ["home", "about", "events", "officers", "borrow", "contact"] as const;
+
 function NavLink({
   href,
   label,
   className,
   onNavigate,
+  active,
 }: {
   href: string;
   label: string;
   className: string;
   onNavigate?: () => void;
+  active?: boolean;
 }) {
   const pathname = usePathname();
 
@@ -52,7 +56,12 @@ function NavLink({
   };
 
   return (
-    <Link href={href} className={className} onClick={handleClick}>
+    <Link
+      href={href}
+      className={className}
+      onClick={handleClick}
+      aria-current={active ? "true" : undefined}
+    >
       {label}
     </Link>
   );
@@ -62,7 +71,11 @@ export default function Navbar({ items = landingNavItems }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
+  const pathname = usePathname();
   const router = useRouter();
+  const onLanding = pathname === "/";
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
@@ -112,18 +125,79 @@ export default function Navbar({ items = landingNavItems }: NavbarProps) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [menuOpen]);
 
-  const linkClass =
-    "whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-normal text-[#D8D8D8] transition-colors hover:text-white lg:px-4 lg:text-[15px]";
-  const mobileLinkClass =
-    "block rounded-xl px-3 py-2.5 text-sm font-normal text-[#D8D8D8] transition-colors hover:bg-white/5 hover:text-white";
+  useEffect(() => {
+    if (!onLanding) {
+      setScrolled(true);
+      return;
+    }
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        setScrolled(window.scrollY > 40);
+        ticking = false;
+      });
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [onLanding]);
+
+  useEffect(() => {
+    if (!onLanding) return;
+
+    const elements = SECTION_IDS.map((id) => document.getElementById(id)).filter(
+      (el): el is HTMLElement => el != null,
+    );
+    if (elements.length === 0) return;
+
+    const ratios = new Map<string, number>();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0);
+        }
+        let bestId = "home";
+        let bestRatio = 0;
+        for (const id of SECTION_IDS) {
+          const ratio = ratios.get(id) ?? 0;
+          if (ratio > bestRatio) {
+            bestRatio = ratio;
+            bestId = id;
+          }
+        }
+        if (bestRatio > 0) setActiveSection(bestId);
+      },
+      { rootMargin: "-20% 0px -55% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] },
+    );
+
+    for (const el of elements) observer.observe(el);
+    return () => observer.disconnect();
+  }, [onLanding]);
+
+  const linkClass = (active: boolean) =>
+    `whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-normal transition-colors lg:px-4 lg:text-[15px] ${
+      active ? "text-[#F26223]" : "text-[#D8D8D8] hover:text-white"
+    }`;
+  const mobileLinkClass = (active: boolean) =>
+    `block rounded-xl px-3 py-2.5 text-sm font-normal transition-colors ${
+      active ? "bg-white/5 text-[#F26223]" : "text-[#D8D8D8] hover:bg-white/5 hover:text-white"
+    }`;
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 w-full px-3 pt-3 md:px-5 md:pt-4 lg:px-6 lg:pt-5">
       <nav
-        className="mx-auto grid w-full max-w-[1248px] grid-cols-[1fr_auto] items-center gap-3 rounded-full border border-white/10 px-4 py-2 backdrop-blur-xl md:grid-cols-[auto_1fr_auto] md:gap-4 md:px-6 md:py-2.5"
+        className="mx-auto grid w-full max-w-[1248px] grid-cols-[1fr_auto] items-center gap-3 rounded-full border border-white/10 px-4 py-2 backdrop-blur-xl transition-[background,box-shadow,border-color] duration-300 md:grid-cols-[1fr_auto_1fr] md:gap-4 md:px-6 md:py-2.5"
         style={{
-          background: "rgba(18, 18, 18, 0.82)",
-          boxShadow: "0 4px 24px rgba(0, 0, 0, 0.35)",
+          background: scrolled ? "rgba(18, 18, 18, 0.92)" : "rgba(18, 18, 18, 0.72)",
+          boxShadow: scrolled
+            ? "0 8px 32px rgba(0, 0, 0, 0.45)"
+            : "0 4px 24px rgba(0, 0, 0, 0.35)",
+          borderColor: scrolled ? "rgba(255, 255, 255, 0.14)" : "rgba(255, 255, 255, 0.1)",
         }}
         aria-label="Main navigation"
       >
@@ -139,16 +213,21 @@ export default function Navbar({ items = landingNavItems }: NavbarProps) {
         </Link>
 
         <ul className="hidden list-none items-center justify-center gap-1 p-0 md:flex lg:gap-2">
-          {items.map((item) => (
-            <li key={item.href}>
-              <NavLink
-                href={item.href}
-                label={item.label}
-                className={linkClass}
-                onNavigate={() => setMenuOpen(false)}
-              />
-            </li>
-          ))}
+          {items.map((item) => {
+            const sectionId = item.href.startsWith("/#") ? item.href.slice(2) : "";
+            const active = onLanding && sectionId === activeSection;
+            return (
+              <li key={item.href}>
+                <NavLink
+                  href={item.href}
+                  label={item.label}
+                  className={linkClass(active)}
+                  active={active}
+                  onNavigate={() => setMenuOpen(false)}
+                />
+              </li>
+            );
+          })}
         </ul>
 
         <div className="flex items-center justify-end gap-2 justify-self-end md:gap-3">
@@ -209,16 +288,21 @@ export default function Navbar({ items = landingNavItems }: NavbarProps) {
           }}
         >
           <ul className="flex list-none flex-col gap-1 p-0">
-            {items.map((item) => (
-              <li key={item.href}>
-                <NavLink
-                  href={item.href}
-                  label={item.label}
-                  className={mobileLinkClass}
-                  onNavigate={() => setMenuOpen(false)}
-                />
-              </li>
-            ))}
+            {items.map((item) => {
+              const sectionId = item.href.startsWith("/#") ? item.href.slice(2) : "";
+              const active = onLanding && sectionId === activeSection;
+              return (
+                <li key={item.href}>
+                  <NavLink
+                    href={item.href}
+                    label={item.label}
+                    className={mobileLinkClass(active)}
+                    active={active}
+                    onNavigate={() => setMenuOpen(false)}
+                  />
+                </li>
+              );
+            })}
           </ul>
 
           {isAdmin ? (

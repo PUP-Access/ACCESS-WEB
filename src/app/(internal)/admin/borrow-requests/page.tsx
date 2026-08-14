@@ -7,14 +7,15 @@ import {
   AdminPageShell,
 } from "../components/admin-ui";
 import { getBorrowRequestsForAdmin } from "@/features/cms";
+import StatusSelect from "./components/StatusSelect";
+import { formatFullDateTime } from "@/lib/date-utils";
 
 export const dynamic = "force-dynamic";
 
 const STATUS_OPTIONS = ["All", "Pending", "Approved", "Rejected", "Active", "Returned", "Cancelled"] as const;
 
 function formatDate(value: string | null) {
-  if (!value) return "—";
-  return new Date(value).toLocaleString();
+  return formatFullDateTime(value);
 }
 
 function statusBadgeClass(status: string | null) {
@@ -80,7 +81,7 @@ export default async function AdminBorrowRequestsPage({
                   <p>{formatDate(request.requested_end_date)}</p>
                 </td>
                 <td>
-                  <span className={statusBadgeClass(request.status)}>{request.status ?? "Pending"}</span>
+                  <StatusSelect id={request.id} currentStatus={request.status ?? "Pending"} />
                 </td>
                 <td className="text-white/45">{formatDate(request.created_at)}</td>
               </tr>

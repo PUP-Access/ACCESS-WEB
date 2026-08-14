@@ -126,6 +126,38 @@ export async function submitBorrowRequestAction(
       .from("access_web_assets")
       .getPublicUrl(filePath);
 
+    const items = parsed.data.item.split(", ");
+    for (const itemStr of items) {
+      const match = itemStr.match(/(.+?) x(\d+) \((.+?)\)/);
+      if (match) {
+        const name = match[1];
+        const qty = parseInt(match[2], 10);
+        const category = match[3];
+
+        const { data: equipment } = await adminSupabase
+          .from("Equipments")
+          .select("*")
+          .eq("name", name)
+          .eq("category", category)
+          .single();
+
+        if (!equipment) {
+          throw new Error(`Equipment not found: ${name}`);
+        }
+
+        if (equipment.quantity < qty) {
+          throw new Error(`Not enough inventory for ${name}. Available: ${equipment.quantity}, Requested: ${qty}`);
+        }
+
+        const { error: updateInvError } = await adminSupabase
+          .from("Equipments")
+          .update({ quantity: equipment.quantity - qty })
+          .eq("id", equipment.id);
+
+        if (updateInvError) throw updateInvError;
+      }
+    }
+
     const { error: insertError } = await adminSupabase.from("BorrowRequests").insert({
       user_id: user.id,
       borrower_contact_name: parsed.data.fullName,
@@ -140,6 +172,8 @@ export async function submitBorrowRequestAction(
       requested_end_date: end.toISOString(),
       letter_file_url: publicUrlData.publicUrl,
       status: "Pending",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     });
 
     if (insertError) throw insertError;
@@ -152,6 +186,36 @@ export async function submitBorrowRequestAction(
     return {
       status: "error",
       message: getErrorMessage(err, "Failed to submit borrow request"),
+    };
+  }
+}
+
+export async function getMyBorrowRequestsAction() {
+  try {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { status: "error", message: "Not authenticated", data: [] };
+    }
+
+    const adminSupabase = createSupabaseAdminClient();
+    const { data, error } = await adminSupabase
+      .from("BorrowRequests")
+      .select("id, requested_item, requested_start_date, requested_end_date, status, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return { status: "success", data };
+  } catch (err) {
+    return {
+      status: "error",
+      message: getErrorMessage(err, "Failed to fetch borrow requests"),
+      data: [],
     };
   }
 }

@@ -18,7 +18,13 @@ import {
   deleteFAQItem,
   updateFAQItem,
 } from "../services/faq.service";
-import { markContactMessageRead } from "../services/contact-messages.service";
+import {
+  markContactMessageRead,
+  markContactMessageUnread,
+  deleteContactMessage,
+  archiveContactMessage,
+} from "../services/contact-messages.service";
+import { updateBorrowRequestStatus } from "../services/borrow-requests.admin.service";
 import { FAQItemSchema, UpdateFAQItemSchema } from "../schemas";
 
 type ActionState =
@@ -337,6 +343,119 @@ export async function markContactMessageReadAction(id: string): Promise<ActionSt
     return {
       status: "error",
       message: getErrorMessage(err, "Failed to mark message as read"),
+    };
+  }
+}
+
+export async function markContactMessageUnreadAction(id: string): Promise<ActionState> {
+  try {
+    await markContactMessageUnread(id);
+    revalidatePath("/admin/contact-messages");
+    revalidatePath("/admin");
+
+    return { status: "success" };
+  } catch (err) {
+    return {
+      status: "error",
+      message: getErrorMessage(err, "Failed to mark message as unread"),
+    };
+  }
+}
+
+export async function archiveContactMessageAction(
+  id: string,
+  isArchived: boolean = true
+): Promise<ActionState> {
+  try {
+    await archiveContactMessage(id, isArchived);
+    revalidatePath("/admin/contact-messages");
+    revalidatePath("/admin");
+
+    return {
+      status: "success",
+      message: isArchived ? "Message moved to archive." : "Message unarchived.",
+    };
+  } catch (err) {
+    return {
+      status: "error",
+      message: getErrorMessage(err, "Failed to update archive status"),
+    };
+  }
+}
+
+export async function deleteContactMessageAction(id: string): Promise<ActionState> {
+  try {
+    await deleteContactMessage(id);
+    revalidatePath("/admin/contact-messages");
+    revalidatePath("/admin");
+
+    return { status: "success", message: "Message deleted permanently." };
+  } catch (err) {
+    return {
+      status: "error",
+      message: getErrorMessage(err, "Failed to delete message"),
+    };
+  }
+}
+
+export async function replyContactMessageAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  try {
+    const id = formData.get("id") as string;
+    const email = formData.get("email") as string;
+    const subject = formData.get("subject") as string;
+    const message = formData.get("message") as string;
+
+    if (!id || !email || !subject || !message) {
+      return { status: "error", message: "Missing required fields" };
+    }
+
+    if (!process.env.RESEND_API_KEY) {
+      return { status: "error", message: "RESEND_API_KEY is not configured on the server." };
+    }
+
+    const { Resend } = await import("resend");
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    const { error } = await resend.emails.send({
+      from: "ACCESS <noreply@pupaccess.org>",
+      to: email,
+      subject: subject,
+      text: message,
+    });
+
+    if (error) {
+      console.error("Resend error:", error);
+      return { status: "error", message: error.message || "Failed to send email" };
+    }
+
+    // Mark as read after replying
+    await markContactMessageRead(id);
+    revalidatePath("/admin/contact-messages");
+    revalidatePath("/admin");
+
+    return { status: "success", message: "Reply sent successfully." };
+  } catch (err) {
+    console.error("Reply error:", err);
+    return {
+      status: "error",
+      message: getErrorMessage(err, "Failed to send reply"),
+    };
+  }
+}
+
+export async function updateBorrowRequestStatusAction(id: string, status: string): Promise<ActionState> {
+  try {
+    await updateBorrowRequestStatus(id, status);
+    revalidatePath("/admin/borrow-requests");
+    return { status: "success", message: "Status updated successfully." };
+  } catch (err) {
+    console.error("Update status error:", err);
+    return {
+      status: "error",
+      message: getErrorMessage(err, "Failed to update status"),
     };
   }
 }

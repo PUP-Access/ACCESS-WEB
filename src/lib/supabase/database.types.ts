@@ -119,6 +119,42 @@ export type Database = {
           },
         ]
       }
+      Equipments: {
+        Row: {
+          category: string
+          created_at: string | null
+          id: string
+          image_url: string | null
+          is_deleted: boolean | null
+          name: string
+          quantity: number
+          unit: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_deleted?: boolean | null
+          name: string
+          quantity?: number
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_deleted?: boolean | null
+          name?: string
+          quantity?: number
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       BorrowRequestItems: {
         Row: {
           asset_id: string | null
@@ -243,6 +279,7 @@ export type Database = {
           full_name: string
           id: string
           is_read: boolean | null
+          is_archived: boolean | null
           organization: string | null
           purpose: string | null
         }
@@ -255,6 +292,7 @@ export type Database = {
           full_name: string
           id?: string
           is_read?: boolean | null
+          is_archived?: boolean | null
           organization?: string | null
           purpose?: string | null
         }
@@ -267,6 +305,7 @@ export type Database = {
           full_name?: string
           id?: string
           is_read?: boolean | null
+          is_archived?: boolean | null
           organization?: string | null
           purpose?: string | null
         }
