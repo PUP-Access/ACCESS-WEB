@@ -106,7 +106,7 @@ The project follows an aggressive timeline to ensure a fully operational system 
 | **Project Manager**         | Zachary Ralf Crescel Charles DG. Nudalo |
 | **Scrum Master**            | Ren Fernandez Zapanta                   |
 | **System/Business Analyst** | Gerald S. Berongoy                      |
-| **Backend & DB Lead**       | Renz Tyrone F. Arcilla                  |
+| **Backend Lead**            | Renz Tyrone F. Arcilla                  |
 | **Backend Developers**      | Arvie Lastra                            |
 | **Frontend Lead**           | Earl Clyde M. Bañez                     |
 | **Frontend Developers**     | Elton James U. Donato                   |
