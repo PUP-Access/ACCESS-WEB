@@ -4,7 +4,7 @@ import { z } from "zod";
 
 const emailSchema = z.string()
   .trim()
-  .min(1, { error: "Password is required" })
+  .min(1, "Email is required")
   .toLowerCase()
   .pipe(
     z.email({ message: "Please enter a valid email address" })

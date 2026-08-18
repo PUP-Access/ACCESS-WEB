@@ -19,7 +19,7 @@ export default async function AdminContactMessagesPage({
   return (
     <AdminPageShell width="wide">
       <AdminPageHeader
-        eyebrow="Operations"
+        eyebrow="Command Center"
         title="Contact Messages"
         description="Review student inquiries, track unread feedback, and compose direct email replies via Resend."
       />

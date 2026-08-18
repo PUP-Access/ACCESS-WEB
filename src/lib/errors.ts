@@ -20,16 +20,30 @@ export function toErrorResponse(error: unknown) {
 }
 
 // client-facing (used in actions)
-export function getActionErrorMessage(error: unknown) {
+export function getActionErrorMessage(error: unknown, fallback = "An unexpected error occurred"): string {
   if (error instanceof AppError) {
-    return error.message;
+    if (error.message && error.message !== "{}") return error.message;
+    return fallback;
   }
 
   if (error instanceof ZodError) {
-    return error.issues.map((issue) => issue.message).join(", ");
+    return error.issues.map((issue) => issue.message).join(", ") || fallback;
   }
 
-  return "An unexpected error occurred";
+  if (error instanceof Error && error.message) {
+    if (error.message !== "{}" && error.message.trim().length > 0) {
+      return error.message;
+    }
+  }
+
+  if (error && typeof error === "object" && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    if (typeof msg === "string" && msg.trim().length > 0 && msg !== "{}") {
+      return msg;
+    }
+  }
+
+  return fallback;
 }
 
 type SupabaseErrorLike = {

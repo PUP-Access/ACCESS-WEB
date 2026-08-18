@@ -25,11 +25,12 @@ const NAV_GROUPS: {
   {
     label: "Operations",
     items: [
-      { href: "/admin/officers", label: "Officers Records" },
+      { href: "/admin/users", label: "User Accounts" },
       { href: "/admin/events", label: "Events" },
       { href: "/admin/borrow-requests", label: "Borrow Requests" },
       { href: "/admin/inventory", label: "Inventory" },
       { href: "/admin/contact-messages", label: "Contact Messages" },
+      { href: "/admin/audit-logs", label: "Audit Logs" },
     ],
   },
 ];
@@ -47,7 +48,7 @@ export default function AdminSidebar({ adminEmail }: AdminSidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="admin-glass sticky top-0 z-20 flex h-screen w-64 shrink-0 flex-col border-r border-white/10 backdrop-blur-xl">
+    <aside className="admin-glass print:hidden sticky top-0 z-20 flex h-screen w-64 shrink-0 flex-col border-r border-white/10 backdrop-blur-xl">
       <div className="shrink-0 border-b border-white/10 px-5 py-6">
         <Link href="/admin" className="block">
           <span className="title-header text-lg font-extrabold tracking-wide">ACCESS</span>

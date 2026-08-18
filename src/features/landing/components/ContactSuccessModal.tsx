@@ -8,44 +8,65 @@ type ContactSuccessModalProps = {
 
 export default function ContactSuccessModal({ onClose }: ContactSuccessModalProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-black/75 backdrop-blur-md"
         onClick={onClose}
         aria-hidden
       />
+
+      {/* Modal Container */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.92, y: 12 }}
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
         role="dialog"
         aria-labelledby="contact-success-title"
         aria-modal="true"
-        className="relative z-10 w-full max-w-md rounded-2xl px-8 py-8 text-center text-white shadow-[0_20px_60px_rgba(0,0,0,0.45)]"
-        style={{
-          background: "linear-gradient(180deg, #F26223 0%, #E04E12 100%)",
-        }}
+        className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl border border-white/15 bg-[#141416]/95 p-6 sm:p-8 text-center text-white shadow-[0_25px_70px_rgba(0,0,0,0.7)] backdrop-blur-2xl"
       >
-        <h3
+        {/* Title & Message */}
+        <motion.h3
           id="contact-success-title"
-          className="text-2xl font-extrabold tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="mt-5 text-2xl font-extrabold tracking-tight text-white sm:text-3xl"
         >
           Message Sent!
-        </h3>
-        <p className="mt-4 text-sm leading-relaxed text-white/95">
-          Thank you for reaching out. The ACCESS team will get back to you as soon as possible.
-        </p>
-        <button
-          type="button"
-          onClick={onClose}
-          className="mt-8 rounded-xl px-10 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:opacity-90"
-          style={{
-            background: "rgba(255, 255, 255, 0.25)",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
-          }}
+        </motion.h3>
+
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mt-3 text-sm leading-relaxed text-white/70"
         >
-          Okay
-        </button>
+          Thank you for reaching out. The ACCESS team has received your message and will respond to your email as soon as possible.
+        </motion.p>
+
+        {/* Action Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="mt-7"
+        >
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full sm:w-auto min-w-[160px] rounded-xl px-8 py-3 text-sm font-bold text-white transition-all duration-200 hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-[0_6px_20px_rgba(242,98,35,0.35)] hover:shadow-[0_8px_25px_rgba(242,98,35,0.5)]"
+            style={{
+              background: "linear-gradient(180deg, #F26223 0%, #C93A12 100%)",
+            }}
+          >
+            Proceed
+          </button>
+        </motion.div>
       </motion.div>
     </div>
   );

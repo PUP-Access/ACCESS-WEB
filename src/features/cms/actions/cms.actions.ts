@@ -417,13 +417,49 @@ export async function replyContactMessageAction(
     }
 
     const { Resend } = await import("resend");
+    const { renderAccessEmail } = await import("@/lib/email/email-template");
+    const { createSupabaseAdminClient } = await import("@/lib/supabase/admin-client");
     const resend = new Resend(process.env.RESEND_API_KEY);
+
+    // Fetch original contact message for context
+    const supabase = createSupabaseAdminClient();
+    const { data: contactMsg } = await supabase
+      .from("ContactMessages")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    const recipientName = contactMsg?.full_name || undefined;
+
+    const formattedHtml = renderAccessEmail({
+      title: "Response to Your Inquiry",
+      preheader: `Official response regarding your inquiry to PUP ACCESS.`,
+      statusLabel: "Official Response",
+      salutation: recipientName ? `Dear ${recipientName},` : "Greetings,",
+      leadParagraph: message.replace(/\n/g, "<br />"),
+      details: contactMsg?.concern
+        ? [
+            ...(contactMsg.purpose ? [{ label: "Topic / Purpose", value: contactMsg.purpose }] : []),
+            { label: "Your Original Concern", value: contactMsg.concern },
+          ]
+        : undefined,
+      notice: {
+        title: "Official Communication",
+        content: "This response has been dispatched by the administrative team of PUP ACCESS. You may email officialpupaccesssy2627@gmail.com if you require additional clarification.",
+      },
+      cta: {
+        text: "Visit PUP ACCESS Portal",
+        url: "https://pupaccess.org",
+      },
+      closingRemark: "For in-person consultations, visit Room 424, College of Engineering and Architecture (CEA) Building.",
+    });
 
     const { error } = await resend.emails.send({
       from: "ACCESS <noreply@pupaccess.org>",
       to: email,
-      subject: subject,
+      subject: subject.startsWith("Re:") ? subject : `Re: ${subject}`,
       text: message,
+      html: formattedHtml,
     });
 
     if (error) {
