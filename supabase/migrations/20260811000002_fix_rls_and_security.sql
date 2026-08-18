@@ -126,20 +126,6 @@ CREATE POLICY "Admins can update site content"
 -- -----------------------------------------------------------------------------
 
 
--- -----------------------------------------------------------------------------
--- Revoke public EXECUTE on SECURITY DEFINER functions
---
--- 20260719000003_fix_storage_rls.sql re-granted EXECUTE on is_admin() and
--- is_authorized() to anon and authenticated. We revoke those here.
--- These are internal helpers used only by RLS policies and triggers; they
--- should not be callable as public RPCs via /rest/v1/rpc/.
--- Triggers and RLS policies run as the DB owner so are unaffected by REVOKE.
--- -----------------------------------------------------------------------------
-
--- is_admin() and is_authorized(): RLS helper functions, not user-facing RPCs
-REVOKE EXECUTE ON FUNCTION public.is_admin() FROM anon, authenticated;
-REVOKE EXECUTE ON FUNCTION public.is_authorized() FROM anon, authenticated;
-
 -- handle_new_user() and handle_update_user_role(): trigger-only functions
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.handle_update_user_role() FROM anon, authenticated;
