@@ -8,8 +8,6 @@
 -- Triggers and RLS policies run as the DB owner so are unaffected.
 -- =============================================================================
 
-REVOKE EXECUTE ON FUNCTION public.is_admin() FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.is_authorized() FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.handle_update_user_role() FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.rls_auto_enable() FROM PUBLIC;

@@ -41,6 +41,8 @@ RETURNS boolean AS $$
   );
 $$ LANGUAGE sql SECURITY DEFINER SET search_path = public;
 
+GRANT EXECUTE ON FUNCTION public.is_admin() TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.is_authorized() TO anon, authenticated;
 
 -- -----------------------------------------------------------------------------
 -- AuditLogs
@@ -291,3 +293,4 @@ CREATE POLICY "Admins can delete equipments"
     TO authenticated
     USING (is_admin())
 ;
+
