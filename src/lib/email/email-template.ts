@@ -31,37 +31,12 @@ export interface EmailTemplateOptions {
   closingRemark?: string;
 }
 
-export function sanitizeEmailUrl(url: string): string {
-  if (!url) return url;
-  try {
-    const parsed = new URL(url);
-    const redirectParam = parsed.searchParams.get("redirect_to");
-    if (redirectParam) {
-      const sanitizedRedirect = redirectParam
-        .replace(/^http:\/\/localhost(:\d+)?/i, "https://pupaccess.org")
-        .replace(/^http:\/\/pupaccess\.org/i, "https://pupaccess.org");
-      parsed.searchParams.set("redirect_to", sanitizedRedirect);
-      return parsed.toString();
-    }
-  } catch {
-    // Fallback regex replacement if URL constructor fails
-    return url
-      .replace(/redirect_to=http%3A%2F%2Flocalhost%3A\d+/gi, "redirect_to=https%3A%2F%2Fpupaccess.org")
-      .replace(/redirect_to=http:\/\/localhost:\d+/gi, "redirect_to=https://pupaccess.org")
-      .replace(/redirect_to=http%3A%2F%2Fpupaccess\.org/gi, "redirect_to=https%3A%2F%2Fpupaccess.org")
-      .replace(/redirect_to=http:\/\/pupaccess\.org/gi, "redirect_to=https://pupaccess.org");
-  }
-  return url;
-}
-
 export function renderAccessEmail(options: EmailTemplateOptions): string {
   const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://pupaccess.org";
-  const siteUrl = rawSiteUrl.includes("localhost") || rawSiteUrl.startsWith("http://")
-    ? "https://pupaccess.org"
-    : rawSiteUrl.replace(/\/$/, "");
+  const siteUrl = rawSiteUrl.replace(/\/$/, "");
   const logoUrl = `${siteUrl}/circle-access-logo.webp`;
   const greeting = options.salutation || (options.recipientName ? `Dear ${options.recipientName},` : "Greetings,");
-  const ctaUrl = options.cta ? sanitizeEmailUrl(options.cta.url) : "";
+  const ctaUrl = options.cta ? options.cta.url : "";
 
   return `<!DOCTYPE html>
 <html lang="en">

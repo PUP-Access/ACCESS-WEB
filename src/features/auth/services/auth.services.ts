@@ -6,7 +6,7 @@ import { AppError } from "@/lib/errors";
 export async function registerOrganization(input: SignUpInput) {
   const supabaseAdmin = createSupabaseAdminClient();
 
-  const siteUrl = "https://pupaccess.org";
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://pupaccess.org").replace(/\/$/, "");
 
   const { data, error } = await supabaseAdmin.auth.admin.generateLink({
     type: "signup",
@@ -87,7 +87,7 @@ export async function logOutService() {
 
 export async function forgotPasswordService(email: string) {
   const supabaseAdmin = createSupabaseAdminClient();
-  const siteUrl = "https://pupaccess.org";
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://pupaccess.org").replace(/\/$/, "");
   
   const { data, error } = await supabaseAdmin.auth.admin.generateLink({
     type: "recovery",
