@@ -77,6 +77,7 @@ export default function AboutSection({ content }: AboutSectionProps) {
                 alt={`About us slide ${currentIndex + 1}`}
                 fill
                 priority
+                unoptimized={carouselImages[currentIndex]?.startsWith("http")}
                 className="object-cover object-center"
               />
             )}

@@ -110,19 +110,27 @@ export async function updateAboutImagesAction(
   try {
     const { getAboutContent, uploadSiteContentImage } = await import("../services/site-content.service");
     const current = await getAboutContent();
-    const newImages = [...(current.carouselImages || [])];
-
     // We expect up to 5 images
+    const currentList = [...(current.carouselImages || [])];
+    const newImages: string[] = [];
+
     for (let i = 0; i < 5; i++) {
+      const isRemoved = formData.get(`remove_image${i}`) === "true" || formData.get(`remove_image${i}`) === "on";
       const file = formData.get(`image${i}`);
+      
       if (file instanceof File && file.size > 0) {
-        newImages[i] = await uploadSiteContentImage(file);
+        const uploadedUrl = await uploadSiteContentImage(file);
+        newImages.push(uploadedUrl);
+      } else if (!isRemoved && currentList[i]) {
+        newImages.push(currentList[i]);
       }
     }
 
+    const finalImages = newImages.length > 0 ? newImages : ["/AboutUsPic.webp"];
+
     const parsed = AboutContentSchema.safeParse({
       ...current,
-      carouselImages: newImages,
+      carouselImages: finalImages,
     });
 
     if (!parsed.success) {
