@@ -15,15 +15,15 @@ type AdminMessageReplyProps = {
 const QUICK_TEMPLATES = [
   {
     label: "General Acknowledgment",
-    text: "Thank you for reaching out to PUP ACCESS. We have received your inquiry and are currently reviewing it. We will get back to you shortly with more details.\n\nIn Best Service,\nPUP ACCESS Team",
+    text: "Thank you for reaching out to PUP ACCESS. We have received your inquiry and are currently reviewing it. We will get back to you shortly with more details.",
   },
   {
     label: "Office Visit",
-    text: "Thank you for reaching out. Please feel free to visit our official ACCESS Organization Room at the College of Engineering during office hours (Monday - Friday, 9:00 AM - 5:00 PM) for further assistance.\n\nIn Best Service,\nPUP ACCESS Team",
+    text: "Thank you for reaching out. Please feel free to visit our official ACCESS Organization Room at the College of Engineering during office hours (Monday - Friday, 9:00 AM - 5:00 PM) for further assistance.",
   },
   {
     label: "Social Media Channels",
-    text: "Hello! Thank you for contacting ACCESS. For the latest announcements and event guidelines, please check our official Facebook and social media pages.\n\nIn Best Service,\nPUP ACCESS Team",
+    text: "Hello! Thank you for contacting ACCESS. For the latest announcements and event guidelines, please check our official Facebook and social media pages.",
   },
 ];
 

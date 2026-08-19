@@ -22,8 +22,8 @@ export function LogInForm() {
           id="email"
           name="email"
           required
-          placeholder="Student Number"
-          autoComplete="username"
+          placeholder="Email"
+          autoComplete="email"
           className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-3.5 text-sm text-white placeholder:text-white/50 outline-none transition-all hover:border-orange-500/40 hover:bg-white/15 focus:bg-white/20 focus:border-[#F26223] focus:ring-2 focus:ring-[#F26223]/30"
         />
       </div>

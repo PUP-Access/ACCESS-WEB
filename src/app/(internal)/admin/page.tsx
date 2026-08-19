@@ -39,10 +39,10 @@ function formatDate(value: string | null) {
 }
 
 const QUICK_ACTIONS = [
+  { href: "/admin/users", label: "Manage user accounts & roles", tag: "Accounts" },
   { href: "/admin/content/landing", label: "Edit landing hero", tag: "Content" },
   { href: "/admin/content/about", label: "Update about us", tag: "Content" },
   { href: "/admin/events/new", label: "Create new event", tag: "Events" },
-  { href: "/admin/officers", label: "Upload officers file", tag: "Officers" },
   { href: "/admin/content/faqs", label: "Manage FAQs", tag: "Content" },
   { href: "/admin/borrow-requests", label: "Review borrow queue", tag: "Inbox" },
   { href: "/admin/contact-messages", label: "Read contact inbox", tag: "Inbox" },

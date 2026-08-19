@@ -207,70 +207,48 @@ export default function ContactMessagesList({
 
   return (
     <div className="w-full space-y-6">
-      {/* ── METRIC STATS OVERVIEW ── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Total Inquiries */}
+      {/* ── METRIC STATS OVERVIEW (Matching Dashboard Theme) ── */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Active Inbox */}
         <div
           onClick={() => {
             setTabMode("inbox");
             setStatusFilter("all");
           }}
-          className={`relative cursor-pointer overflow-hidden rounded-2xl p-4 ring-1 backdrop-blur-md transition-all ${
-            tabMode === "inbox" && statusFilter === "all"
-              ? "bg-white/[0.08] ring-white/30"
-              : "bg-white/[0.03] ring-white/10 hover:bg-white/[0.06]"
+          className={`admin-card group relative cursor-pointer overflow-hidden rounded-2xl p-5 transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.35)] ${
+            tabMode === "inbox" && statusFilter === "all" ? "ring-2 ring-[#F26223]" : ""
           }`}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/50">
-              Active Inbox
-            </span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-white/80">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                />
-              </svg>
-            </div>
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-black tracking-tight text-white">{totalActive}</span>
-            <span className="text-xs text-white/40">active</span>
-          </div>
+          <div
+            className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-40 blur-2xl transition group-hover:opacity-70"
+            style={{ background: "#F26223" }}
+          />
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/45">Active Inbox</p>
+          <p className="title-header mt-3 text-4xl font-extrabold">{totalActive}</p>
+          <p className="mt-4 text-xs font-semibold text-[#FFB89A]/80 transition group-hover:text-[#FFD4BC]">
+            View Inbox →
+          </p>
         </div>
 
-        {/* Unread Messages */}
+        {/* Unread Inquiries */}
         <div
           onClick={() => {
             setTabMode("inbox");
             setStatusFilter("unread");
           }}
-          className={`relative cursor-pointer overflow-hidden rounded-2xl p-4 ring-1 transition-all ${
-            tabMode === "inbox" && statusFilter === "unread"
-              ? "bg-amber-500/15 ring-amber-500/40"
-              : "bg-white/[0.03] ring-white/10 hover:bg-amber-500/5 hover:ring-amber-500/25"
+          className={`admin-card group relative cursor-pointer overflow-hidden rounded-2xl p-5 transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.35)] ${
+            tabMode === "inbox" && statusFilter === "unread" ? "ring-2 ring-amber-500" : ""
           }`}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-300/80">
-              Unread
-            </span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400">
-              <span className="relative flex h-2.5 w-2.5">
-                {unreadActive > 0 && (
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
-                )}
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-500"></span>
-              </span>
-            </div>
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-black tracking-tight text-amber-300">{unreadActive}</span>
-            <span className="text-xs text-amber-200/50">require reply</span>
-          </div>
+          <div
+            className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-40 blur-2xl transition group-hover:opacity-70"
+            style={{ background: "#FFB800" }}
+          />
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-amber-300/80">Unread Messages</p>
+          <p className="title-header mt-3 text-4xl font-extrabold text-amber-300">{unreadActive}</p>
+          <p className="mt-4 text-xs font-semibold text-[#FFB89A]/80 transition group-hover:text-[#FFD4BC]">
+            Filter Unread →
+          </p>
         </div>
 
         {/* Read / Handled */}
@@ -279,56 +257,42 @@ export default function ContactMessagesList({
             setTabMode("inbox");
             setStatusFilter("read");
           }}
-          className={`relative cursor-pointer overflow-hidden rounded-2xl p-4 ring-1 transition-all ${
-            tabMode === "inbox" && statusFilter === "read"
-              ? "bg-emerald-500/15 ring-emerald-500/40"
-              : "bg-white/[0.03] ring-white/10 hover:bg-emerald-500/5 hover:ring-emerald-500/25"
+          className={`admin-card group relative cursor-pointer overflow-hidden rounded-2xl p-5 transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.35)] ${
+            tabMode === "inbox" && statusFilter === "read" ? "ring-2 ring-emerald-500" : ""
           }`}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-300/80">
-              Read / Handled
-            </span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-black tracking-tight text-emerald-300">{readActive}</span>
-            <span className="text-xs text-emerald-200/50">processed</span>
-          </div>
+          <div
+            className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-40 blur-2xl transition group-hover:opacity-70"
+            style={{ background: "#10B981" }}
+          />
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-emerald-300/80">Read / Handled</p>
+          <p className="title-header mt-3 text-4xl font-extrabold text-emerald-300">{readActive}</p>
+          <p className="mt-4 text-xs font-semibold text-[#FFB89A]/80 transition group-hover:text-[#FFD4BC]">
+            Filter Read →
+          </p>
         </div>
 
         {/* Archived Messages */}
         <div
           onClick={() => setTabMode("archived")}
-          className={`relative cursor-pointer overflow-hidden rounded-2xl p-4 ring-1 transition-all ${
-            tabMode === "archived"
-              ? "bg-blue-500/15 ring-blue-500/40"
-              : "bg-white/[0.03] ring-white/10 hover:bg-blue-500/5 hover:ring-blue-500/25"
+          className={`admin-card group relative cursor-pointer overflow-hidden rounded-2xl p-5 transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.35)] ${
+            tabMode === "archived" ? "ring-2 ring-[#FF8C00]" : ""
           }`}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-blue-300/80">
-              Archived
-            </span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-              </svg>
-            </div>
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-black tracking-tight text-blue-300">{totalArchived}</span>
-            <span className="text-xs text-blue-200/50">archived</span>
-          </div>
+          <div
+            className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-40 blur-2xl transition group-hover:opacity-70"
+            style={{ background: "#FF8C00" }}
+          />
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/45">Archived</p>
+          <p className="title-header mt-3 text-4xl font-extrabold">{totalArchived}</p>
+          <p className="mt-4 text-xs font-semibold text-[#FFB89A]/80 transition group-hover:text-[#FFD4BC]">
+            View Archive →
+          </p>
         </div>
       </div>
 
       {/* ── TOOLBAR: TABS, SEARCH & FILTERS ── */}
-      <div className="space-y-3">
+      <div className="space-y-3 pt-2">
         {/* Main Tab Navigation */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
           <div className="flex items-center gap-2">
@@ -336,7 +300,7 @@ export default function ContactMessagesList({
               onClick={() => setTabMode("inbox")}
               className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer ${
                 tabMode === "inbox"
-                  ? "bg-[#FF6B35] text-white shadow-md shadow-[#FF6B35]/25"
+                  ? "bg-[#F26223] text-white shadow-md shadow-[#F26223]/25"
                   : "bg-white/[0.04] text-white/60 hover:bg-white/[0.08] hover:text-white"
               }`}
             >
@@ -350,7 +314,7 @@ export default function ContactMessagesList({
               onClick={() => setTabMode("archived")}
               className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer ${
                 tabMode === "archived"
-                  ? "bg-blue-600 text-white shadow-md shadow-blue-600/25"
+                  ? "bg-[#FF8C00] text-white shadow-md shadow-[#FF8C00]/25"
                   : "bg-white/[0.04] text-white/60 hover:bg-white/[0.08] hover:text-white"
               }`}
             >
@@ -405,7 +369,7 @@ export default function ContactMessagesList({
                   onClick={() => setStatusFilter("all")}
                   className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
                     statusFilter === "all"
-                      ? "bg-[#FF6B35] text-white shadow-md shadow-[#FF6B35]/20"
+                      ? "bg-[#F26223] text-white shadow-md shadow-[#F26223]/20"
                       : "text-white/60 hover:text-white"
                   }`}
                 >

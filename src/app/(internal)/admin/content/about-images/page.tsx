@@ -57,13 +57,25 @@ export default async function AdminAboutImagesPage({
               <div key={index} className="space-y-3">
                 <AdminFieldLabel>Image {index + 1}</AdminFieldLabel>
                 {currentImg ? (
-                  <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-white/5 border border-white/10">
-                    <Image
-                      src={currentImg}
-                      alt={`About Image ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
+                  <div className="space-y-2">
+                    <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-white/5 border border-white/10">
+                      <Image
+                        src={currentImg}
+                        alt={`About Image ${index + 1}`}
+                        fill
+                        unoptimized
+                        className="object-cover"
+                      />
+                    </div>
+                    <label className="flex items-center gap-2 text-xs text-red-400 hover:text-red-300 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name={`remove_image${index}`}
+                        value="true"
+                        className="rounded border-white/20 bg-white/10 text-red-500 focus:ring-red-500"
+                      />
+                      <span>Remove / Delete this image</span>
+                    </label>
                   </div>
                 ) : (
                   <div className="w-full aspect-video rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/30 text-sm">

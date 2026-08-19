@@ -158,25 +158,41 @@ export async function submitBorrowRequestAction(
       }
     }
 
-    const { error: insertError } = await adminSupabase.from("BorrowRequests").insert({
-      user_id: user.id,
-      borrower_contact_name: parsed.data.fullName,
-      borrower_email: parsed.data.email,
-      borrower_phone: parsed.data.contactNumber,
-      course_year_section: parsed.data.courseYearSection,
-      organization_name: parsed.data.organization,
-      purpose: parsed.data.purpose,
-      additional_info: parsed.data.additionalInfo || null,
-      requested_item: parsed.data.item,
-      requested_start_date: start.toISOString(),
-      requested_end_date: end.toISOString(),
-      letter_file_url: publicUrlData.publicUrl,
-      status: "Pending",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
+    const { data: insertedData, error: insertError } = await adminSupabase
+      .from("BorrowRequests")
+      .insert({
+        user_id: user.id,
+        borrower_contact_name: parsed.data.fullName,
+        borrower_email: parsed.data.email,
+        borrower_phone: parsed.data.contactNumber,
+        course_year_section: parsed.data.courseYearSection,
+        organization_name: parsed.data.organization,
+        purpose: parsed.data.purpose,
+        additional_info: parsed.data.additionalInfo || null,
+        requested_item: parsed.data.item,
+        requested_start_date: start.toISOString(),
+        requested_end_date: end.toISOString(),
+        letter_file_url: publicUrlData.publicUrl,
+        status: "Pending",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
 
     if (insertError) throw insertError;
+
+    // Send automated email notification upon initial submission
+    if (insertedData && parsed.data.email && process.env.RESEND_API_KEY) {
+      try {
+        const { sendBorrowStatusEmail } = await import(
+          "@/features/cms/services/borrow-requests.admin.service"
+        );
+        await sendBorrowStatusEmail(insertedData, "Pending");
+      } catch (emailErr) {
+        console.error("Failed to send initial borrow status email:", emailErr);
+      }
+    }
 
     revalidatePath("/admin/borrow-requests");
     revalidatePath("/admin");

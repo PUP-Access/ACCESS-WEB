@@ -35,6 +35,7 @@ export async function signUpAction(
     return { status: "success" };
 
   } catch (err) {
+    console.error("SignUp Error: ", err);
     return { 
       status: "error", 
       message: getActionErrorMessage(err) 

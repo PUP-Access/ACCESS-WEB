@@ -29,6 +29,26 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Hide native Edge / Chrome password reveal & clear buttons */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none !important;
+}
+
+/* Chrome / Safari / Edge Autofill Fix for Dark Themes */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(26, 26, 32, 0.92) inset !important;
+  box-shadow: 0 0 0px 1000px rgba(26, 26, 32, 0.92) inset !important;
+  border-color: rgba(242, 98, 35, 0.45) !important;
+  caret-color: #ffffff !important;
+  transition: background-color 5000s ease-in-out 0s;
+  border-radius: inherit;
+}
+
 .bg-ember {
   background:
     radial-gradient(ellipse 70% 90% at 30% 25%, #ff7105 0%, #a92222 45%, #6a0000 100%),
@@ -392,6 +412,44 @@ body {
 @media (min-width: 1024px) {
   .faq-section {
     padding: 5rem 6rem;
+  }
+}
+
+@media print {
+  *, *::before, *::after {
+    text-shadow: none !important;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .admin-shell,
+  .admin-shell > div {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    display: block !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print\:hidden,
+  aside,
+  header.admin-glass,
+  nav {
+    display: none !important;
   }
 }
 
