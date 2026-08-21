@@ -67,7 +67,7 @@ export default async function AdminOfficersTemplatePage({
       </AdminCard>
 
       <AdminCard title="Section settings">
-        <form action={handleUpdate} encType="multipart/form-data" className="space-y-5">
+        <form action={handleUpdate} className="space-y-5">
           <input type="hidden" name="templateImageUrl" value={content.templateImageUrl} />
 
           <div>

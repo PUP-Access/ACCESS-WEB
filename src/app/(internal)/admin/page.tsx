@@ -95,10 +95,10 @@ export default async function AdminDashboardPage() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="flex items-center justify-between rounded-xl border border-white/5 bg-black/20 px-4 py-3 text-sm transition hover:border-[#F26223]/30 hover:bg-[#F26223]/10"
+                    className="flex items-center justify-between rounded-xl border border-white/5 bg-black/20 px-4 py-3 text-sm transition hover:border-[#F26223]/30 hover:bg-[#F26223]/10 min-w-0"
                   >
-                    <span className="text-white/85">{link.label}</span>
-                    <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] uppercase tracking-wider text-white/35">
+                    <span className="text-white/85 truncate min-w-0">{link.label}</span>
+                    <span className="shrink-0 rounded-full bg-white/5 px-2 py-0.5 text-[10px] uppercase tracking-wider text-white/35">
                       {link.tag}
                     </span>
                   </Link>
@@ -107,7 +107,7 @@ export default async function AdminDashboardPage() {
             </ul>
           </div>
 
-          <div className="admin-card rounded-2xl p-6 lg:col-span-3">
+          <div className="admin-card rounded-2xl p-6 lg:col-span-3 min-w-0">
             <div className="mb-5 flex items-center justify-between gap-3">
               <div>
                 <h3 className="text-lg font-semibold text-white">Recent borrow requests</h3>
@@ -115,7 +115,7 @@ export default async function AdminDashboardPage() {
               </div>
               <Link
                 href="/admin/borrow-requests"
-                className="text-xs font-semibold uppercase tracking-wider text-[#FFB89A] transition hover:text-[#FFD4BC]"
+                className="shrink-0 text-xs font-semibold uppercase tracking-wider text-[#FFB89A] transition hover:text-[#FFD4BC]"
               >
                 View all
               </Link>
@@ -129,17 +129,23 @@ export default async function AdminDashboardPage() {
                 stats.recentBorrowRequests.map((request) => (
                   <div
                     key={request.id}
-                    className="rounded-xl border border-white/8 bg-black/25 px-4 py-3"
+                    className="rounded-xl border border-white/8 bg-black/25 px-4 py-3 min-w-0 overflow-hidden"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <p className="text-sm font-semibold text-white">
+                    <div className="flex items-start justify-between gap-3 min-w-0">
+                      <p
+                        className="text-sm font-semibold text-white truncate min-w-0"
+                        title={request.borrower_contact_name ?? "Unknown borrower"}
+                      >
                         {request.borrower_contact_name ?? "Unknown borrower"}
                       </p>
-                      <span className="rounded-full bg-[#F26223]/15 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#FFB89A]">
+                      <span className="shrink-0 rounded-full bg-[#F26223]/15 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#FFB89A]">
                         {request.status ?? "Pending"}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-white/45">
+                    <p
+                      className="mt-1 text-xs text-white/45 truncate min-w-0"
+                      title={request.requested_item ?? "No item listed"}
+                    >
                       {request.requested_item ?? "No item listed"}
                     </p>
                     <p className="mt-2 text-[11px] text-white/30">{formatDate(request.created_at)}</p>
@@ -150,7 +156,7 @@ export default async function AdminDashboardPage() {
           </div>
         </section>
 
-        <section className="admin-card rounded-2xl p-6">
+        <section className="admin-card rounded-2xl p-6 min-w-0">
           <div className="mb-5 flex items-center justify-between gap-3">
             <div>
               <h3 className="text-lg font-semibold text-white">Recent contact messages</h3>
@@ -158,12 +164,12 @@ export default async function AdminDashboardPage() {
             </div>
             <Link
               href="/admin/contact-messages"
-              className="text-xs font-semibold uppercase tracking-wider text-[#FFB89A] transition hover:text-[#FFD4BC]"
+              className="shrink-0 text-xs font-semibold uppercase tracking-wider text-[#FFB89A] transition hover:text-[#FFD4BC]"
             >
               View all
             </Link>
           </div>
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-2 min-w-0">
             {stats.recentContactMessages.length === 0 ? (
               <p className="rounded-xl border border-dashed border-white/10 px-4 py-8 text-center text-sm text-white/40 md:col-span-2">
                 No contact messages yet.
@@ -172,18 +178,28 @@ export default async function AdminDashboardPage() {
               stats.recentContactMessages.map((message) => (
                 <div
                   key={message.id}
-                  className="rounded-xl border border-white/8 bg-black/25 px-4 py-3"
+                  className="rounded-xl border border-white/8 bg-black/25 px-4 py-3 min-w-0 overflow-hidden"
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-semibold text-white">{message.full_name}</p>
+                  <div className="flex items-center justify-between gap-3 min-w-0">
+                    <p
+                      className="text-sm font-semibold text-white truncate min-w-0"
+                      title={message.full_name}
+                    >
+                      {message.full_name}
+                    </p>
                     {!message.is_read ? (
-                      <span className="rounded-full bg-[#FFB800]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#FFD56B]">
+                      <span className="shrink-0 rounded-full bg-[#FFB800]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#FFD56B]">
                         Unread
                       </span>
                     ) : null}
                   </div>
-                  <p className="text-xs text-white/45">{message.email}</p>
-                  <p className="mt-2 line-clamp-2 text-sm text-white/65">{message.concern}</p>
+                  <p
+                    className="text-xs text-white/45 truncate min-w-0"
+                    title={message.email}
+                  >
+                    {message.email}
+                  </p>
+                  <p className="mt-2 line-clamp-2 text-sm text-white/65 break-words">{message.concern}</p>
                   <p className="mt-2 text-[11px] text-white/30">{formatDate(message.created_at)}</p>
                 </div>
               ))

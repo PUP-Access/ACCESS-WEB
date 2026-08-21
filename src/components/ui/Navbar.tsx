@@ -8,6 +8,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import ProfileDropdown from "./ProfileDropdown";
+
 interface NavItem {
   label: string;
   href: string;
@@ -71,6 +73,9 @@ export default function Navbar({ items = landingNavItems }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [orgName, setOrgName] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const pathname = usePathname();
@@ -90,16 +95,29 @@ export default function Navbar({ items = landingNavItems }: NavbarProps) {
 
       if (!nextUser) {
         setIsAdmin(false);
+        setUserRole(null);
+        setOrgName(null);
+        setAvatarUrl(null);
         return;
       }
 
       const { data: userRow } = await supabase
         .from("Users")
-        .select("role")
+        .select("role, organization_name")
         .eq("id", nextUser.id)
         .maybeSingle();
 
-      setIsAdmin(userRow?.role === "Admin");
+      const role = userRow?.role ?? (nextUser.user_metadata?.role as string | undefined) ?? null;
+      const organizationName =
+        userRow?.organization_name ??
+        (nextUser.user_metadata?.organization_name as string | undefined) ??
+        null;
+      const userAvatar = (nextUser.user_metadata?.avatar_url as string | undefined) ?? null;
+
+      setIsAdmin(role === "Admin");
+      setUserRole(role);
+      setOrgName(organizationName);
+      setAvatarUrl(userAvatar);
     };
 
     syncUser();
@@ -189,7 +207,8 @@ export default function Navbar({ items = landingNavItems }: NavbarProps) {
     }`;
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 w-full px-3 pt-3 md:px-5 md:pt-4 lg:px-6 lg:pt-5">
+    <>
+      <header className="fixed inset-x-0 top-0 z-50 w-full px-3 pt-3 md:px-5 md:pt-4 lg:px-6 lg:pt-5">
       <nav
         className="mx-auto grid w-full max-w-[1248px] grid-cols-[1fr_auto] items-center gap-3 rounded-full border border-white/10 px-4 py-2 backdrop-blur-xl transition-[background,box-shadow,border-color] duration-300 md:grid-cols-[1fr_auto_1fr] md:gap-4 md:px-6 md:py-2.5"
         style={{
@@ -244,21 +263,6 @@ export default function Navbar({ items = landingNavItems }: NavbarProps) {
             </Link>
           ) : null}
 
-          {user ? (
-            <form action={signOut} className="hidden sm:block">
-              <button
-                type="submit"
-                className="rounded-xl px-3 py-2 text-xs font-semibold text-white transition-all hover:opacity-90 sm:px-4 sm:text-sm"
-                style={{
-                  background: "linear-gradient(180deg, #F26223 0%, #C93A12 100%)",
-                  boxShadow: "0 4px 14px rgba(242, 98, 35, 0.35)",
-                }}
-              >
-                Logout
-              </button>
-            </form>
-          ) : null}
-
           <button
             type="button"
             className="flex h-9 w-9 shrink-0 flex-col items-center justify-center gap-[5px] md:hidden"
@@ -305,35 +309,52 @@ export default function Navbar({ items = landingNavItems }: NavbarProps) {
             })}
           </ul>
 
-          {isAdmin ? (
-            <Link
-              href="/admin"
-              className="flex items-center justify-center gap-2 rounded-xl border border-[#F26223]/35 bg-[#F26223]/15 px-4 py-2.5 text-sm font-medium text-[#FFD4BC] transition hover:bg-[#F26223]/25"
-              onClick={() => setMenuOpen(false)}
-            >
-              <span className="rounded-full bg-[#F26223] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-                Admin
-              </span>
-              Open dashboard
-            </Link>
-          ) : null}
-
           {user ? (
-            <form action={signOut}>
-              <button
-                type="submit"
-                className="flex w-full items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90"
-                style={{
-                  background: "linear-gradient(180deg, #F26223 0%, #C93A12 100%)",
-                }}
-                onClick={() => setMenuOpen(false)}
-              >
-                Logout
-              </button>
-            </form>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-3 space-y-2">
+              <div className="flex items-center justify-between gap-2 min-w-0">
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-white truncate">
+                    {orgName || "Organization Account"}
+                  </p>
+                  <p className="text-[11px] text-white/40 truncate">{user.email}</p>
+                </div>
+                {userRole && (
+                  <span className="shrink-0 rounded-full bg-[#F26223]/20 px-2 py-0.5 text-[9px] font-extrabold uppercase text-[#FFB89A]">
+                    {userRole}
+                  </span>
+                )}
+              </div>
+
+              {isAdmin ? (
+                <Link
+                  href="/admin"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-[#F26223]/35 bg-[#F26223]/15 px-3 py-2 text-xs font-medium text-[#FFD4BC] transition hover:bg-[#F26223]/25"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <span className="rounded-full bg-[#F26223] px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
+                    Admin
+                  </span>
+                  Open dashboard
+                </Link>
+              ) : null}
+            </div>
           ) : null}
         </div>
       ) : null}
     </header>
+
+    {/* Fixed Top-Right Floating Profile Widget (Independent of Navbar) */}
+    {user ? (
+      <div className="fixed top-4 right-4 z-[70] md:top-5 md:right-6">
+        <ProfileDropdown
+          userEmail={user.email || ""}
+          organizationName={orgName}
+          role={userRole}
+          avatarUrl={avatarUrl}
+          isAdmin={isAdmin}
+        />
+      </div>
+    ) : null}
+  </>
   );
 }

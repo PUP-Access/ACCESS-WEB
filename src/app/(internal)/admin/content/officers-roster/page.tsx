@@ -77,7 +77,7 @@ export default async function AdminOfficersRosterPage({
       </AdminCard>
 
       <AdminCard title="Upload images">
-        <form action={handleUpload} encType="multipart/form-data" className="space-y-5">
+        <form action={handleUpload} className="space-y-5">
           {(content.parts || []).map((part, index) => (
             <div key={part.id} className="pt-4 border-t border-white/10 first:border-0 first:pt-0">
               <AdminFieldLabel>{part.label || `Part ${index + 1}`} Image</AdminFieldLabel>

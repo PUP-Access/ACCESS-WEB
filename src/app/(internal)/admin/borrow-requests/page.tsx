@@ -70,11 +70,21 @@ export default async function AdminBorrowRequestsPage({
             {data.map((request) => (
               <tr key={request.id}>
                 <td>
-                  <p className="font-semibold text-white">{request.borrower_contact_name}</p>
-                  <p className="text-xs text-white/45">{request.borrower_email}</p>
-                  <p className="text-xs text-white/35">{request.organization_name}</p>
+                  <p className="font-semibold text-white truncate max-w-[220px]" title={request.borrower_contact_name ?? ""}>
+                    {request.borrower_contact_name}
+                  </p>
+                  <p className="text-xs text-white/45 truncate max-w-[220px]" title={request.borrower_email ?? ""}>
+                    {request.borrower_email}
+                  </p>
+                  <p className="text-xs text-white/35 truncate max-w-[220px]" title={request.organization_name ?? ""}>
+                    {request.organization_name}
+                  </p>
                 </td>
-                <td>{request.requested_item ?? "—"}</td>
+                <td>
+                  <p className="truncate max-w-[220px]" title={request.requested_item ?? "—"}>
+                    {request.requested_item ?? "—"}
+                  </p>
+                </td>
                 <td>
                   <p>{formatDate(request.requested_start_date)}</p>
                   <p className="text-white/35">to</p>
