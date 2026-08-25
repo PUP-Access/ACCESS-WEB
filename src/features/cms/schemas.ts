@@ -16,16 +16,19 @@ export const AboutContentSchema = z.object({
   ]),
 });
 
+export const OfficersSectionPartSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  link: z.string(),
+  imageUrl: z.string().optional(),
+  isVisible: z.boolean().optional().default(true),
+});
+
 export const OfficersSectionContentSchema = z.object({
   title: z.string().min(1),
   subtitle: z.string().min(1),
   templateImageUrl: z.string().min(1),
-  parts: z.array(z.object({
-    id: z.string(),
-    label: z.string(),
-    link: z.string(),
-    imageUrl: z.string().optional(),
-  })).optional().default([]),
+  parts: z.array(OfficersSectionPartSchema).optional().default([]),
 });
 
 export const FAQItemSchema = z.object({
@@ -74,18 +77,19 @@ export const BorrowRequestSchema = z.object({
 
 export type HeroContent = z.infer<typeof HeroContentSchema>;
 export type AboutContent = z.infer<typeof AboutContentSchema>;
+export type OfficersSectionPart = z.infer<typeof OfficersSectionPartSchema>;
 export type OfficersSectionContent = z.infer<typeof OfficersSectionContentSchema>;
 
 export const DEFAULT_HERO_CONTENT: HeroContent = {
   titleLines: [
-    "Association of Concerned",
-    "Computer Engineering Students",
-    "for Service",
+    "ASSOCIATION OF CONCERNED",
+    "COMPUTER ENGINEERING",
+    "STUDENTS FOR SERVICE",
   ],
   subtitle:
-    "Lorem ipsum dolor sit amet consectetur Lorem ipsum dolor sit amet consectetur Lorem ipsum dolor sit amet consectetur Lorem ipsum",
-  primaryCtaLabel: "Get Started",
-  secondaryCtaLabel: "Get In Touch",
+    "We are a community of student leaders and innovators committed to advancing technology, collaboration, and excellence within PUP.",
+  primaryCtaLabel: "About us",
+  secondaryCtaLabel: "Officers",
 };
 
 export const DEFAULT_ABOUT_CONTENT: AboutContent = {
@@ -105,21 +109,24 @@ export const DEFAULT_OFFICERS_SECTION_CONTENT: OfficersSectionContent = {
   parts: [
     {
       id: "part-1",
-      label: "Batch Officers",
-      link: "/officers#part-1",
+      label: "ACCESS Officers",
+      link: "/officers",
       imageUrl: "",
+      isVisible: true,
     },
     {
       id: "part-2",
-      label: "ACCESS",
-      link: "/officers#part-2",
+      label: "Class Representatives",
+      link: "/officers/class-representatives",
       imageUrl: "",
+      isVisible: true,
     },
     {
       id: "part-3",
-      label: "Class Representatives",
-      link: "/officers#part-3",
+      label: "Batch Representatives",
+      link: "/officers/batch-representatives",
       imageUrl: "",
+      isVisible: true,
     },
   ],
 };

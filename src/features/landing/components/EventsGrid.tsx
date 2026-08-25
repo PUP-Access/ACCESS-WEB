@@ -15,7 +15,7 @@ export default function EventsGrid({ events }: EventsGridProps) {
   }
 
   return (
-    <RevealStagger className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    <RevealStagger className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 justify-items-center">
       {events.map((event) => (
         <EventCard key={event.href ?? `${event.title}-${event.date}`} {...event} />
       ))}

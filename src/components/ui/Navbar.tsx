@@ -207,85 +207,98 @@ export default function Navbar({ items = landingNavItems }: NavbarProps) {
     }`;
 
   return (
-    <>
-      <header className="fixed inset-x-0 top-0 z-50 w-full px-3 pt-3 md:px-5 md:pt-4 lg:px-6 lg:pt-5">
-      <nav
-        className="mx-auto grid w-full max-w-[1248px] grid-cols-[1fr_auto] items-center gap-3 rounded-full border border-white/10 px-4 py-2 backdrop-blur-xl transition-[background,box-shadow,border-color] duration-300 md:grid-cols-[1fr_auto_1fr] md:gap-4 md:px-6 md:py-2.5"
-        style={{
-          background: scrolled ? "rgba(18, 18, 18, 0.92)" : "rgba(18, 18, 18, 0.72)",
-          boxShadow: scrolled
-            ? "0 8px 32px rgba(0, 0, 0, 0.45)"
-            : "0 4px 24px rgba(0, 0, 0, 0.35)",
-          borderColor: scrolled ? "rgba(255, 255, 255, 0.14)" : "rgba(255, 255, 255, 0.1)",
-        }}
-        aria-label="Main navigation"
-      >
-        <Link href="/#home" className="flex shrink-0 items-center justify-self-start">
-          <Image
-            src="/AccessLogo.webp"
-            alt="ACCESS"
-            width={140}
-            height={40}
-            className="h-8 w-auto object-contain md:h-9"
-            priority
-          />
-        </Link>
+    <header className="fixed inset-x-0 top-0 z-50 w-full px-3 pt-3 md:px-5 md:pt-4 lg:px-6 lg:pt-5 pointer-events-none">
+      <div className="mx-auto flex w-full max-w-[1360px] items-center justify-between gap-2.5 md:gap-4">
+        <nav
+          className="flex-1 min-w-0 flex items-center justify-between rounded-full border border-white/10 px-3.5 py-1.5 backdrop-blur-xl transition-[background,box-shadow,border-color] duration-300 md:px-6 md:py-2.5 pointer-events-auto"
+          style={{
+            background: scrolled ? "rgba(18, 18, 18, 0.92)" : "rgba(18, 18, 18, 0.72)",
+            boxShadow: scrolled
+              ? "0 8px 32px rgba(0, 0, 0, 0.45)"
+              : "0 4px 24px rgba(0, 0, 0, 0.35)",
+            borderColor: scrolled ? "rgba(255, 255, 255, 0.14)" : "rgba(255, 255, 255, 0.1)",
+          }}
+          aria-label="Main navigation"
+        >
+          <Link href="/#home" className="flex shrink-0 items-center justify-self-start">
+            <Image
+              src="/AccessLogo.webp"
+              alt="ACCESS"
+              width={140}
+              height={40}
+              className="h-7 w-auto object-contain sm:h-8 md:h-9"
+              priority
+            />
+          </Link>
 
-        <ul className="hidden list-none items-center justify-center gap-1 p-0 md:flex lg:gap-2">
-          {items.map((item) => {
-            const sectionId = item.href.startsWith("/#") ? item.href.slice(2) : "";
-            const active = onLanding && sectionId === activeSection;
-            return (
-              <li key={item.href}>
-                <NavLink
-                  href={item.href}
-                  label={item.label}
-                  className={linkClass(active)}
-                  active={active}
-                  onNavigate={() => setMenuOpen(false)}
-                />
-              </li>
-            );
-          })}
-        </ul>
+          <ul className="hidden list-none items-center justify-center gap-1 p-0 md:flex lg:gap-2">
+            {items.map((item) => {
+              const sectionId = item.href.startsWith("/#") ? item.href.slice(2) : "";
+              const active = onLanding && sectionId === activeSection;
+              return (
+                <li key={item.href}>
+                  <NavLink
+                    href={item.href}
+                    label={item.label}
+                    className={linkClass(active)}
+                    active={active}
+                    onNavigate={() => setMenuOpen(false)}
+                  />
+                </li>
+              );
+            })}
+          </ul>
 
-        <div className="flex items-center justify-end gap-2 justify-self-end md:gap-3">
-          {isAdmin ? (
-            <Link
-              href="/admin"
-              className="hidden items-center gap-2 rounded-full border border-[#F26223]/45 bg-[#F26223]/15 px-3 py-1.5 transition hover:bg-[#F26223]/25 sm:inline-flex"
-              title="Open admin dashboard"
+          <div className="flex shrink-0 items-center justify-end gap-2.5 justify-self-end md:gap-3">
+            {isAdmin ? (
+              <Link
+                href="/admin"
+                className="hidden items-center gap-2 rounded-full border border-[#F26223]/45 bg-[#F26223]/15 px-3 py-1.5 transition hover:bg-[#F26223]/25 sm:inline-flex"
+                title="Open admin dashboard"
+              >
+                <span className="rounded-full bg-[#F26223] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                  Admin
+                </span>
+                <span className="text-xs font-medium text-[#FFD4BC]">Dashboard</span>
+              </Link>
+            ) : null}
+
+            <button
+              type="button"
+              className="flex h-9 w-9 shrink-0 flex-col items-center justify-center gap-[5px] md:hidden"
+              onClick={() => setMenuOpen((prev) => !prev)}
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={menuOpen}
             >
-              <span className="rounded-full bg-[#F26223] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-                Admin
-              </span>
-              <span className="text-xs font-medium text-[#FFD4BC]">Dashboard</span>
-            </Link>
-          ) : null}
+              <span
+                className={`block h-0.5 w-5 rounded-full bg-[#D8D8D8] transition-transform duration-200 ${menuOpen ? "translate-y-[7px] rotate-45" : ""}`}
+              />
+              <span
+                className={`block h-0.5 w-5 rounded-full bg-[#D8D8D8] transition-opacity duration-200 ${menuOpen ? "opacity-0" : ""}`}
+              />
+              <span
+                className={`block h-0.5 w-5 rounded-full bg-[#D8D8D8] transition-transform duration-200 ${menuOpen ? "-translate-y-[7px] -rotate-45" : ""}`}
+              />
+            </button>
+          </div>
+        </nav>
 
-          <button
-            type="button"
-            className="flex h-9 w-9 shrink-0 flex-col items-center justify-center gap-[5px] md:hidden"
-            onClick={() => setMenuOpen((prev) => !prev)}
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={menuOpen}
-          >
-            <span
-              className={`block h-0.5 w-5 rounded-full bg-[#D8D8D8] transition-transform duration-200 ${menuOpen ? "translate-y-[7px] rotate-45" : ""}`}
+        {user ? (
+          <div className="shrink-0 pointer-events-auto">
+            <ProfileDropdown
+              userEmail={user.email || ""}
+              organizationName={orgName}
+              role={userRole}
+              avatarUrl={avatarUrl}
+              isAdmin={isAdmin}
             />
-            <span
-              className={`block h-0.5 w-5 rounded-full bg-[#D8D8D8] transition-opacity duration-200 ${menuOpen ? "opacity-0" : ""}`}
-            />
-            <span
-              className={`block h-0.5 w-5 rounded-full bg-[#D8D8D8] transition-transform duration-200 ${menuOpen ? "-translate-y-[7px] -rotate-45" : ""}`}
-            />
-          </button>
-        </div>
-      </nav>
+          </div>
+        ) : null}
+      </div>
 
       {menuOpen ? (
         <div
-          className="mx-auto mt-2 flex w-full max-w-[1248px] flex-col gap-3 rounded-3xl border border-white/10 px-5 pb-5 pt-4 backdrop-blur-xl md:hidden"
+          className="mx-auto mt-2 flex w-full max-w-[1360px] flex-col gap-3 rounded-3xl border border-white/10 px-5 pb-5 pt-4 backdrop-blur-xl md:hidden pointer-events-auto"
           style={{
             background: "rgba(18, 18, 18, 0.95)",
             boxShadow: "0 4px 24px rgba(0, 0, 0, 0.35)",
@@ -342,19 +355,5 @@ export default function Navbar({ items = landingNavItems }: NavbarProps) {
         </div>
       ) : null}
     </header>
-
-    {/* Fixed Top-Right Floating Profile Widget (Independent of Navbar) */}
-    {user ? (
-      <div className="fixed top-4 right-4 z-[70] md:top-5 md:right-6">
-        <ProfileDropdown
-          userEmail={user.email || ""}
-          organizationName={orgName}
-          role={userRole}
-          avatarUrl={avatarUrl}
-          isAdmin={isAdmin}
-        />
-      </div>
-    ) : null}
-  </>
   );
 }

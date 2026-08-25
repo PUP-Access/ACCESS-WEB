@@ -1,9 +1,9 @@
 import { Navbar } from "@/components/ui";
 import { FooterSection } from "@/features/landing";
-import { getOfficersSectionContent } from "@/features/cms";
+import { getOfficersHierarchyContent } from "@/features/officers/services/officers-hierarchy.service";
+import OfficersHierarchyView from "@/features/officers/components/OfficersHierarchyView";
 import Image from "next/image";
 import { CrystalDice3D, type CrystalConfig } from "@/features/effects";
-import OfficersTabs from "./OfficersTabs";
 import { unstable_noStore as noStore } from "next/cache";
 
 export const dynamic = "force-dynamic";
@@ -23,11 +23,12 @@ const OFFICERS_CRYSTALS: CrystalConfig[] = [
 
 export default async function OfficersPage() {
   noStore();
-  const content = await getOfficersSectionContent();
+  const hierarchyContent = await getOfficersHierarchyContent();
 
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white relative">
-      <div className="sticky top-0 h-screen w-full z-0 overflow-hidden pointer-events-none">
+    <div className="min-h-screen flex flex-col bg-black text-white relative selection:bg-[#F26223] selection:text-white">
+      {/* ── Fixed Background Image & 3D Crystals ─────────────────────── */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <Image
           src="/EventsBG.webp"
           alt=""
@@ -39,39 +40,21 @@ export default async function OfficersPage() {
         <CrystalDice3D crystals={OFFICERS_CRYSTALS} cameraZ={13} className="z-[1]" />
       </div>
 
-      <div className="relative z-10 -mt-[100vh] flex flex-col min-h-screen pt-24 md:pt-28">
+      {/* ── Fixed Ambient Orange/Amber Glow Lighting ─────────────────── */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[8%] left-[8%] w-[500px] h-[500px] bg-[#FFB800] opacity-25 blur-[150px] rounded-full" />
+        <div className="absolute top-[28%] right-[8%] w-[600px] h-[600px] bg-[#FF8C00] opacity-25 blur-[160px] rounded-full" />
+        <div className="absolute top-[55%] left-[12%] w-[600px] h-[600px] bg-[#FF8C00] opacity-25 blur-[160px] rounded-full" />
+        <div className="absolute top-[80%] right-[10%] w-[500px] h-[500px] bg-[#FFB800] opacity-20 blur-[150px] rounded-full" />
+      </div>
+
+      {/* ── Foreground Scrollable Content ────────────────────────────── */}
+      <div className="relative z-10 flex flex-col min-h-screen pt-24 md:pt-28">
         <Navbar />
 
-        <main className="flex-1 py-12 px-5 sm:px-8 md:px-16 lg:px-24 relative overflow-hidden md:py-20">
-          <div className="absolute top-[10%] left-[-30%] w-[600px] h-[500px] bg-black/85 blur-[120px] rounded-full pointer-events-none z-[-1] mix-blend-multiply" />
-          <div className="absolute top-[30%] right-[-20%] w-[700px] h-[600px] bg-black/90 blur-[130px] rounded-full pointer-events-none z-[-1] mix-blend-multiply" />
-          <div className="absolute top-[60%] left-[-30%] w-[600px] h-[600px] bg-black/85 blur-[140px] rounded-full pointer-events-none z-[-1] mix-blend-multiply" />
-          <div className="absolute top-[85%] right-[-5%] w-[500px] h-[500px] bg-black/90 blur-[130px] rounded-full pointer-events-none z-[-1] mix-blend-multiply" />
-          <div className="absolute top-[1%] left-[5%] w-[500px] h-[500px] bg-[#FFB800] opacity-40 blur-[140px] rounded-full pointer-events-none z-[-1]" />
-          <div className="absolute top-[15%] right-[5%] w-[500px] h-[500px] bg-[#FFB800] opacity-40 blur-[140px] rounded-full pointer-events-none z-[-1]" />
-          <div className="absolute top-[60%] left-[40%] w-[600px] h-[600px] bg-[#FF8C00] opacity-40 blur-[140px] rounded-full pointer-events-none z-[-1]" />
-          <div className="absolute top-[90%] left-[15%] w-[400px] h-[400px] bg-[#FFB800] opacity-40 blur-[120px] rounded-full pointer-events-none z-[-1]" />
-
-          <div className="text-center max-w-3xl mx-auto mb-12 relative z-20">
-            <h1
-              className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-widest title-header pb-2"
-              style={{
-                background: "linear-gradient(180deg, #ffffff 0%, #ffdfc4 40%, #f26223 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                filter: "drop-shadow(0px 8px 12px rgba(0,0,0,0.5))",
-              }}
-            >
-              {content.title}
-            </h1>
-            <p className="mt-5 text-sm sm:text-base text-zinc-300 leading-relaxed max-w-2xl mx-auto drop-shadow-md">
-              {content.subtitle}
-            </p>
-          </div>
-
-          <div className="w-full max-w-5xl mx-auto relative z-20">
-            <OfficersTabs parts={content.parts || []} />
+        <main className="flex-1 py-8 px-4 sm:px-6 md:px-12 lg:px-16 relative">
+          <div className="w-full max-w-7xl mx-auto">
+            <OfficersHierarchyView content={hierarchyContent} />
           </div>
         </main>
 

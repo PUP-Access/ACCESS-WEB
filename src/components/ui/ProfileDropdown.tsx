@@ -57,12 +57,12 @@ export default function ProfileDropdown({
 
   return (
     <>
-      <div className="relative inline-block text-left" ref={dropdownRef}>
-        {/* Floating Profile Trigger Icon */}
+      <div className="relative flex shrink-0 items-center text-left" ref={dropdownRef}>
+        {/* Profile Trigger Icon */}
         <button
           type="button"
           onClick={() => setIsOpen((prev) => !prev)}
-          className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#F26223] via-[#E04810] to-[#862520] font-bold text-xs text-white shadow-xl shadow-[#F26223]/25 ring-2 ring-white/20 hover:ring-[#F26223]/60 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none cursor-pointer"
+          className="relative flex h-9 w-9 md:h-10 md:w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#F26223] via-[#E04810] to-[#862520] font-bold text-xs text-white shadow-xl shadow-[#F26223]/25 ring-2 ring-white/20 hover:ring-[#F26223]/60 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none cursor-pointer shrink-0"
           title="Account Profile & Settings"
           aria-label="Open Profile Menu"
           aria-expanded={isOpen}
@@ -81,7 +81,7 @@ export default function ProfileDropdown({
 
         {/* Dropdown Menu Popup */}
         {isOpen && (
-          <div className="absolute right-0 mt-3 w-64 origin-top-right rounded-2xl border border-white/10 bg-[#161618]/95 p-2 shadow-2xl backdrop-blur-xl ring-1 ring-white/10 animate-in fade-in zoom-in-95 duration-150 z-50">
+          <div className="absolute right-0 top-full mt-2 w-64 origin-top-right rounded-2xl border border-white/10 bg-[#161618]/95 p-2 shadow-2xl backdrop-blur-xl ring-1 ring-white/10 animate-in fade-in zoom-in-95 duration-150 z-50">
             {/* Header info */}
             <div className="border-b border-white/10 px-3 py-3">
               <div className="flex items-center gap-3">
