@@ -349,7 +349,8 @@ export default function AdminOfficersManager({
         role: "",
         tierId: "tier-president",
         courseYear: "",
-        bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        bio: "",
+        hideBio: false,
         email: "",
         facebookUrl: "",
         linkedinUrl: "",
@@ -368,7 +369,8 @@ export default function AdminOfficersManager({
         yearId: "1st-year",
         section: "BSCPE 1-1",
         courseYear: "BSCPE 1-1",
-        bio: "Lorem ipsum dolor sit amet consectetur Lorem ipsum dolor sit amet consectetur",
+        bio: "",
+        hideBio: false,
         email: "",
         facebookUrl: "",
         linkedinUrl: "",
@@ -387,7 +389,8 @@ export default function AdminOfficersManager({
         batchId: "1st-year",
         batchYear: "1st Year",
         courseYear: "BSCPE 1-1",
-        bio: "Lorem ipsum dolor sit amet consectetur Lorem ipsum dolor sit amet consectetur",
+        bio: "",
+        hideBio: false,
         email: "",
         facebookUrl: "",
         linkedinUrl: "",
@@ -416,6 +419,7 @@ export default function AdminOfficersManager({
     if (!editingOfficer) return;
     const formData = new FormData(e.currentTarget);
     formData.set("id", editingOfficer.id);
+    formData.set("hideBio", editingOfficer.hideBio ? "true" : "false");
 
     startTransition(async () => {
       const res = await saveOfficerHierarchyAction({ status: "idle" }, formData);
@@ -438,6 +442,7 @@ export default function AdminOfficersManager({
     if (!editingClassRep) return;
     const formData = new FormData(e.currentTarget);
     formData.set("id", editingClassRep.id);
+    formData.set("hideBio", editingClassRep.hideBio ? "true" : "false");
 
     startTransition(async () => {
       const res = await saveClassRepAction({ status: "idle" }, formData);
@@ -460,6 +465,7 @@ export default function AdminOfficersManager({
     if (!editingBatchRep) return;
     const formData = new FormData(e.currentTarget);
     formData.set("id", editingBatchRep.id);
+    formData.set("hideBio", editingBatchRep.hideBio ? "true" : "false");
 
     startTransition(async () => {
       const res = await saveBatchRepAction({ status: "idle" }, formData);
@@ -708,6 +714,7 @@ export default function AdminOfficersManager({
                   badgeLabel: officer.tierLabel,
                   badgeColor: officer.badgeColor,
                   bio: officer.bio,
+                  hideBio: officer.hideBio,
                   imageUrl: officer.imageUrl,
                   facebookUrl: officer.facebookUrl,
                   email: officer.email,
@@ -830,6 +837,7 @@ export default function AdminOfficersManager({
                   badgeLabel: rep.yearLabel,
                   badgeColor: rep.badgeColor,
                   bio: rep.bio,
+                  hideBio: rep.hideBio,
                   imageUrl: rep.imageUrl,
                   facebookUrl: rep.facebookUrl,
                   email: rep.email,
@@ -952,6 +960,7 @@ export default function AdminOfficersManager({
                   badgeLabel: rep.batchLabel,
                   badgeColor: rep.badgeColor,
                   bio: rep.bio,
+                  hideBio: rep.hideBio,
                   imageUrl: rep.imageUrl,
                   facebookUrl: rep.facebookUrl,
                   email: rep.email,
@@ -988,6 +997,7 @@ export default function AdminOfficersManager({
           role={editingOfficer.role}
           courseYear={editingOfficer.courseYear}
           bio={editingOfficer.bio}
+          hideBio={editingOfficer.hideBio}
           facebookUrl={editingOfficer.facebookUrl}
           email={editingOfficer.email}
           linkedinUrl={editingOfficer.linkedinUrl}
@@ -1091,18 +1101,38 @@ export default function AdminOfficersManager({
           />
 
           {/* Bio */}
-          <div className="pt-4 border-t border-white/10 space-y-2">
-            <AdminFieldLabel>4. Bio / Description</AdminFieldLabel>
+          <div className="pt-4 border-t border-white/10 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <AdminFieldLabel>4. Bio / Description</AdminFieldLabel>
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  name="hideBio"
+                  checked={Boolean(editingOfficer.hideBio)}
+                  onChange={(e) =>
+                    setEditingOfficer((prev) => (prev ? { ...prev, hideBio: e.target.checked } : null))
+                  }
+                  className="h-4 w-4 rounded border-white/20 bg-black/40 text-[#F26223] focus:ring-[#F26223] accent-[#F26223]"
+                />
+                <span className="text-xs font-semibold text-zinc-300">Hide Bio / Description</span>
+              </label>
+            </div>
             <textarea
               name="bio"
               rows={3}
-              defaultValue={editingOfficer.bio}
+              value={editingOfficer.bio ?? ""}
               onChange={(e) =>
                 setEditingOfficer((prev) => (prev ? { ...prev, bio: e.target.value } : null))
               }
-              placeholder="Enter a brief bio..."
-              className={adminTextareaClass}
+              placeholder="Enter a brief bio (leave empty to hide automatically)..."
+              className={`${adminTextareaClass} ${editingOfficer.hideBio ? "opacity-40" : ""}`}
+              disabled={editingOfficer.hideBio}
             />
+            <p className="text-[11px] text-zinc-500">
+              {editingOfficer.hideBio
+                ? "Bio is explicitly hidden on all cards and popup modals."
+                : "If left empty, the bio section will automatically hide."}
+            </p>
           </div>
         </EditModalShell>
       )}
@@ -1120,6 +1150,7 @@ export default function AdminOfficersManager({
           role={editingClassRep.role}
           courseYear={editingClassRep.section}
           bio={editingClassRep.bio}
+          hideBio={editingClassRep.hideBio}
           facebookUrl={editingClassRep.facebookUrl}
           email={editingClassRep.email}
           linkedinUrl={editingClassRep.linkedinUrl}
@@ -1207,18 +1238,38 @@ export default function AdminOfficersManager({
             }
           />
 
-          <div className="pt-4 border-t border-white/10 space-y-2">
-            <AdminFieldLabel>4. Bio / Description</AdminFieldLabel>
+          <div className="pt-4 border-t border-white/10 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <AdminFieldLabel>4. Bio / Description</AdminFieldLabel>
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  name="hideBio"
+                  checked={Boolean(editingClassRep.hideBio)}
+                  onChange={(e) =>
+                    setEditingClassRep((prev) => (prev ? { ...prev, hideBio: e.target.checked } : null))
+                  }
+                  className="h-4 w-4 rounded border-white/20 bg-black/40 text-[#F26223] focus:ring-[#F26223] accent-[#F26223]"
+                />
+                <span className="text-xs font-semibold text-zinc-300">Hide Bio / Description</span>
+              </label>
+            </div>
             <textarea
               name="bio"
               rows={3}
-              defaultValue={editingClassRep.bio}
+              value={editingClassRep.bio ?? ""}
               onChange={(e) =>
                 setEditingClassRep((prev) => (prev ? { ...prev, bio: e.target.value } : null))
               }
-              placeholder="Enter description..."
-              className={adminTextareaClass}
+              placeholder="Enter description (leave empty to hide automatically)..."
+              className={`${adminTextareaClass} ${editingClassRep.hideBio ? "opacity-40" : ""}`}
+              disabled={editingClassRep.hideBio}
             />
+            <p className="text-[11px] text-zinc-500">
+              {editingClassRep.hideBio
+                ? "Bio is explicitly hidden on all cards and popup modals."
+                : "If left empty, the bio section will automatically hide."}
+            </p>
           </div>
         </EditModalShell>
       )}
@@ -1236,6 +1287,7 @@ export default function AdminOfficersManager({
           role={editingBatchRep.role}
           courseYear={editingBatchRep.courseYear}
           bio={editingBatchRep.bio}
+          hideBio={editingBatchRep.hideBio}
           facebookUrl={editingBatchRep.facebookUrl}
           email={editingBatchRep.email}
           linkedinUrl={editingBatchRep.linkedinUrl}
@@ -1368,18 +1420,38 @@ export default function AdminOfficersManager({
             }
           />
 
-          <div className="pt-4 border-t border-white/10 space-y-2">
-            <AdminFieldLabel>4. Bio / Description</AdminFieldLabel>
+          <div className="pt-4 border-t border-white/10 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <AdminFieldLabel>4. Bio / Description</AdminFieldLabel>
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  name="hideBio"
+                  checked={Boolean(editingBatchRep.hideBio)}
+                  onChange={(e) =>
+                    setEditingBatchRep((prev) => (prev ? { ...prev, hideBio: e.target.checked } : null))
+                  }
+                  className="h-4 w-4 rounded border-white/20 bg-black/40 text-[#F26223] focus:ring-[#F26223] accent-[#F26223]"
+                />
+                <span className="text-xs font-semibold text-zinc-300">Hide Bio / Description</span>
+              </label>
+            </div>
             <textarea
               name="bio"
               rows={3}
-              defaultValue={editingBatchRep.bio}
+              value={editingBatchRep.bio ?? ""}
               onChange={(e) =>
                 setEditingBatchRep((prev) => (prev ? { ...prev, bio: e.target.value } : null))
               }
-              placeholder="Enter description..."
-              className={adminTextareaClass}
+              placeholder="Enter description (leave empty to hide automatically)..."
+              className={`${adminTextareaClass} ${editingBatchRep.hideBio ? "opacity-40" : ""}`}
+              disabled={editingBatchRep.hideBio}
             />
+            <p className="text-[11px] text-zinc-500">
+              {editingBatchRep.hideBio
+                ? "Bio is explicitly hidden on all cards and popup modals."
+                : "If left empty, the bio section will automatically hide."}
+            </p>
           </div>
         </EditModalShell>
       )}
@@ -1402,6 +1474,7 @@ function OfficerCardAdmin({
     badgeLabel: string;
     badgeColor: string;
     bio?: string;
+    hideBio?: boolean;
     imageUrl?: string;
     facebookUrl?: string;
     email?: string;
@@ -1495,7 +1568,7 @@ function OfficerCardAdmin({
           )}
         </div>
 
-        {item.bio && (
+        {item.bio?.trim() && !item.hideBio && (
           <p className="text-xs text-zinc-400 line-clamp-2 mt-2 leading-relaxed">
             {item.bio}
           </p>
@@ -1653,6 +1726,7 @@ function EditModalShell({
   role,
   courseYear,
   bio,
+  hideBio,
   facebookUrl,
   email,
   linkedinUrl,
@@ -1669,6 +1743,7 @@ function EditModalShell({
   role?: string;
   courseYear?: string;
   bio?: string;
+  hideBio?: boolean;
   facebookUrl?: string;
   email?: string;
   linkedinUrl?: string;
@@ -1722,7 +1797,7 @@ function EditModalShell({
                 <div className="relative flex items-end px-4">
                   <div className="relative -mt-10 flex-shrink-0 z-10">
                     <div
-                      className="relative h-18 w-18 rounded-full overflow-hidden flex items-center justify-center bg-[#180603]"
+                      className="relative h-18 w-18 rounded-full overflow-hidden flex-center bg-[#180603]"
                       style={{
                         border: "3px solid #dfc3b4",
                         boxShadow: "0 4px 14px rgba(0,0,0,0.8)",
@@ -1783,9 +1858,17 @@ function EditModalShell({
                     )}
                 </div>
 
-                <p className="text-zinc-300 text-[11px] leading-relaxed px-4 pt-2 pb-4 line-clamp-3">
-                  {bio || "No bio provided."}
-                </p>
+                {bio?.trim() && !hideBio ? (
+                  <p className="text-zinc-300 text-[11px] leading-relaxed px-4 pt-2 pb-4 line-clamp-3">
+                    {bio}
+                  </p>
+                ) : (
+                  <div className="px-4 pt-2 pb-3.5">
+                    <p className="text-zinc-500 text-[10px] italic">
+                      Bio hidden {!bio?.trim() ? "(no text entered)" : "(hidden toggle active)"}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 

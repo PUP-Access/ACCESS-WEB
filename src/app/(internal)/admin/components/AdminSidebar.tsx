@@ -7,33 +7,33 @@ const NAV_GROUPS: {
   label: string;
   items: { href: string; label: string; exact?: boolean }[];
 }[] = [
-  {
-    label: "Overview",
-    items: [{ href: "/admin", label: "Dashboard", exact: true }],
-  },
-  {
-    label: "Site Content",
-    items: [
-      { href: "/admin/content/landing", label: "Landing" },
-      { href: "/admin/content/about", label: "About Us" },
-      { href: "/admin/content/about-images", label: "About Images" },
-      { href: "/admin/officers", label: "Edit Officers" },
-      { href: "/admin/content/officers-template", label: "Officers Section" },
-      { href: "/admin/content/faqs", label: "FAQs" },
-    ],
-  },
-  {
-    label: "Operations",
-    items: [
-      { href: "/admin/users", label: "User Accounts" },
-      { href: "/admin/events", label: "Events" },
-      { href: "/admin/borrow-requests", label: "Borrow Requests" },
-      { href: "/admin/inventory", label: "Inventory" },
-      { href: "/admin/contact-messages", label: "Contact Messages" },
-      { href: "/admin/audit-logs", label: "Audit Logs" },
-    ],
-  },
-];
+    {
+      label: "Overview",
+      items: [{ href: "/admin", label: "Dashboard", exact: true }],
+    },
+    {
+      label: "Site Content",
+      items: [
+        { href: "/admin/content/landing", label: "Landing" },
+        { href: "/admin/content/about", label: "About Us" },
+        { href: "/admin/content/about-images", label: "About Images" },
+        { href: "/admin/officers", label: "Edit Officers" },
+        { href: "/admin/content/officers-template", label: "Officers Section" },
+        { href: "/admin/content/faqs", label: "FAQs" },
+      ],
+    },
+    {
+      label: "Operations",
+      items: [
+        { href: "/admin/users", label: "User Accounts" },
+        { href: "/admin/events", label: "Events" },
+        { href: "/admin/borrow-requests", label: "Borrow Requests" },
+        { href: "/admin/inventory", label: "Inventory" },
+        { href: "/admin/contact-messages", label: "Contact Messages" },
+        { href: "/admin/audit-logs", label: "Audit Logs" },
+      ],
+    },
+  ];
 
 function isNavActive(pathname: string, href: string, exact?: boolean) {
   if (exact) return pathname === href;
@@ -79,11 +79,10 @@ export default function AdminSidebar({ adminEmail }: AdminSidebarProps) {
                       key={item.href}
                       href={item.href}
                       aria-current={isActive ? "page" : undefined}
-                      className={`block rounded-xl py-2.5 pl-3 pr-3 text-sm font-medium transition-all duration-200 ${
-                        isActive
+                      className={`block rounded-xl py-2.5 pl-3 pr-3 text-sm font-medium transition-all duration-200 ${isActive
                           ? "border border-[#F26223]/35 bg-[#F26223]/15 text-[#FFD4BC]"
                           : "border border-transparent text-white/55 hover:border-white/10 hover:bg-white/5 hover:text-white"
-                      }`}
+                        }`}
                       style={
                         isActive ? { boxShadow: "inset 3px 0 0 0 #F26223" } : undefined
                       }

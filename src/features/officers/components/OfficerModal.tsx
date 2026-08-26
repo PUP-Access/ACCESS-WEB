@@ -83,7 +83,7 @@ export default function OfficerModal({ officer, onClose }: OfficerModalProps) {
   const hasAnySocial = hasFacebook || hasEmail || hasLinkedIn || hasGitHub;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 select-none animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 select-none animate-in fade-in duration-200">
       {/* ── Backdrop ───────────────────────────────────────────────── */}
       <div
         className="fixed inset-0 bg-black/75 backdrop-blur-md transition-opacity"
@@ -184,12 +184,18 @@ export default function OfficerModal({ officer, onClose }: OfficerModalProps) {
           </div>
         </div>
 
-        {/* ── Divider Line ─────────────────────────────────────────── */}
-        <div className="border-t border-white/20 mx-5 sm:mx-6 mt-5 mb-4" />
+        {/* ── Divider Line ─── */}
+        {(hasAnySocial || (Boolean(officer.bio?.trim()) && !officer.hideBio)) && (
+          <div className="border-t border-white/20 mx-5 sm:mx-6 mt-5 mb-4" />
+        )}
 
         {/* ── Social Media Icons Row (Only shows links that exist) ─── */}
         {hasAnySocial && (
-          <div className="flex items-center gap-4 px-5 sm:px-6 text-white/90">
+          <div
+            className={`flex items-center gap-4 px-5 sm:px-6 text-white/90 ${
+              officer.bio?.trim() && !officer.hideBio ? "" : "pb-6 sm:pb-7"
+            }`}
+          >
             {/* Facebook */}
             {hasFacebook && (
               <a
@@ -262,11 +268,16 @@ export default function OfficerModal({ officer, onClose }: OfficerModalProps) {
           </div>
         )}
 
-        {/* ── Bio / Description Paragraph ─────────────────────────── */}
-        <p className="text-zinc-200 text-xs sm:text-[0.875rem] leading-relaxed px-5 sm:px-6 pt-3 pb-6 sm:pb-7">
-          {officer.bio ||
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}
-        </p>
+        {/* ── Bio / Description Paragraph (Only render if bio exists and is not hidden) ─── */}
+        {officer.bio?.trim() && !officer.hideBio && (
+          <p className="text-zinc-200 text-xs sm:text-[0.875rem] leading-relaxed px-5 sm:px-6 pt-3 pb-6 sm:pb-7">
+            {officer.bio}
+          </p>
+        )}
+
+        {!hasAnySocial && (!officer.bio?.trim() || officer.hideBio) && (
+          <div className="pb-4" />
+        )}
       </div>
     </div>
   );

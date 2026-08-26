@@ -7,6 +7,7 @@ export interface OfficerItem {
   role: string;
   courseYear?: string;
   bio?: string;
+  hideBio?: boolean;
   email?: string;
   facebookUrl?: string;
   linkedinUrl?: string;
@@ -359,6 +360,7 @@ export const DEFAULT_OFFICERS_HIERARCHY_CONTENT: OfficersHierarchyContent = {
       tierId: tier.id,
       courseYear: o.courseYear || "",
       bio: o.bio || "",
+      hideBio: o.hideBio || false,
       email: o.email || "",
       facebookUrl: o.facebookUrl || "",
       linkedinUrl: o.linkedinUrl || "",
@@ -377,6 +379,7 @@ export const DEFAULT_OFFICERS_HIERARCHY_CONTENT: OfficersHierarchyContent = {
     tierId: "advisers",
     courseYear: a.courseYear || "",
     bio: a.bio || "",
+    hideBio: a.hideBio || false,
     email: a.email || "",
     facebookUrl: a.facebookUrl || "",
     linkedinUrl: a.linkedinUrl || "",

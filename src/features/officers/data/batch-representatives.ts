@@ -21,6 +21,7 @@ function createDefaultYearOfficers(yearId: string, yearLabel: string, sectionDef
     batchYear: yearLabel,
     courseYear: sectionDefault,
     bio: "Lorem ipsum dolor sit amet consectetur Lorem ipsum dolor sit amet consectetur",
+    hideBio: false,
     imageUrl: r.order === 1 ? "/officers/tantia-antonio-mickel.webp" : "/circle-access-logo.webp",
     email: r.order === 1 ? "tantia.antonio@access.org" : "",
     facebookUrl: "",

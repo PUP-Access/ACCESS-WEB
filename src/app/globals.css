@@ -360,6 +360,8 @@ input:-webkit-autofill:active {
 .faq-container {
   max-width: 52rem;
   margin: 0 auto;
+  position: relative;
+  z-index: 10;
 }
 
 

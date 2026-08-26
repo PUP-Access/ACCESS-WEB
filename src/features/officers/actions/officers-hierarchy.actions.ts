@@ -26,6 +26,7 @@ export async function saveOfficerHierarchyAction(
       tierId: formData.get("tierId")?.toString() || "tier-president",
       courseYear: formData.get("courseYear")?.toString() || "",
       bio: formData.get("bio")?.toString() || "",
+      hideBio: formData.get("hideBio") === "on" || formData.get("hideBio") === "true",
       email: formData.get("email")?.toString() || "",
       facebookUrl: formData.get("facebookUrl")?.toString() || "",
       linkedinUrl: formData.get("linkedinUrl")?.toString() || "",

@@ -158,9 +158,11 @@ export default function ClassRepresentativesView({
                 <p className="font-extrabold text-[#e85e1e] text-xs uppercase tracking-wider mt-1">
                   {rep.section || rep.courseYear || "CLASS REPRESENTATIVE"}
                 </p>
-                <p className="text-zinc-300 text-xs leading-relaxed mt-2.5 line-clamp-3">
-                  {rep.bio || "Lorem ipsum dolor sit amet consectetur Lorem ipsum dolor sit amet consectetur"}
-                </p>
+                {rep.bio?.trim() && !rep.hideBio && (
+                  <p className="text-zinc-300 text-xs leading-relaxed mt-2.5 line-clamp-3">
+                    {rep.bio}
+                  </p>
+                )}
               </div>
             </div>
           ))}

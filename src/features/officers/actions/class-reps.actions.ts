@@ -44,6 +44,7 @@ export async function saveClassRepAction(
       section: formData.get("section") || "BSCPE 1-1",
       courseYear: formData.get("section") || formData.get("courseYear") || "",
       bio: formData.get("bio") || "",
+      hideBio: formData.get("hideBio") === "on" || formData.get("hideBio") === "true",
       email: formData.get("email") || "",
       facebookUrl: formData.get("facebookUrl") || "",
       linkedinUrl: formData.get("linkedinUrl") || "",

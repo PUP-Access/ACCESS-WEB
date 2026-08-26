@@ -26,6 +26,7 @@ function createDefaultClassReps(yearId: string, yearPrefix: string, sectionCount
       section,
       courseYear: section,
       bio: "Lorem ipsum dolor sit amet consectetur Lorem ipsum dolor sit amet consectetur",
+      hideBio: false,
       imageUrl: "/officers/tantia-antonio-mickel.webp",
       bannerUrl: "",
       display_order: secNum,

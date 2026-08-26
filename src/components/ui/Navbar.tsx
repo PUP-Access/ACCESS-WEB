@@ -207,7 +207,7 @@ export default function Navbar({ items = landingNavItems }: NavbarProps) {
     }`;
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 w-full px-3 pt-3 md:px-5 md:pt-4 lg:px-6 lg:pt-5 pointer-events-none">
+    <header className="fixed inset-x-0 top-0 z-[100] w-full px-3 pt-3 md:px-5 md:pt-4 lg:px-6 lg:pt-5 pointer-events-none">
       <div className="mx-auto flex w-full max-w-[1360px] items-center justify-between gap-2.5 md:gap-4">
         <nav
           className="flex-1 min-w-0 flex items-center justify-between rounded-full border border-white/10 px-3.5 py-1.5 backdrop-blur-xl transition-[background,box-shadow,border-color] duration-300 md:px-6 md:py-2.5 pointer-events-auto"
