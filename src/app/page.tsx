@@ -9,12 +9,14 @@ import {
   FooterSection,
   HeroCopy,
   MeetTheOfficersSection,
+  SponsorsPartnersSection,
 } from "@/features/landing";
 import {
   getAboutContent,
   getActiveFAQs,
   getHeroContent,
   getOfficersSectionContent,
+  getSponsorsPartnersContent,
 } from "@/features/cms";
 import { getAllEquipmentsPublic } from "@/features/inventory/services/equipments.admin.service";
 import { CrystalDice3D, FloatingBlocks, type CrystalConfig } from "@/features/effects";
@@ -41,12 +43,13 @@ const COMBINED_CRYSTALS: CrystalConfig[] = [
 export default async function LandingPage() {
   noStore();
 
-  const [hero, about, officersSection, faqs, equipmentsRaw] = await Promise.all([
+  const [hero, about, officersSection, faqs, equipmentsRaw, sponsorsPartners] = await Promise.all([
     getHeroContent(),
     getAboutContent(),
     getOfficersSectionContent(),
     getActiveFAQs(),
     getAllEquipmentsPublic(),
+    getSponsorsPartnersContent(),
   ]);
 
   // Group equipments by category for the form
@@ -139,6 +142,8 @@ export default async function LandingPage() {
       </section>
             
       <AboutSection content={about} />
+      
+      <SponsorsPartnersSection content={sponsorsPartners} />
       
       <div className="relative">
         {/* Sticky Background & Crystals seamlessly spanning the sections */}

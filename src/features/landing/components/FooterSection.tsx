@@ -55,6 +55,7 @@ const ORG_LINKS = [
 ];
 
 const RESOURCE_LINKS = [
+  { label: "Partners", href: "/partners" },
   { label: "Events", href: "/#events" },
   { label: "Borrow", href: "/#borrow" },
   { label: "Officers", href: "/#officers" },

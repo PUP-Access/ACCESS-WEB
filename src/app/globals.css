@@ -483,3 +483,27 @@ input:-webkit-autofill:active {
   }
 }
 
+/* Sponsors & Partners Continuous Marquee (Left-to-Right Seamless GPU) */
+@keyframes marquee-pan {
+  0% {
+    transform: translate3d(-50%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0%, 0, 0);
+  }
+}
+
+.animate-marquee-pan {
+  display: flex;
+  width: max-content;
+  animation: marquee-pan 32s linear infinite;
+  will-change: transform;
+}
+
+@media (max-width: 640px) {
+  .animate-marquee-pan {
+    animation-duration: 22s;
+  }
+}
+
+

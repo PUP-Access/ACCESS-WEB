@@ -7,4 +7,6 @@ export { default as FAQSection } from "./components/FAQSection";
 export { default as FooterSection } from "./components/FooterSection";
 export { default as HeroCopy } from "./components/HeroCopy";
 export { default as MeetTheOfficersSection } from "./components/MeetTheOfficersSection";
+export { default as SponsorsPartnersSection } from "./components/SponsorsPartnersSection";
+export { default as PartnerInquiryModal } from "./components/PartnerInquiryModal";
 export { Reveal, RevealStagger } from "./components/Reveal";

@@ -22,13 +22,14 @@ interface NavbarProps {
 export const landingNavItems: NavItem[] = [
   { label: "Home", href: "/#home" },
   { label: "About", href: "/#about" },
+  { label: "Partners", href: "/#partners" },
   { label: "Events", href: "/#events" },
   { label: "Officers", href: "/#officers" },
   { label: "Borrow", href: "/#borrow" },
   { label: "Contact", href: "/#contact" },
 ];
 
-const SECTION_IDS = ["home", "about", "events", "officers", "borrow", "contact"] as const;
+const SECTION_IDS = ["home", "about", "partners", "events", "officers", "borrow", "contact"] as const;
 
 function NavLink({
   href,
