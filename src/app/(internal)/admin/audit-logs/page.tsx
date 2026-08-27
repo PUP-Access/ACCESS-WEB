@@ -16,6 +16,18 @@ const ACTION_OPTIONS = [
   "USER_ROLE_UPDATED",
   "USER_DELETED",
   "BORROW_STATUS_UPDATED",
+  "BORROW_REQUEST_APPROVED",
+  "BORROW_REQUEST_REJECTED",
+  "BORROW_REQUEST_RELEASED",
+  "BORROW_REQUEST_RETURNED",
+] as const;
+
+const BORROW_TRANSITION_ACTIONS = [
+  "BORROW_STATUS_UPDATED",
+  "BORROW_REQUEST_APPROVED",
+  "BORROW_REQUEST_REJECTED",
+  "BORROW_REQUEST_RELEASED",
+  "BORROW_REQUEST_RETURNED",
 ] as const;
 
 function getActionBadge(action: string | null) {
@@ -36,6 +48,30 @@ function getActionBadge(action: string | null) {
       return (
         <span className="inline-flex items-center gap-1 rounded-md border border-cyan-500/30 bg-cyan-500/15 px-2 py-0.5 text-xs font-semibold text-cyan-300">
           Borrow Status
+        </span>
+      );
+    case "BORROW_REQUEST_APPROVED":
+      return (
+        <span className="inline-flex items-center gap-1 rounded-md border border-emerald-500/30 bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-300">
+          Request Approved
+        </span>
+      );
+    case "BORROW_REQUEST_REJECTED":
+      return (
+        <span className="inline-flex items-center gap-1 rounded-md border border-red-500/30 bg-red-500/15 px-2 py-0.5 text-xs font-semibold text-red-300">
+          Request Rejected
+        </span>
+      );
+    case "BORROW_REQUEST_RELEASED":
+      return (
+        <span className="inline-flex items-center gap-1 rounded-md border border-cyan-500/30 bg-cyan-500/15 px-2 py-0.5 text-xs font-semibold text-cyan-300">
+          Items Released
+        </span>
+      );
+    case "BORROW_REQUEST_RETURNED":
+      return (
+        <span className="inline-flex items-center gap-1 rounded-md border border-purple-500/30 bg-purple-500/15 px-2 py-0.5 text-xs font-semibold text-purple-300">
+          Items Returned
         </span>
       );
     default:
@@ -163,7 +199,9 @@ export default async function AdminAuditLogsPage({
                           </p>
                         </div>
                       )}
-                      {log.action === "BORROW_STATUS_UPDATED" && (
+                      {BORROW_TRANSITION_ACTIONS.includes(
+                        log.action as (typeof BORROW_TRANSITION_ACTIONS)[number]
+                      ) && (
                         <div>
                           <p>
                             Status:{" "}
@@ -176,9 +214,18 @@ export default async function AdminAuditLogsPage({
                           <p className="text-[11px] text-white/50 truncate max-w-sm">
                             Borrower: {String(state.borrower || "—")} | Items: {String(state.item || "—")}
                           </p>
+                          {Boolean(state.reason) && (
+                            <p className="text-[11px] text-white/50 truncate max-w-sm">
+                              Reason: {String(state.reason)}
+                            </p>
+                          )}
                         </div>
                       )}
-                      {!["USER_ROLE_UPDATED", "BORROW_STATUS_UPDATED", "USER_DELETED"].includes(log.action || "") && (
+                      {![
+                        "USER_ROLE_UPDATED",
+                        "USER_DELETED",
+                        ...BORROW_TRANSITION_ACTIONS,
+                      ].includes(log.action || "") && (
                         <pre className="font-mono text-[11px] text-white/60 max-w-sm overflow-x-auto">
                           {JSON.stringify(state, null, 2)}
                         </pre>
