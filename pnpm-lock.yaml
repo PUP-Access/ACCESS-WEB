@@ -30,8 +30,8 @@ importers:
         specifier: ^12.36.0
         version: 12.38.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       lightningcss-wasm:
-        specifier: ^1.32.0
-        version: 1.32.0
+        specifier: ^1.33.0
+        version: 1.33.0
       next:
         specifier: 16.1.6
         version: 16.1.6(@babel/core@7.29.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -1758,8 +1758,8 @@ packages:
     os: [linux]
     libc: [musl]
 
-  lightningcss-wasm@1.32.0:
-    resolution: {integrity: sha512-SteAkCtRuSCDYPGHKhLV/dDs5Bk+7I4QUxWxfk4xwsTI1rQk8MQyYtpGcd3NECsUGzK0q2/KqoVS+YHCqKHUTQ==}
+  lightningcss-wasm@1.33.0:
+    resolution: {integrity: sha512-OLAtqEyInBSVWjPrTjpLzcZUMUHO0q+2PFBXKr86nxZOu0P38givj/ZMtRaZ0d38pMTb9wQx+LtaLtHclv+sEA==}
     engines: {node: '>= 12.0.0'}
     bundledDependencies:
       - napi-wasm
@@ -4068,7 +4068,7 @@ snapshots:
   lightningcss-linux-x64-musl@1.31.1:
     optional: true
 
-  lightningcss-wasm@1.32.0: {}
+  lightningcss-wasm@1.33.0: {}
 
   lightningcss-win32-arm64-msvc@1.31.1:
     optional: true
