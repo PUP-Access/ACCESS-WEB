@@ -17,23 +17,18 @@ export interface CrystalConfig {
 }
 
 export const DEFAULT_CRYSTALS: CrystalConfig[] = [
-  // Dominant large crystal — center-left, focal point
-  { x: -2.0, y: 0.5, z: 1.0, size: 2.8, hue: 0.02, sx: 0.003, sy: 0.004, sz: 0.002, fa: 0.25, fs: 0.5, phase: 0.0 },
+  // Left wing crystals
+  { x: -9.5, y: 4.5, z: 0.5, size: 2.2, hue: 0.02, sx: 0.003, sy: 0.004, sz: 0.002, fa: 0.32, fs: 0.45, phase: 0.0 },
+  { x: -8.8, y: 1.8, z: -0.5, size: 1.3, hue: 0.01, sx: 0.005, sy: 0.003, sz: 0.004, fa: 0.24, fs: 0.60, phase: 1.1 },
+  { x: -9.2, y: -0.8, z: 0.8, size: 1.0, hue: 0.00, sx: 0.004, sy: 0.006, sz: 0.003, fa: 0.18, fs: 0.75, phase: 2.3 },
+  { x: -8.4, y: -2.8, z: -0.8, size: 0.7, hue: 0.015, sx: 0.006, sy: 0.004, sz: 0.005, fa: 0.14, fs: 0.85, phase: 3.5 },
+  { x: -9.6, y: -4.8, z: 0.3, size: 1.8, hue: 0.02, sx: 0.003, sy: 0.005, sz: 0.003, fa: 0.30, fs: 0.50, phase: 1.7 },
 
-  // Small top-left — partially cropped
-  { x: -6.5, y: 4.0, z: -1.0, size: 1.0, hue: 0.0, sx: 0.005, sy: 0.003, sz: 0.004, fa: 0.18, fs: 0.7, phase: 1.2 },
-
-  // Medium upper-right
-  { x: 4.0, y: 1.8, z: -0.5, size: 1.3, hue: 0.03, sx: 0.004, sy: 0.005, sz: 0.003, fa: 0.30, fs: 0.8, phase: 2.1 },
-
-  // Medium mid-right
-  { x: 5.5, y: -0.8, z: 0.8, size: 1.1, hue: 0.01, sx: 0.005, sy: 0.004, sz: 0.003, fa: 0.35, fs: 0.65, phase: 1.7 },
-
-  // Small bottom-left
-  { x: -5.0, y: -3.5, z: -0.5, size: 0.9, hue: 0.015, sx: 0.003, sy: 0.006, sz: 0.003, fa: 0.22, fs: 0.75, phase: 2.8 },
-
-  // Large bottom-right — partially cropped off edge
-  { x: 6.5, y: -4.0, z: 0.5, size: 2.2, hue: 0.01, sx: 0.004, sy: 0.003, sz: 0.004, fa: 0.40, fs: 0.6, phase: 2.4 },
+  // Right wing crystals
+  { x: 9.5, y: 4.2, z: 0.5, size: 1.0, hue: 0.00, sx: 0.005, sy: 0.003, sz: 0.004, fa: 0.20, fs: 0.70, phase: 1.4 },
+  { x: 9.8, y: -1.2, z: 0.8, size: 1.5, hue: 0.03, sx: 0.004, sy: 0.005, sz: 0.003, fa: 0.28, fs: 0.55, phase: 2.2 },
+  { x: 8.8, y: -4.5, z: 0.5, size: 1.8, hue: 0.01, sx: 0.003, sy: 0.004, sz: 0.003, fa: 0.35, fs: 0.50, phase: 1.8 },
+  { x: 8.5, y: 2.0, z: -1.2, size: 0.7, hue: 0.00, sx: 0.007, sy: 0.003, sz: 0.005, fa: 0.18, fs: 0.90, phase: 0.8 },
 ]
 
 interface CrystalDice3DProps {
@@ -86,13 +81,14 @@ function initScene(mount: HTMLDivElement, configs: CrystalConfig[], cameraZ: num
   const THREE = (window as any).THREE
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
-  renderer.setPixelRatio(window.devicePixelRatio)
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
   renderer.setSize(mount.clientWidth, mount.clientHeight)
   renderer.setClearColor(0x000000, 0)
   mount.appendChild(renderer.domElement)
 
   const scene = new THREE.Scene()
-  const camera = new THREE.PerspectiveCamera(50, mount.clientWidth / mount.clientHeight, 0.1, 100)
+  const initialAspect = mount.clientWidth / Math.max(mount.clientHeight, 1)
+  const camera = new THREE.PerspectiveCamera(50, initialAspect, 0.1, 100)
   camera.position.set(0, 0, cameraZ)
 
   const ambient = new THREE.AmbientLight(0xffffff, 0.3)
@@ -120,7 +116,7 @@ function initScene(mount: HTMLDivElement, configs: CrystalConfig[], cameraZ: num
       ior: 2.1,
       reflectivity: 1.0,
       transparent: true,
-      opacity: 0.92,
+      opacity: 0.88,
       envMapIntensity: 1.5,
       clearcoat: 1.0,
       clearcoatRoughness: 0.05,
@@ -149,9 +145,20 @@ function initScene(mount: HTMLDivElement, configs: CrystalConfig[], cameraZ: num
     return mesh
   }
 
+  // Calculate position multiplier to keep crystals in the outer wings regardless of screen aspect ratio
+  function getXMultiplier(aspect: number) {
+    const refAspect = 16 / 9
+    if (aspect >= refAspect) return 1.0
+    // As aspect ratio narrows, push the coordinates outward so they never encroach on the center content
+    return Math.max(1.0, (refAspect / Math.max(aspect, 0.6)) * 0.85)
+  }
+
+  let currentAspect = initialAspect
+  let xMultiplier = getXMultiplier(currentAspect)
+
   const meshes = configs.map((c) => {
     const mesh = makeOctahedron(c.size, c.hue)
-    mesh.position.set(c.x, c.y, c.z)
+    mesh.position.set(c.x * xMultiplier, c.y, c.z)
     mesh.rotation.set(
       Math.random() * Math.PI,
       Math.random() * Math.PI,
@@ -179,7 +186,7 @@ function initScene(mount: HTMLDivElement, configs: CrystalConfig[], cameraZ: num
       mesh.rotation.y += config.sy
       mesh.rotation.z += config.sz
       mesh.position.y = baseY + Math.sin(t * config.fs + config.phase) * config.fa
-      mesh.position.x = config.x + Math.cos(t * config.fs * 0.5 + config.phase) * 0.12
+      mesh.position.x = config.x * xMultiplier + Math.cos(t * config.fs * 0.5 + config.phase) * 0.12
     })
 
     renderer.render(scene, camera)
@@ -189,12 +196,21 @@ function initScene(mount: HTMLDivElement, configs: CrystalConfig[], cameraZ: num
 
   function onResize() {
     const w = mount.clientWidth
-    const h = mount.clientHeight
-    camera.aspect = w / h
+    const h = Math.max(mount.clientHeight, 1)
+    currentAspect = w / h
+    xMultiplier = getXMultiplier(currentAspect)
+    camera.aspect = currentAspect
     camera.updateProjectionMatrix()
     renderer.setSize(w, h)
+
+    // Adjust mesh scale on narrow viewports
+    const scaleFactor = w < 640 ? 0.65 : w < 1024 ? 0.85 : 1.0
+    meshes.forEach(({ mesh, config }) => {
+      mesh.scale.setScalar(scaleFactor)
+    })
   }
   window.addEventListener("resize", onResize)
+  onResize()
 
   ;(mount as any)._cleanup = () => {
     cancelAnimationFrame(frameId)

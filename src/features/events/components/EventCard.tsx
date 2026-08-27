@@ -25,7 +25,7 @@ export default function EventCard({
     <>
       <div
         onClick={() => setIsOpen(true)}
-        className="flex flex-col overflow-hidden shrink-0 transition-all hover:-translate-y-0.5 duration-200 cursor-pointer"
+        className="mx-auto flex flex-col overflow-hidden shrink-0 transition-all hover:-translate-y-0.5 duration-200 cursor-pointer"
         style={{
           width: "100%",
           maxWidth: 376,
@@ -37,6 +37,7 @@ export default function EventCard({
           boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 32px rgba(0,0,0,0.35)",
         }}
       >
+
         {/* ── Image ──────────────────────────────────────────── */}
         <div className="relative h-52 w-full shrink-0">
           <Image
@@ -102,7 +103,7 @@ export default function EventCard({
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ type: "spring", duration: 0.4 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col bg-[#f26223] border border-white/10 z-10"
+              className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl flex flex-col bg-[#f26223] border border-white/10 z-10"
             >
               {/* Image Header */}
               <div className="relative w-full h-[240px] sm:h-[320px] md:h-[360px] shrink-0 bg-zinc-950">

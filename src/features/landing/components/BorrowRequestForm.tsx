@@ -396,7 +396,8 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
     }
   };
 
-  const handleNext = () => {
+  const handleNext = (e?: React.FormEvent | React.MouseEvent) => {
+    if (e) e.preventDefault();
     const errors = validateStep1(form);
     if (Object.keys(errors).length > 0) {
       setFieldErrors({ ...errors, form: "Please complete all required fields before continuing." });
@@ -408,6 +409,10 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (step !== 2) {
+      handleNext(e);
+      return;
+    }
     const errors = validateStep2(form);
     if (Object.keys(errors).length > 0) {
       setFieldErrors({ ...errors, form: "Please complete all required fields before submitting." });
@@ -480,7 +485,18 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="mt-8">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (step === 1) {
+              handleNext(e);
+            } else {
+              handleSubmit(e);
+            }
+          }}
+          noValidate
+          className="mt-8"
+        >
           {fieldErrors.form && (
             <p className="mb-5 rounded-lg bg-red-500/20 px-4 py-3 text-sm text-red-100" role="alert">
               {fieldErrors.form}
@@ -585,8 +601,8 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
           ) : (
             <div className="space-y-6">
               <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-4 items-end">
-                  <div className="w-full sm:w-[32%] shrink-0">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1.4fr_76px_auto] items-end">
+                  <div className="w-full min-w-0">
                     <FieldLabel>Choose category</FieldLabel>
                     <CustomDropdown
                       value={form.currentItemCategory}
@@ -600,7 +616,7 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                       className="w-full"
                     />
                   </div>
-                  <div className="flex-1 w-full">
+                  <div className="w-full min-w-0">
                     <FieldLabel>Choose item</FieldLabel>
                     <CustomDropdown
                       value={form.currentItem}
@@ -621,7 +637,7 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                     />
                   </div>
 
-                  <div className="w-full sm:w-24 shrink-0">
+                  <div className="w-full min-w-0">
                     <FieldLabel>Qty</FieldLabel>
                     <input
                       type="number"
@@ -674,7 +690,7 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                       }
                     }}
                     disabled={!form.currentItemCategory || !form.currentItem}
-                    className="w-full sm:w-auto h-[46px] px-6 rounded-xl font-semibold transition-all bg-[#F26223] hover:bg-[#F26223]/90 text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(242,98,35,0.3)] shrink-0"
+                    className="w-full sm:w-auto h-[46px] px-5 rounded-xl font-semibold transition-all bg-[#F26223] hover:bg-[#F26223]/90 text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(242,98,35,0.3)] shrink-0 cursor-pointer"
                   >
                     Add
                   </button>
@@ -706,7 +722,12 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                   </div>
                 )}
                 {fieldErrors.borrowItems && (
-                  <p className="mt-1 text-xs text-red-400">{fieldErrors.borrowItems}</p>
+                  <div className="mt-2.5 flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-300 backdrop-blur-md">
+                    <svg className="h-4 w-4 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{fieldErrors.borrowItems}</span>
+                  </div>
                 )}
               </div>
 
@@ -963,10 +984,22 @@ function DateTimeRange({
         </div>
       </div>
       {(startDateError || endDateError) && (
-        <div className="mt-1 space-y-0.5">
-          {startDateError && <p className="text-xs text-red-300">{startDateError}</p>}
+        <div className="mt-2.5 flex flex-col gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-300 backdrop-blur-md">
+          {startDateError && (
+            <div className="flex items-center gap-2">
+              <svg className="h-3.5 w-3.5 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{startDateError}</span>
+            </div>
+          )}
           {endDateError && endDateError !== startDateError && (
-            <p className="text-xs text-red-300">{endDateError}</p>
+            <div className="flex items-center gap-2">
+              <svg className="h-3.5 w-3.5 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{endDateError}</span>
+            </div>
           )}
         </div>
       )}

@@ -206,7 +206,7 @@ export default function FooterSection() {
           fontFamily: `'Josefin Sans', sans-serif`,
         }}
       >
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-end gap-4 px-6 py-4 sm:flex-row sm:gap-8 sm:px-10 lg:px-16">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center sm:justify-end gap-3 sm:gap-8 px-6 py-4 sm:flex-row sm:px-10 lg:px-16">
           {BOTTOM_LINKS.map((link) => (
             <FooterAnchor key={link.label} href={link.href} label={link.label} />
           ))}
