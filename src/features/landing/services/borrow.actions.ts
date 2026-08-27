@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { BorrowRequestSchema } from "@/features/cms/schemas";
+import { adjustEquipmentQuantities } from "@/features/borrow";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 import { getErrorMessage } from "@/lib/errors";
@@ -102,7 +103,7 @@ export async function submitBorrowRequestAction(
     }
 
     const ext = letterFile.name.split(".").pop()?.toLowerCase() ?? "pdf";
-    const filePath = `borrow-letters/${user.id}/${crypto.randomUUID()}.${ext}`;
+    const filePath = `${user.id}/${crypto.randomUUID()}.${ext}`;
     const contentType =
       letterFile.type ||
       ({
@@ -114,7 +115,7 @@ export async function submitBorrowRequestAction(
     const adminSupabase = createSupabaseAdminClient();
 
     const { error: uploadError } = await adminSupabase.storage
-      .from("access_web_assets")
+      .from("request-letters")
       .upload(filePath, letterFile, {
         contentType,
         upsert: false,
@@ -122,41 +123,7 @@ export async function submitBorrowRequestAction(
 
     if (uploadError) throw uploadError;
 
-    const { data: publicUrlData } = adminSupabase.storage
-      .from("access_web_assets")
-      .getPublicUrl(filePath);
-
-    const items = parsed.data.item.split(", ");
-    for (const itemStr of items) {
-      const match = itemStr.match(/(.+?) x(\d+) \((.+?)\)/);
-      if (match) {
-        const name = match[1];
-        const qty = parseInt(match[2], 10);
-        const category = match[3];
-
-        const { data: equipment } = await adminSupabase
-          .from("Equipments")
-          .select("*")
-          .eq("name", name)
-          .eq("category", category)
-          .single();
-
-        if (!equipment) {
-          throw new Error(`Equipment not found: ${name}`);
-        }
-
-        if (equipment.quantity < qty) {
-          throw new Error(`Not enough inventory for ${name}. Available: ${equipment.quantity}, Requested: ${qty}`);
-        }
-
-        const { error: updateInvError } = await adminSupabase
-          .from("Equipments")
-          .update({ quantity: equipment.quantity - qty })
-          .eq("id", equipment.id);
-
-        if (updateInvError) throw updateInvError;
-      }
-    }
+    await adjustEquipmentQuantities(adminSupabase, parsed.data.item, "deduct");
 
     const { data: insertedData, error: insertError } = await adminSupabase
       .from("BorrowRequests")
@@ -172,7 +139,7 @@ export async function submitBorrowRequestAction(
         requested_item: parsed.data.item,
         requested_start_date: start.toISOString(),
         requested_end_date: end.toISOString(),
-        letter_file_url: publicUrlData.publicUrl,
+        letter_file_url: filePath,
         status: "Pending",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -185,9 +152,7 @@ export async function submitBorrowRequestAction(
     // Send automated email notification upon initial submission
     if (insertedData && parsed.data.email && process.env.RESEND_API_KEY) {
       try {
-        const { sendBorrowStatusEmail } = await import(
-          "@/features/cms/services/borrow-requests.admin.service"
-        );
+        const { sendBorrowStatusEmail } = await import("@/features/borrow");
         await sendBorrowStatusEmail(insertedData, "Pending");
       } catch (emailErr) {
         console.error("Failed to send initial borrow status email:", emailErr);
