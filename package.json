@@ -14,7 +14,7 @@
     "@react-three/fiber": "^9.5.0",
     "@shadergradient/react": "^2.4.20",
     "@supabase/ssr": "^0.10.0",
-    "@supabase/supabase-js": "^2.100.1",
+    "@supabase/supabase-js": "^2.112.4",
     "file-type": "^22.0.1",
     "framer-motion": "^12.36.0",
     "lightningcss-wasm": "^1.32.0",
