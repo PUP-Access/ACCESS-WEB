@@ -201,9 +201,11 @@ export type Database = {
           organization_name: string | null
           purpose: string | null
           rejection_reason: string | null
+          released_at: string | null
           requested_end_date: string | null
           requested_item: string | null
           requested_start_date: string | null
+          returned_at: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           status: Database["public"]["Enums"]["borrow_status"] | null
@@ -222,9 +224,11 @@ export type Database = {
           organization_name?: string | null
           purpose?: string | null
           rejection_reason?: string | null
+          released_at?: string | null
           requested_end_date?: string | null
           requested_item?: string | null
           requested_start_date?: string | null
+          returned_at?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["borrow_status"] | null
@@ -243,9 +247,11 @@ export type Database = {
           organization_name?: string | null
           purpose?: string | null
           rejection_reason?: string | null
+          released_at?: string | null
           requested_end_date?: string | null
           requested_item?: string | null
           requested_start_date?: string | null
+          returned_at?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["borrow_status"] | null

@@ -28,11 +28,6 @@ export {
   getUnreadContactMessageCount,
 } from "./services/contact-messages.service";
 
-export {
-  getBorrowRequestsForAdmin,
-  getBorrowRequestById,
-} from "./services/borrow-requests.admin.service";
-
 export { getAdminDashboardStats } from "./services/dashboard.service";
 
 export type {

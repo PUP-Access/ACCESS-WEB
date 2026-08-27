@@ -27,7 +27,6 @@ import {
   deleteContactMessage,
   archiveContactMessage,
 } from "../services/contact-messages.service";
-import { updateBorrowRequestStatus } from "../services/borrow-requests.admin.service";
 import { FAQItemSchema, UpdateFAQItemSchema } from "../schemas";
 
 type ActionState =
@@ -506,80 +505,3 @@ export async function updateBorrowRequestStatusAction(id: string, status: string
     };
   }
 }
-
-export async function updateSponsorsPartnersContentAction(
-  _prevState: ActionState,
-  formData: FormData
-): Promise<ActionState> {
-  try {
-    const current = await getSponsorsPartnersContent();
-    const landingTitle = (formData.get("landingTitle") as string) || current.landingTitle;
-    const landingSubtitle = (formData.get("landingSubtitle") as string) || current.landingSubtitle;
-    const sponsorsTitle = (formData.get("sponsorsTitle") as string) || current.sponsorsTitle;
-    const sponsorsSubtitle = (formData.get("sponsorsSubtitle") as string) || current.sponsorsSubtitle;
-    const partnersTitle = (formData.get("partnersTitle") as string) || current.partnersTitle;
-    const partnersSubtitle = (formData.get("partnersSubtitle") as string) || current.partnersSubtitle;
-    const ctaLabel = (formData.get("ctaLabel") as string) || current.ctaLabel;
-
-    let items = current.items || [];
-    const itemsJson = formData.get("itemsJson");
-    if (typeof itemsJson === "string") {
-      try {
-        items = JSON.parse(itemsJson);
-      } catch (e) {
-        console.error("Failed to parse itemsJson", e);
-      }
-    }
-
-    const parsed = SponsorsPartnersContentSchema.safeParse({
-      landingTitle,
-      landingSubtitle,
-      sponsorsTitle,
-      sponsorsSubtitle,
-      partnersTitle,
-      partnersSubtitle,
-      ctaLabel,
-      items,
-    });
-
-    if (!parsed.success) {
-      return {
-        status: "error",
-        message: parsed.error.issues.map((i) => i.message).at(0) ?? "Invalid input",
-      };
-    }
-
-    await updateSiteContent("sponsors_partners", parsed.data);
-    revalidatePublicSite();
-    revalidatePath("/admin/content/sponsors-partners");
-    revalidatePath("/partners");
-    revalidatePath("/");
-
-    return { status: "success", message: "Sponsors and partners updated successfully." };
-  } catch (err) {
-    return {
-      status: "error",
-      message: getErrorMessage(err, "Failed to update sponsors and partners"),
-    };
-  }
-}
-
-export async function uploadSponsorLogoAction(
-  formData: FormData
-): Promise<{ success: boolean; url?: string; error?: string }> {
-  try {
-    const file = formData.get("file");
-    if (!(file instanceof File) || file.size === 0) {
-      return { success: false, error: "No file provided." };
-    }
-
-    const url = await uploadSponsorLogoImage(file);
-    return { success: true, url };
-  } catch (err) {
-    return {
-      success: false,
-      error: getErrorMessage(err, "Failed to upload logo image."),
-    };
-  }
-}
-
