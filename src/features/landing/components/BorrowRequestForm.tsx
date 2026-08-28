@@ -16,7 +16,7 @@ export type BorrowFormData = {
   currentItemCategory: string;
   currentItem: string;
   currentItemQuantity: number | "";
-  borrowItems: { category: string; item: string; quantity: number }[];
+  borrowItems: { assetId: string; category: string; item: string; quantity: number }[];
   startDate: string;
   startHour: string;
   startMinute: string;
@@ -111,7 +111,7 @@ function validateStep2(form: BorrowFormData): FormErrors {
 
 type BorrowRequestFormProps = {
   onBackToLanding: () => void;
-  equipments?: { group: string; items: { name: string; available: number; unit?: string | null }[] }[];
+  equipments?: { group: string; items: { id: string; name: string; available: number; unit?: string | null }[] }[];
 };
 
 function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
@@ -302,6 +302,12 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const findSelectedAsset = useCallback(() => {
+    return equipments
+      .find((g) => g.group === form.currentItemCategory)
+      ?.items.find((i) => i.name === form.currentItem);
+  }, [equipments, form.currentItemCategory, form.currentItem]);
+
   useEffect(() => {
     if (form.startDate && form.endDate) {
       const start = toDateTime(form.startDate, form.startHour, form.startMinute, form.startPeriod);
@@ -433,8 +439,10 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
     formData.set("purpose", form.purpose);
     formData.set("additionalInfo", form.additionalInfo);
     
-    const combinedItems = (form.borrowItems || []).map(i => `${i.item} x${i.quantity} (${i.category})`).join(", ");
-    formData.set("item", combinedItems);
+    formData.set(
+      "items",
+      JSON.stringify((form.borrowItems || []).map((i) => ({ assetId: i.assetId, quantity: i.quantity })))
+    );
     formData.set("startDate", form.startDate);
     formData.set("startHour", form.startHour);
     formData.set("startMinute", form.startMinute);
@@ -642,11 +650,7 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                     <input
                       type="number"
                       min={1}
-                      max={
-                        equipments
-                          .find(g => g.group === form.currentItemCategory)
-                          ?.items.find(i => i.name === form.currentItem)?.available || 1
-                      }
+                      max={findSelectedAsset()?.available || 1}
                       value={form.currentItemQuantity}
                       onChange={(e) => {
                         const raw = e.target.value;
@@ -656,9 +660,7 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                         }
                         let val = parseInt(raw, 10);
                         if (isNaN(val)) return;
-                        const max = equipments
-                          .find(g => g.group === form.currentItemCategory)
-                          ?.items.find(i => i.name === form.currentItem)?.available || 1;
+                        const max = findSelectedAsset()?.available || 1;
                         if (val > max) val = max;
                         updateField("currentItemQuantity", val);
                       }}
@@ -674,14 +676,15 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                   <button
                     type="button"
                     onClick={() => {
-                      if (form.currentItemCategory && form.currentItem) {
+                      const selectedAsset = findSelectedAsset();
+                      if (form.currentItemCategory && form.currentItem && selectedAsset) {
                         const exists = (form.borrowItems || []).some(
-                          (i) => i.category === form.currentItemCategory && i.item === form.currentItem
+                          (i) => i.assetId === selectedAsset.id
                         );
                         if (!exists) {
                           updateField("borrowItems", [
                             ...(form.borrowItems || []),
-                            { category: form.currentItemCategory, item: form.currentItem, quantity: form.currentItemQuantity || 1 }
+                            { assetId: selectedAsset.id, category: form.currentItemCategory, item: form.currentItem, quantity: form.currentItemQuantity || 1 }
                           ]);
                           updateField("currentItem", "");
                           updateField("currentItemQuantity", 1);

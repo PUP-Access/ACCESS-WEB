@@ -1,17 +1,18 @@
 import {
-  createEquipmentAction,
-  updateEquipmentAction,
-  deleteEquipmentAction,
-} from "@/features/inventory/actions/equipments.actions";
+  createAssetAction,
+  updateAssetAction,
+  deleteAssetAction,
+  decrementAssetAction,
+} from "@/features/assets/actions/assets.actions";
 import {
-  getEquipmentsForAdmin,
-  getEquipmentCategories,
-} from "@/features/inventory/services/equipments.admin.service";
+  getAssetsForAdmin,
+  getAssetCategories,
+} from "@/features/assets/services/assets.admin.service";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
-import { DeleteEquipmentButton } from "./DeleteEquipmentButton";
-import { EditEquipmentModal } from "./EditEquipmentModal";
+import { AssetInventoryControls } from "./AssetInventoryControls";
+import { EditAssetModal } from "./EditAssetModal";
 import {
   AdminCard,
   AdminEmptyState,
@@ -40,14 +41,14 @@ export default async function AdminInventoryPage({ searchParams }: PageProps) {
   const currentCategory = params.category ?? "All";
   const currentQuery = params.q?.trim() ?? "";
 
-  const { data: equipments, meta } = await getEquipmentsForAdmin({
+  const { data: assets, meta } = await getAssetsForAdmin({
     page: currentPage,
     limit: 50,
     category: currentCategory,
     search: currentQuery,
   });
 
-  const allCategories = await getEquipmentCategories();
+  const allCategories = await getAssetCategories();
 
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -64,29 +65,39 @@ export default async function AdminInventoryPage({ searchParams }: PageProps) {
 
   async function handleCreate(formData: FormData) {
     "use server";
-    const result = await createEquipmentAction({ status: "idle" }, formData);
+    const result = await createAssetAction({ status: "idle" }, formData);
     if (result.status === "error") {
       redirect(`/admin/inventory?feedback=error&message=${encodeURIComponent(result.message)}`);
     }
-    redirect("/admin/inventory?feedback=success&message=Equipment%20added%20successfully");
+    const message = result.status === "success" && result.message ? result.message : "Asset added successfully";
+    redirect(`/admin/inventory?feedback=success&message=${encodeURIComponent(message)}`);
+  }
+
+  async function handleDecrement(formData: FormData) {
+    "use server";
+    const result = await decrementAssetAction({ status: "idle" }, formData);
+    if (result.status === "error") {
+      redirect(`/admin/inventory?feedback=error&message=${encodeURIComponent(result.message)}`);
+    }
+    redirect("/admin/inventory?feedback=success&message=Quantity%20decreased");
   }
 
   async function handleUpdate(formData: FormData) {
     "use server";
-    const result = await updateEquipmentAction({ status: "idle" }, formData);
+    const result = await updateAssetAction({ status: "idle" }, formData);
     if (result.status === "error") {
       redirect(`/admin/inventory?feedback=error&message=${encodeURIComponent(result.message)}`);
     }
-    redirect("/admin/inventory?feedback=success&message=Equipment%20updated%20successfully");
+    redirect("/admin/inventory?feedback=success&message=Asset%20updated%20successfully");
   }
 
   async function handleDelete(formData: FormData) {
     "use server";
-    const result = await deleteEquipmentAction({ status: "idle" }, formData);
+    const result = await deleteAssetAction({ status: "idle" }, formData);
     if (result.status === "error") {
       redirect(`/admin/inventory?feedback=error&message=${encodeURIComponent(result.message)}`);
     }
-    redirect("/admin/inventory?feedback=success&message=Equipment%20deleted%20successfully");
+    redirect("/admin/inventory?feedback=success&message=Asset%20deleted%20successfully");
   }
 
   return (
@@ -141,7 +152,7 @@ export default async function AdminInventoryPage({ searchParams }: PageProps) {
             )}
           </form>
 
-          {/* ADD EQUIPMENT FORM */}
+          {/* ADD ASSET FORM */}
           <AdminCard title="Add New Item" description="Create a new entry in the inventory.">
             <form action={handleCreate} className="flex flex-wrap gap-2 items-end">
               <div>
@@ -186,33 +197,35 @@ export default async function AdminInventoryPage({ searchParams }: PageProps) {
               </tr>
             </thead>
             <tbody>
-              {equipments.length === 0 ? (
+              {assets.length === 0 ? (
                 <tr>
                   <td colSpan={4}>
-                    <AdminEmptyState>No equipments found.</AdminEmptyState>
+                    <AdminEmptyState>No assets found.</AdminEmptyState>
                   </td>
                 </tr>
               ) : (
-                equipments.map((eq) => (
-                  <tr key={eq.id}>
-                    <td className="font-semibold text-white">{eq.name}</td>
+                assets.map((asset) => (
+                  <tr key={asset.id}>
+                    <td className="font-semibold text-white">{asset.name}</td>
                     <td>
-                      <span className="admin-badge admin-badge-neutral">{eq.category}</span>
+                      <span className="admin-badge admin-badge-neutral">{asset.category}</span>
                     </td>
                     <td>
-                      <span className="font-bold text-white/90">{eq.quantity}</span> <span className="text-white/45 text-xs">{eq.unit}</span>
+                      <span className="font-bold text-white/90">{asset.quantity}</span> <span className="text-white/45 text-xs">{asset.unit}</span>
                     </td>
                     <td className="text-right">
                       <div className="flex justify-end gap-2 items-center">
-                        <EditEquipmentModal
-                          equipment={eq}
+                        <EditAssetModal
+                          asset={asset}
                           allCategories={allCategories}
                           action={handleUpdate}
                         />
-                        <form action={handleDelete}>
-                          <input type="hidden" name="id" value={eq.id} />
-                          <DeleteEquipmentButton />
-                        </form>
+                        <AssetInventoryControls
+                          assetId={asset.id}
+                          quantity={asset.quantity}
+                          decrementAction={handleDecrement}
+                          removeAllAction={handleDelete}
+                        />
                       </div>
                     </td>
                   </tr>

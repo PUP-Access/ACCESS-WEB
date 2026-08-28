@@ -18,7 +18,7 @@ import {
   getOfficersSectionContent,
   getSponsorsPartnersContent,
 } from "@/features/cms";
-import { getAllEquipmentsPublic } from "@/features/inventory/services/equipments.admin.service";
+import { getAllAssetsPublic } from "@/features/assets/services/assets.admin.service";
 import { CrystalDice3D, FloatingBlocks, type CrystalConfig } from "@/features/effects";
 import { unstable_noStore as noStore } from "next/cache";
 
@@ -48,19 +48,19 @@ export default async function LandingPage() {
     getAboutContent(),
     getOfficersSectionContent(),
     getActiveFAQs(),
-    getAllEquipmentsPublic(),
+    getAllAssetsPublic(),
     getSponsorsPartnersContent(),
   ]);
 
-  // Group equipments by category for the form
+  // Group assets by category for the form
   const groupedEquipmentsMap = equipmentsRaw.reduce((acc, eq) => {
     const cat = eq.category;
     if (!acc[cat]) {
       acc[cat] = { group: cat, items: [] };
     }
-    acc[cat].items.push({ name: eq.name, available: eq.quantity, unit: eq.unit });
+    acc[cat].items.push({ id: eq.id, name: eq.name, available: eq.quantity, unit: eq.unit });
     return acc;
-  }, {} as Record<string, { group: string; items: { name: string; available: number; unit: string | null }[] }>);
+  }, {} as Record<string, { group: string; items: { id: string; name: string; available: number; unit: string | null }[] }>);
 
   const groupedEquipments = Object.values(groupedEquipmentsMap).sort((a, b) => a.group.localeCompare(b.group));
 

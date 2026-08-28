@@ -56,25 +56,6 @@ export const ContactMessageSchema = z.object({
   }),
 });
 
-export const BorrowRequestSchema = z.object({
-  fullName: z.string().min(1),
-  email: z.string().email(),
-  courseYearSection: z.string().min(1),
-  contactNumber: z.string().min(1),
-  organization: z.string().min(1),
-  purpose: z.string().min(1),
-  additionalInfo: z.string().optional(),
-  item: z.string().min(1),
-  startDate: z.string().min(1),
-  startHour: z.string().min(1),
-  startMinute: z.string().min(1),
-  startPeriod: z.enum(["AM", "PM"]),
-  endDate: z.string().min(1),
-  endHour: z.string().min(1),
-  endMinute: z.string().min(1),
-  endPeriod: z.enum(["AM", "PM"]),
-});
-
 export const SponsorPartnerItemSchema = z.object({
   id: z.string(),
   name: z.string().min(1),
