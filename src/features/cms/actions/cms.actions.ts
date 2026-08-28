@@ -492,7 +492,6 @@ export async function replyContactMessageAction(
   }
 }
 
-
 export async function updateSponsorsPartnersContentAction(
   _prevState: ActionState,
   formData: FormData
