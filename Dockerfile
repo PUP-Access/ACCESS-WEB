@@ -12,7 +12,7 @@ RUN corepack enable pnpm
 COPY package.json pnpm-lock.yaml* .npmrc* ./
 # Install project dependencies with frozen lockfile for reproducible builds
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile --no-optional
+    pnpm install --frozen-lockfile
 
 
 # ============================================
