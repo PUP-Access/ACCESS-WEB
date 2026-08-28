@@ -48,4 +48,5 @@ buckets.csv
 schema.sql
 storage-config.sql
 storage-policies-only.sql
+migrate-storage.mjs
 migrate-storage.mjs:Zone.Identifier
