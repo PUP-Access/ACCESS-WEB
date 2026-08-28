@@ -126,8 +126,12 @@ export async function forgotPasswordService(email: string) {
   const { renderAccessEmail } = await import("@/lib/email/email-template");
   const resend = new Resend(process.env.RESEND_API_KEY);
 
+  const resetUrl = data.properties?.hashed_token
+    ? `${siteUrl}/auth/callback?token_hash=${data.properties.hashed_token}&type=recovery&next=/auth/reset-password`
+    : actionLink;
+
   const { error: resendError } = await resend.emails.send({
-    from: "ACCESS \u003cnoreply@pupaccess.org\u003e",
+    from: "ACCESS <noreply@pupaccess.org>",
     to: email,
     subject: "Password Reset Request | ACCESS",
     html: renderAccessEmail({
@@ -135,11 +139,11 @@ export async function forgotPasswordService(email: string) {
       preheader: "Password recovery request for your ACCESS account.",
       statusLabel: "Security Notice",
       salutation: "Dear User,",
-      leadParagraph: `We received a request to reset the password associated with your ACCESS account (\u003cstrong\u003e${email}\u003c/strong\u003e).`,
+      leadParagraph: `We received a request to reset the password associated with your ACCESS account (<strong>${email}</strong>).`,
       secondaryParagraph: `To configure a new password and restore access to your account, please click the button below:`,
       cta: {
         text: "Reset Account Password",
-        url: actionLink,
+        url: resetUrl,
       },
       notice: {
         title: "Security Advisory",
