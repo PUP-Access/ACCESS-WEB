@@ -1,11 +1,12 @@
 # Password Reset Flow
 
 ### 1. Email Link → Callback Route (`/auth/callback`)
-When the user clicks the reset link in their email, Supabase appends a `?code=` to the callback URL. The callback route:
-- Exchanges that one-time code for a **recovery session** via `exchangeCodeForSession(code)`
+When the user clicks the reset link in their email, the link directs to `/auth/callback?token_hash=...&type=recovery&next=/auth/reset-password`. The callback route:
+- Verifies the one-time token hash via `supabase.auth.verifyOtp({ token_hash, type })` (or exchanges PKCE `code` via `exchangeCodeForSession(code)`)
+- Establishes a verified **recovery session**
 - Redirects to `/auth/reset-password?verified=true`
 
-If the code is invalid or already used, it redirects to login with an error.
+If the token/code is invalid, expired, or missing, it redirects to login with `?error=invalid_reset_link`.
 
 ---
 

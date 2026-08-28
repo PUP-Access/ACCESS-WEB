@@ -6,9 +6,13 @@ type AMREntry = string | { method: string; timestamp: number };
 
 // Helper to decode JWT payload without a library
 function decodeJwt(token: string) {
-  const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-  const json = Buffer.from(base64, "base64").toString("utf-8");
-  return JSON.parse(json);
+  try {
+    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const json = Buffer.from(base64, "base64").toString("utf-8");
+    return JSON.parse(json);
+  } catch {
+    return {};
+  }
 }
 
 export default async function ResetPasswordPage() {
@@ -27,13 +31,13 @@ export default async function ResetPasswordPage() {
   
   const isRecovery = amr.some((entry) => {
     if (typeof entry === "string") {
-      return entry === "recovery";
+      return entry === "recovery" || entry === "otp";
     }
-    return entry.method === "recovery";
+    return entry.method === "recovery" || entry.method === "otp";
   });
 
   // If they are logged in but didn't use a reset link, show 404
-  if (!isRecovery) {
+  if (!isRecovery && !user.recovery_sent_at) {
     notFound();
   }
 
