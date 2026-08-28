@@ -1,2 +1,10 @@
 export { default as OfficerCard } from "./components/OfficerCard";
 export type { OfficerCardProps } from "./components/OfficerCard";
+export { default as OfficerHierarchyCard } from "./components/OfficerHierarchyCard";
+export { default as OfficersHierarchyView } from "./components/OfficersHierarchyView";
+export { default as ClassRepresentativesView } from "./components/ClassRepresentativesView";
+export { default as BatchRepresentativesView } from "./components/BatchRepresentativesView";
+export { default as OfficerModal } from "./components/OfficerModal";
+export * from "./data/officers-hierarchy";
+export * from "./data/class-representatives";
+export * from "./data/batch-representatives";

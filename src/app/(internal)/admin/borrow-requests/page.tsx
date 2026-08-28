@@ -1,13 +1,13 @@
 import Link from "next/link";
 import {
-  AdminCard,
   AdminEmptyState,
   AdminFilterPills,
   AdminPageHeader,
   AdminPageShell,
 } from "../components/admin-ui";
-import { getBorrowRequestsForAdmin } from "@/features/cms";
-import StatusSelect from "./components/StatusSelect";
+import { getBorrowRequestsForAdmin } from "@/features/borrow";
+import RequestActions from "./components/RequestActions";
+import ViewLetterButton from "./components/ViewLetterButton";
 import { formatFullDateTime } from "@/lib/date-utils";
 
 export const dynamic = "force-dynamic";
@@ -16,14 +16,6 @@ const STATUS_OPTIONS = ["All", "Pending", "Approved", "Rejected", "Active", "Ret
 
 function formatDate(value: string | null) {
   return formatFullDateTime(value);
-}
-
-function statusBadgeClass(status: string | null) {
-  const value = status ?? "Pending";
-  if (value === "Pending") return "admin-badge admin-badge-pending";
-  if (value === "Approved" || value === "Active") return "admin-badge admin-badge-published";
-  if (value === "Rejected" || value === "Cancelled") return "admin-badge admin-badge-neutral";
-  return "admin-badge admin-badge-draft";
 }
 
 export default async function AdminBorrowRequestsPage({
@@ -62,6 +54,7 @@ export default async function AdminBorrowRequestsPage({
               <th>Borrower</th>
               <th>Item</th>
               <th>Dates</th>
+              <th>Letter</th>
               <th>Status</th>
               <th>Submitted</th>
             </tr>
@@ -70,25 +63,33 @@ export default async function AdminBorrowRequestsPage({
             {data.map((request) => (
               <tr key={request.id}>
                 <td>
-                  <p className="font-semibold text-white">{request.borrower_contact_name}</p>
+                  <Link href={`/admin/borrow-requests/${request.id}`} className="font-semibold text-white hover:underline">
+                    {request.borrower_contact_name}
+                  </Link>
                   <p className="text-xs text-white/45">{request.borrower_email}</p>
                   <p className="text-xs text-white/35">{request.organization_name}</p>
                 </td>
-                <td>{request.requested_item ?? "—"}</td>
                 <td>
                   <p>{formatDate(request.requested_start_date)}</p>
                   <p className="text-white/35">to</p>
                   <p>{formatDate(request.requested_end_date)}</p>
                 </td>
                 <td>
-                  <StatusSelect id={request.id} currentStatus={request.status ?? "Pending"} />
+                  {request.letter_file_url ? (
+                    <ViewLetterButton requestId={request.id} />
+                  ) : (
+                    <span className="text-white/35">—</span>
+                  )}
+                </td>
+                <td>
+                  <RequestActions id={request.id} status={request.status} />
                 </td>
                 <td className="text-white/45">{formatDate(request.created_at)}</td>
               </tr>
             ))}
             {data.length === 0 && (
               <tr>
-                <td colSpan={5}>
+                <td colSpan={6}>
                   <AdminEmptyState>No borrow requests found.</AdminEmptyState>
                 </td>
               </tr>
@@ -115,25 +116,6 @@ export default async function AdminBorrowRequestsPage({
             )}
           </div>
         </div>
-      )}
-
-      {data.some((request) => request.letter_file_url) && (
-        <AdminCard title="Request letters" description="Download letters attached to current page results.">
-          <div className="space-y-2">
-            {data
-              .filter((request) => request.letter_file_url)
-              .map((request) => (
-                <div key={`${request.id}-letter`} className="flex items-center justify-between gap-4 rounded-xl border border-white/8 bg-black/20 px-4 py-3">
-                  <span className="text-sm text-white/75">
-                    {request.borrower_contact_name} · {request.requested_item}
-                  </span>
-                  <a href={request.letter_file_url ?? "#"} target="_blank" rel="noreferrer" className="admin-link">
-                    View letter
-                  </a>
-                </div>
-              ))}
-          </div>
-        </AdminCard>
       )}
     </AdminPageShell>
   );

@@ -1,7 +1,7 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 import { checkRole } from "@/utils/checkRole";
 import { getUnreadContactMessageCount } from "./contact-messages.service";
-import { getPendingBorrowRequestCount, getRecentBorrowRequests } from "./borrow-requests.admin.service";
+import { getPendingBorrowRequestCount, getRecentBorrowRequests } from "@/features/borrow";
 import { getFAQCount } from "./faq.service";
 import { getContactMessagesForAdmin } from "./contact-messages.service";
 

@@ -136,15 +136,17 @@ export default function OfficerCard({
 
         />
         {/* Description */}
-        <p
-          className="font-light"
-          style={{
-            color    : "rgba(255, 245, 240, 0.75)",
-            fontSize : "0.8125rem",
-          }}
-        >
-          {description}
-        </p>
+        {description?.trim() && (
+          <p
+            className="font-light"
+            style={{
+              color    : "rgba(255, 245, 240, 0.75)",
+              fontSize : "0.8125rem",
+            }}
+          >
+            {description}
+          </p>
+        )}
       </div>
     </div>
   )

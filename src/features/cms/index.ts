@@ -2,6 +2,8 @@ export {
   updateHeroContentAction,
   updateAboutContentAction,
   updateOfficersSectionAction,
+  updateSponsorsPartnersContentAction,
+  uploadSponsorLogoAction,
   createFAQAction,
   updateFAQAction,
   deleteFAQAction,
@@ -16,6 +18,7 @@ export {
   getHeroContent,
   getAboutContent,
   getOfficersSectionContent,
+  getSponsorsPartnersContent,
 } from "./services/site-content.service";
 
 export { getActiveFAQs, getAllFAQsForAdmin } from "./services/faq.service";
@@ -25,11 +28,13 @@ export {
   getUnreadContactMessageCount,
 } from "./services/contact-messages.service";
 
-export {
-  getBorrowRequestsForAdmin,
-  getBorrowRequestById,
-} from "./services/borrow-requests.admin.service";
-
 export { getAdminDashboardStats } from "./services/dashboard.service";
 
-export type { HeroContent, AboutContent, OfficersSectionContent } from "./schemas";
+export type {
+  HeroContent,
+  AboutContent,
+  OfficersSectionContent,
+  SponsorPartnerItem,
+  SponsorsPartnersContent,
+} from "./schemas";
+

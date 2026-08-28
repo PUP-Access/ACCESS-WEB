@@ -10,7 +10,7 @@ type MeetTheOfficersSectionProps = {
 };
 
 export default function MeetTheOfficersSection({ content }: MeetTheOfficersSectionProps) {
-  const parts = content.parts || [];
+  const parts = (content.parts || []).filter((p) => p.isVisible !== false);
 
   return (
     <section id="officers" className="landing-section scroll-mt-24 relative overflow-hidden py-16 px-5 sm:px-8 md:px-16 lg:px-24">

@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { BorrowRequestSchema } from "@/features/cms/schemas";
+import { SubmitBorrowRequestSchema } from "@/features/borrow/schemas";
+import { adjustAssetQuantities, buildRequestedItemDisplayString } from "@/features/borrow";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 import { getErrorMessage } from "@/lib/errors";
@@ -53,7 +54,7 @@ export async function submitBorrowRequestAction(
       };
     }
 
-    const parsed = BorrowRequestSchema.safeParse({
+    const parsed = SubmitBorrowRequestSchema.safeParse({
       fullName: formData.get("fullName"),
       email: formData.get("email"),
       courseYearSection: formData.get("courseYearSection"),
@@ -61,7 +62,7 @@ export async function submitBorrowRequestAction(
       organization: formData.get("organization"),
       purpose: formData.get("purpose"),
       additionalInfo: formData.get("additionalInfo") || "",
-      item: formData.get("item"),
+      items: formData.get("items"),
       startDate: formData.get("startDate"),
       startHour: formData.get("startHour"),
       startMinute: formData.get("startMinute"),
@@ -102,7 +103,7 @@ export async function submitBorrowRequestAction(
     }
 
     const ext = letterFile.name.split(".").pop()?.toLowerCase() ?? "pdf";
-    const filePath = `borrow-letters/${user.id}/${crypto.randomUUID()}.${ext}`;
+    const filePath = `${user.id}/${crypto.randomUUID()}.${ext}`;
     const contentType =
       letterFile.type ||
       ({
@@ -114,7 +115,7 @@ export async function submitBorrowRequestAction(
     const adminSupabase = createSupabaseAdminClient();
 
     const { error: uploadError } = await adminSupabase.storage
-      .from("access_web_assets")
+      .from("request-letters")
       .upload(filePath, letterFile, {
         contentType,
         upsert: false,
@@ -122,41 +123,37 @@ export async function submitBorrowRequestAction(
 
     if (uploadError) throw uploadError;
 
-    const { data: publicUrlData } = adminSupabase.storage
-      .from("access_web_assets")
-      .getPublicUrl(filePath);
+    // Never trust client-supplied names/categories — resolve real Assets rows by id.
+    const assetIds = parsed.data.items.map((i) => i.assetId);
+    const { data: assets, error: assetsError } = await adminSupabase
+      .from("Assets")
+      .select("id, name, category, quantity, is_deleted")
+      .in("id", assetIds);
 
-    const items = parsed.data.item.split(", ");
-    for (const itemStr of items) {
-      const match = itemStr.match(/(.+?) x(\d+) \((.+?)\)/);
-      if (match) {
-        const name = match[1];
-        const qty = parseInt(match[2], 10);
-        const category = match[3];
+    if (assetsError) throw assetsError;
 
-        const { data: equipment } = await adminSupabase
-          .from("Equipments")
-          .select("*")
-          .eq("name", name)
-          .eq("category", category)
-          .single();
-
-        if (!equipment) {
-          throw new Error(`Equipment not found: ${name}`);
-        }
-
-        if (equipment.quantity < qty) {
-          throw new Error(`Not enough inventory for ${name}. Available: ${equipment.quantity}, Requested: ${qty}`);
-        }
-
-        const { error: updateInvError } = await adminSupabase
-          .from("Equipments")
-          .update({ quantity: equipment.quantity - qty })
-          .eq("id", equipment.id);
-
-        if (updateInvError) throw updateInvError;
+    const assetById = new Map((assets ?? []).map((a) => [a.id, a]));
+    for (const item of parsed.data.items) {
+      const asset = assetById.get(item.assetId);
+      if (!asset || asset.is_deleted) {
+        return { status: "error", message: "One or more selected items are no longer available." };
+      }
+      if (item.quantity > asset.quantity) {
+        return {
+          status: "error",
+          message: `Not enough stock for ${asset.name}. Available: ${asset.quantity}, Requested: ${item.quantity}.`,
+        };
       }
     }
+
+    const requestedItemDisplay = buildRequestedItemDisplayString(
+      parsed.data.items.map((i) => {
+        const asset = assetById.get(i.assetId)!;
+        return { name: asset.name, category: asset.category, quantity: i.quantity };
+      })
+    );
+
+    await adjustAssetQuantities(adminSupabase, parsed.data.items, "deduct");
 
     const { data: insertedData, error: insertError } = await adminSupabase
       .from("BorrowRequests")
@@ -169,10 +166,10 @@ export async function submitBorrowRequestAction(
         organization_name: parsed.data.organization,
         purpose: parsed.data.purpose,
         additional_info: parsed.data.additionalInfo || null,
-        requested_item: parsed.data.item,
+        requested_item: requestedItemDisplay,
         requested_start_date: start.toISOString(),
         requested_end_date: end.toISOString(),
-        letter_file_url: publicUrlData.publicUrl,
+        letter_file_url: filePath,
         status: "Pending",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -182,12 +179,20 @@ export async function submitBorrowRequestAction(
 
     if (insertError) throw insertError;
 
+    const { error: itemsError } = await adminSupabase.from("BorrowRequestItems").insert(
+      parsed.data.items.map((i) => ({
+        borrow_request_id: insertedData.id,
+        asset_id: i.assetId,
+        quantity: i.quantity,
+      }))
+    );
+
+    if (itemsError) throw itemsError;
+
     // Send automated email notification upon initial submission
     if (insertedData && parsed.data.email && process.env.RESEND_API_KEY) {
       try {
-        const { sendBorrowStatusEmail } = await import(
-          "@/features/cms/services/borrow-requests.admin.service"
-        );
+        const { sendBorrowStatusEmail } = await import("@/features/borrow");
         await sendBorrowStatusEmail(insertedData, "Pending");
       } catch (emailErr) {
         console.error("Failed to send initial borrow status email:", emailErr);

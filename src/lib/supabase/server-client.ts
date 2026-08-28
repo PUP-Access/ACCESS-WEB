@@ -31,13 +31,14 @@ export async function createSupabaseServerClient() {
       },
       // Allows Supabase to refresh and update the session cookie
       setAll(cookiesToSet) {
-        // The 'setAll' method can fail if called from a Server Component 
+        // The 'setAll' method can fail if called from a Server Component.
+        // This is safe to ignore as middleware handles session updates.
         try {
           cookiesToSet.forEach(({ name, value, options }) => 
             cookieStore.set(name, value, options)
           );
-        } catch(error) {
-          console.log(error)
+        } catch {
+          // Intentionally ignored when called from Server Components
         }
       }
     }

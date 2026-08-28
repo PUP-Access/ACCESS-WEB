@@ -1,0 +1,65 @@
+services:
+  # 1. Mock Email Service for Resend / SMTP testing
+  mailpit-mock:
+    image: axllent/mailpit:latest
+    container_name: access-test-mailpit
+    ports:
+      - "8025:8025"   # Web UI & REST API
+      - "1025:1025"   # SMTP
+    environment:
+      MP_MAX_MESSAGES: 500
+    networks:
+      - test-network
+
+  # 2. Real PostgreSQL Database with all Supabase migrations mounted
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: access-test-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: postgres
+    ports:
+      - "54322:5432"
+    volumes:
+      - ./scripts/init-test-db.sql:/docker-init/bootstrap.sql:ro
+      - ./supabase/migrations:/supabase-migrations:ro
+      - ./scripts/init-entrypoint.sh:/docker-entrypoint-initdb.d/01_init.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+    networks:
+      - test-network
+
+  # 3. Test Runner Container
+  test-runner:
+    build:
+      context: .
+      target: development
+    container_name: access-test-runner
+    environment:
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+      NODE_ENV: test
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_SUPABASE_URL: http://postgres-test:5432
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: test-service-role-key
+      RESEND_API_KEY: re_mock_test_key
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      mailpit-mock:
+        condition: service_started
+    command: pnpm vitest run
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    driver: bridge

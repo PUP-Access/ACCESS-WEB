@@ -699,7 +699,7 @@ export default function ContactMessagesList({
                     </svg>
                     Concern & Details
                   </div>
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/85">
+                  <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-white/85">
                     {message.concern}
                   </p>
                 </div>

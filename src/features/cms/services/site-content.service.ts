@@ -8,14 +8,17 @@ import {
   DEFAULT_ABOUT_CONTENT,
   DEFAULT_HERO_CONTENT,
   DEFAULT_OFFICERS_SECTION_CONTENT,
+  DEFAULT_SPONSORS_PARTNERS_CONTENT,
   HeroContentSchema,
   OfficersSectionContentSchema,
+  SponsorsPartnersContentSchema,
   type AboutContent,
   type HeroContent,
   type OfficersSectionContent,
+  type SponsorsPartnersContent,
 } from "../schemas";
 
-type SiteContentKey = "hero" | "about" | "officers_section";
+type SiteContentKey = "hero" | "about" | "officers_section" | "sponsors_partners";
 
 async function getContentByKey<T>(
   key: SiteContentKey,
@@ -71,9 +74,17 @@ export async function getOfficersSectionContent(): Promise<OfficersSectionConten
   );
 }
 
+export async function getSponsorsPartnersContent(): Promise<SponsorsPartnersContent> {
+  return getContentByKey(
+    "sponsors_partners",
+    SponsorsPartnersContentSchema,
+    DEFAULT_SPONSORS_PARTNERS_CONTENT
+  );
+}
+
 export async function updateSiteContent(
   key: SiteContentKey,
-  value: HeroContent | AboutContent | OfficersSectionContent
+  value: HeroContent | AboutContent | OfficersSectionContent | SponsorsPartnersContent
 ) {
   await checkRole({ roles: "Admin" });
   const supabase = createSupabaseAdminClient();
@@ -194,3 +205,8 @@ export async function uploadOfficersRosterImage(file: File): Promise<string> {
   const serverSupabase = await createSupabaseServerClient();
   return uploadSiteContentFileToStorage(serverSupabase, file, contentType, ext);
 }
+
+export async function uploadSponsorLogoImage(file: File): Promise<string> {
+  return uploadSiteContentImage(file);
+}
+

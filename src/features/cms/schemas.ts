@@ -16,16 +16,19 @@ export const AboutContentSchema = z.object({
   ]),
 });
 
+export const OfficersSectionPartSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  link: z.string(),
+  imageUrl: z.string().optional(),
+  isVisible: z.boolean().optional().default(true),
+});
+
 export const OfficersSectionContentSchema = z.object({
   title: z.string().min(1),
   subtitle: z.string().min(1),
   templateImageUrl: z.string().min(1),
-  parts: z.array(z.object({
-    id: z.string(),
-    label: z.string(),
-    link: z.string(),
-    imageUrl: z.string().optional(),
-  })).optional().default([]),
+  parts: z.array(OfficersSectionPartSchema).optional().default([]),
 });
 
 export const FAQItemSchema = z.object({
@@ -53,39 +56,61 @@ export const ContactMessageSchema = z.object({
   }),
 });
 
-export const BorrowRequestSchema = z.object({
-  fullName: z.string().min(1),
-  email: z.string().email(),
-  courseYearSection: z.string().min(1),
-  contactNumber: z.string().min(1),
-  organization: z.string().min(1),
-  purpose: z.string().min(1),
-  additionalInfo: z.string().optional(),
-  item: z.string().min(1),
-  startDate: z.string().min(1),
-  startHour: z.string().min(1),
-  startMinute: z.string().min(1),
-  startPeriod: z.enum(["AM", "PM"]),
-  endDate: z.string().min(1),
-  endHour: z.string().min(1),
-  endMinute: z.string().min(1),
-  endPeriod: z.enum(["AM", "PM"]),
+export const SponsorPartnerItemSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1),
+  logoUrl: z.string().min(1),
+  websiteUrl: z.string().optional().default(""),
+  type: z.enum(["sponsor", "partner"]).default("sponsor"),
+  tier: z.enum(["featured", "standard"]).default("standard"),
+  category: z.string().optional().default(""),
+  isVisible: z.boolean().default(true),
+  orderIndex: z.number().optional().default(0),
+});
+
+export const SponsorsPartnersContentSchema = z.object({
+  landingTitle: z.string().min(1).default("OUR SPONSORS & PARTNERS"),
+  landingSubtitle: z
+    .string()
+    .min(1)
+    .default(
+      "Proudly supported by organizations that share our vision for service, innovation, and technical excellence."
+    ),
+  sponsorsTitle: z.string().min(1).default("ACCESS Sponsors"),
+  sponsorsSubtitle: z
+    .string()
+    .min(1)
+    .default(
+      "Empowering computer engineering students through state-of-the-art technological resources and event support."
+    ),
+  partnersTitle: z.string().min(1).default("ACCESS Partners"),
+  partnersSubtitle: z
+    .string()
+    .min(1)
+    .default(
+      "Collaborating with industry leaders, student organizations, and academic institutions."
+    ),
+  ctaLabel: z.string().min(1).default("Want to be our partner?"),
+  items: z.array(SponsorPartnerItemSchema).default([]),
 });
 
 export type HeroContent = z.infer<typeof HeroContentSchema>;
 export type AboutContent = z.infer<typeof AboutContentSchema>;
+export type OfficersSectionPart = z.infer<typeof OfficersSectionPartSchema>;
 export type OfficersSectionContent = z.infer<typeof OfficersSectionContentSchema>;
+export type SponsorPartnerItem = z.infer<typeof SponsorPartnerItemSchema>;
+export type SponsorsPartnersContent = z.infer<typeof SponsorsPartnersContentSchema>;
 
 export const DEFAULT_HERO_CONTENT: HeroContent = {
   titleLines: [
-    "Association of Concerned",
-    "Computer Engineering Students",
-    "for Service",
+    "ASSOCIATION OF CONCERNED",
+    "COMPUTER ENGINEERING",
+    "STUDENTS FOR SERVICE",
   ],
   subtitle:
-    "Lorem ipsum dolor sit amet consectetur Lorem ipsum dolor sit amet consectetur Lorem ipsum dolor sit amet consectetur Lorem ipsum",
-  primaryCtaLabel: "Get Started",
-  secondaryCtaLabel: "Get In Touch",
+    "We are a community of student leaders and innovators committed to advancing technology, collaboration, and excellence within PUP.",
+  primaryCtaLabel: "About us",
+  secondaryCtaLabel: "Officers",
 };
 
 export const DEFAULT_ABOUT_CONTENT: AboutContent = {
@@ -105,21 +130,127 @@ export const DEFAULT_OFFICERS_SECTION_CONTENT: OfficersSectionContent = {
   parts: [
     {
       id: "part-1",
-      label: "Batch Officers",
-      link: "/officers#part-1",
+      label: "ACCESS Officers",
+      link: "/officers",
       imageUrl: "",
+      isVisible: true,
     },
     {
       id: "part-2",
-      label: "ACCESS",
-      link: "/officers#part-2",
+      label: "Class Representatives",
+      link: "/officers/class-representatives",
       imageUrl: "",
+      isVisible: true,
     },
     {
       id: "part-3",
-      label: "Class Representatives",
-      link: "/officers#part-3",
+      label: "Batch Representatives",
+      link: "/officers/batch-representatives",
       imageUrl: "",
+      isVisible: true,
+    },
+  ],
+};
+
+export const DEFAULT_SPONSORS_PARTNERS_CONTENT: SponsorsPartnersContent = {
+  landingTitle: "OUR SPONSORS & PARTNERS",
+  landingSubtitle:
+    "Proudly supported by organizations that share our vision for service, innovation, and technical excellence.",
+  sponsorsTitle: "ACCESS Sponsors",
+  sponsorsSubtitle:
+    "Empowering computer engineering students through state-of-the-art technological resources and event support.",
+  partnersTitle: "ACCESS Partners",
+  partnersSubtitle:
+    "Collaborating with industry leaders, student organizations, and academic institutions.",
+  ctaLabel: "Want to be our partner?",
+  items: [
+    {
+      id: "sp-1",
+      name: "Nexus Labs",
+      logoUrl: "",
+      websiteUrl: "https://example.com",
+      type: "sponsor",
+      tier: "featured",
+      category: "Co-Presenter",
+      isVisible: true,
+      orderIndex: 1,
+    },
+    {
+      id: "sp-2",
+      name: "Apex Global",
+      logoUrl: "",
+      websiteUrl: "https://example.com",
+      type: "sponsor",
+      tier: "standard",
+      category: "Gold Sponsor",
+      isVisible: true,
+      orderIndex: 2,
+    },
+    {
+      id: "sp-3",
+      name: "Cognitive AI",
+      logoUrl: "",
+      websiteUrl: "https://example.com",
+      type: "sponsor",
+      tier: "standard",
+      category: "Gold Sponsor",
+      isVisible: true,
+      orderIndex: 3,
+    },
+    {
+      id: "sp-4",
+      name: "Synapse Corp",
+      logoUrl: "",
+      websiteUrl: "https://example.com",
+      type: "sponsor",
+      tier: "standard",
+      category: "Silver Sponsor",
+      isVisible: true,
+      orderIndex: 4,
+    },
+    {
+      id: "sp-5",
+      name: "Vector Ventures",
+      logoUrl: "",
+      websiteUrl: "https://example.com",
+      type: "partner",
+      tier: "featured",
+      category: "Industry Partner",
+      isVisible: true,
+      orderIndex: 5,
+    },
+    {
+      id: "sp-6",
+      name: "Orion Systems",
+      logoUrl: "",
+      websiteUrl: "https://example.com",
+      type: "partner",
+      tier: "standard",
+      category: "Academic Partner",
+      isVisible: true,
+      orderIndex: 6,
+    },
+    {
+      id: "sp-7",
+      name: "Kinetic Dynamics",
+      logoUrl: "",
+      websiteUrl: "https://example.com",
+      type: "partner",
+      tier: "standard",
+      category: "Media Partner",
+      isVisible: true,
+      orderIndex: 7,
+    },
+    {
+      id: "sp-8",
+      name: "Bare Elements",
+      logoUrl: "",
+      websiteUrl: "https://example.com",
+      type: "partner",
+      tier: "standard",
+      category: "Community Partner",
+      isVisible: true,
+      orderIndex: 8,
     },
   ],
 };

@@ -126,9 +126,9 @@ export default function AboutSection({ content }: AboutSectionProps) {
 
       {/* ── TEXT CONTENT SECTION (BOTTOM HALF) ── */}
       <div
-        className="relative z-10 px-6 py-16 md:py-24 text-center"
+        className="relative z-10 px-6 py-12 md:py-16 text-center"
         style={{
-          background: "linear-gradient(to bottom, #2a0a00ff 0%, #b83007 2git%, #731202 100%)",
+          background: "linear-gradient(to bottom, #2a0a00ff 0%, #b83007 20%, #731202 100%)",
         }}
       >
         {/* Subtle decorative glow to enhance depth */}

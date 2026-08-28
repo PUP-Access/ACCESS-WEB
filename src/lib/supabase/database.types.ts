@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.1"
+    PostgrestVersion: "14.17"
   }
   graphql_public: {
     Tables: {
@@ -41,42 +41,48 @@ export type Database = {
     Tables: {
       Assets: {
         Row: {
-          category: string | null
+          category: string
           condition: Database["public"]["Enums"]["asset_condition"] | null
           created_at: string | null
           description: string | null
           id: string
           image_url: string | null
           is_deleted: boolean | null
-          name: string | null
+          name: string
+          quantity: number
           status: Database["public"]["Enums"]["asset_status"] | null
           target_qr_identifier: string | null
+          unit: string | null
           updated_at: string | null
         }
         Insert: {
-          category?: string | null
-          condition?: Database["public"]["Enums"]["asset_condition"] | null
-          created_at?: string | null
-          description?: string | null
-          id: string
-          image_url?: string | null
-          is_deleted?: boolean | null
-          name?: string | null
-          status?: Database["public"]["Enums"]["asset_status"] | null
-          target_qr_identifier?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string | null
+          category: string
           condition?: Database["public"]["Enums"]["asset_condition"] | null
           created_at?: string | null
           description?: string | null
           id?: string
           image_url?: string | null
           is_deleted?: boolean | null
-          name?: string | null
+          name: string
+          quantity?: number
           status?: Database["public"]["Enums"]["asset_status"] | null
           target_qr_identifier?: string | null
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          condition?: Database["public"]["Enums"]["asset_condition"] | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_deleted?: boolean | null
+          name?: string
+          quantity?: number
+          status?: Database["public"]["Enums"]["asset_status"] | null
+          target_qr_identifier?: string | null
+          unit?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -119,57 +125,24 @@ export type Database = {
           },
         ]
       }
-      Equipments: {
-        Row: {
-          category: string
-          created_at: string | null
-          id: string
-          image_url: string | null
-          is_deleted: boolean | null
-          name: string
-          quantity: number
-          unit: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          category: string
-          created_at?: string | null
-          id?: string
-          image_url?: string | null
-          is_deleted?: boolean | null
-          name: string
-          quantity?: number
-          unit?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string
-          created_at?: string | null
-          id?: string
-          image_url?: string | null
-          is_deleted?: boolean | null
-          name?: string
-          quantity?: number
-          unit?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       BorrowRequestItems: {
         Row: {
           asset_id: string | null
           borrow_request_id: string | null
           id: string
+          quantity: number
         }
         Insert: {
           asset_id?: string | null
           borrow_request_id?: string | null
-          id: string
+          id?: string
+          quantity: number
         }
         Update: {
           asset_id?: string | null
           borrow_request_id?: string | null
           id?: string
+          quantity?: number
         }
         Relationships: [
           {
@@ -201,9 +174,11 @@ export type Database = {
           organization_name: string | null
           purpose: string | null
           rejection_reason: string | null
+          released_at: string | null
           requested_end_date: string | null
           requested_item: string | null
           requested_start_date: string | null
+          returned_at: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           status: Database["public"]["Enums"]["borrow_status"] | null
@@ -222,9 +197,11 @@ export type Database = {
           organization_name?: string | null
           purpose?: string | null
           rejection_reason?: string | null
+          released_at?: string | null
           requested_end_date?: string | null
           requested_item?: string | null
           requested_start_date?: string | null
+          returned_at?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["borrow_status"] | null
@@ -243,9 +220,11 @@ export type Database = {
           organization_name?: string | null
           purpose?: string | null
           rejection_reason?: string | null
+          released_at?: string | null
           requested_end_date?: string | null
           requested_item?: string | null
           requested_start_date?: string | null
+          returned_at?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["borrow_status"] | null
@@ -279,7 +258,6 @@ export type Database = {
           full_name: string
           id: string
           is_read: boolean | null
-          is_archived: boolean | null
           organization: string | null
           purpose: string | null
         }
@@ -292,7 +270,6 @@ export type Database = {
           full_name: string
           id?: string
           is_read?: boolean | null
-          is_archived?: boolean | null
           organization?: string | null
           purpose?: string | null
         }
@@ -305,39 +282,8 @@ export type Database = {
           full_name?: string
           id?: string
           is_read?: boolean | null
-          is_archived?: boolean | null
           organization?: string | null
           purpose?: string | null
-        }
-        Relationships: []
-      }
-      FAQItems: {
-        Row: {
-          answer: string
-          created_at: string | null
-          display_order: number | null
-          id: string
-          is_active: boolean | null
-          question: string
-          updated_at: string | null
-        }
-        Insert: {
-          answer: string
-          created_at?: string | null
-          display_order?: number | null
-          id?: string
-          is_active?: boolean | null
-          question: string
-          updated_at?: string | null
-        }
-        Update: {
-          answer?: string
-          created_at?: string | null
-          display_order?: number | null
-          id?: string
-          is_active?: boolean | null
-          question?: string
-          updated_at?: string | null
         }
         Relationships: []
       }
@@ -385,34 +331,35 @@ export type Database = {
           },
         ]
       }
-      SiteContent: {
+      FAQItems: {
         Row: {
-          key: string
+          answer: string
+          created_at: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          question: string
           updated_at: string | null
-          updated_by: string | null
-          value: Json
         }
         Insert: {
-          key: string
+          answer: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          question: string
           updated_at?: string | null
-          updated_by?: string | null
-          value: Json
         }
         Update: {
-          key?: string
+          answer?: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          question?: string
           updated_at?: string | null
-          updated_by?: string | null
-          value?: Json
         }
-        Relationships: [
-          {
-            foreignKeyName: "SiteContent_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "Users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       Officers: {
         Row: {
@@ -461,6 +408,35 @@ export type Database = {
           {
             foreignKeyName: "Officers_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      SiteContent: {
+        Row: {
+          key: string
+          updated_at: string | null
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "SiteContent_updated_by_fkey"
+            columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "Users"
             referencedColumns: ["id"]

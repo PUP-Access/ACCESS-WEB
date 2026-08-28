@@ -21,12 +21,40 @@
 
 html {
   scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
 }
 
 /* Hide native Edge / Chrome password reveal & clear buttons */
@@ -332,6 +360,8 @@ input:-webkit-autofill:active {
 .faq-container {
   max-width: 52rem;
   margin: 0 auto;
+  position: relative;
+  z-index: 10;
 }
 
 
@@ -452,4 +482,28 @@ input:-webkit-autofill:active {
     display: none !important;
   }
 }
+
+/* Sponsors & Partners Continuous Marquee (Left-to-Right Seamless GPU) */
+@keyframes marquee-pan {
+  0% {
+    transform: translate3d(-50%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0%, 0, 0);
+  }
+}
+
+.animate-marquee-pan {
+  display: flex;
+  width: max-content;
+  animation: marquee-pan 32s linear infinite;
+  will-change: transform;
+}
+
+@media (max-width: 640px) {
+  .animate-marquee-pan {
+    animation-duration: 22s;
+  }
+}
+
 
