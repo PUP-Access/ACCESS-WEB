@@ -9,7 +9,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/browser-client";
 import { Reveal } from "./Reveal";
 
 type BorrowSectionProps = {
-  equipments?: { group: string; items: { name: string; available: number; unit?: string | null }[] }[];
+  equipments?: { group: string; items: { id: string; name: string; available: number; unit?: string | null }[] }[];
 };
 
 export default function BorrowSection({ equipments = [] }: BorrowSectionProps) {

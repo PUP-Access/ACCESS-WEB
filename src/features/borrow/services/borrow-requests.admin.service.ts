@@ -8,7 +8,7 @@ import {
   BorrowRequestIdSchema,
   RejectBorrowRequestSchema,
 } from "../schemas";
-import { adjustEquipmentQuantities } from "../utils/requested-items";
+import { adjustAssetQuantities, getBorrowRequestItemsWithAssets } from "../utils/asset-quantities";
 import { sendBorrowStatusEmail } from "./borrow-status-email";
 
 export type BorrowRequest = Tables<"BorrowRequests">;
@@ -196,7 +196,8 @@ export async function rejectBorrowRequest(id: string, reason: string): Promise<B
 
   const request = await loadRequestForTransition(supabase, id, "Pending");
 
-  await adjustEquipmentQuantities(supabase, request.requested_item, "restock");
+  const items = await getBorrowRequestItemsWithAssets(supabase, id);
+  await adjustAssetQuantities(supabase, items, "restock");
 
   const nowIso = new Date().toISOString();
   const { data: updated, error } = await supabase
@@ -270,7 +271,8 @@ export async function returnBorrowRequest(id: string): Promise<BorrowRequest> {
 
   const request = await loadRequestForTransition(supabase, id, "Active");
 
-  await adjustEquipmentQuantities(supabase, request.requested_item, "restock");
+  const items = await getBorrowRequestItemsWithAssets(supabase, id);
+  await adjustAssetQuantities(supabase, items, "restock");
 
   const nowIso = new Date().toISOString();
   const { data: updated, error } = await supabase
