@@ -492,20 +492,6 @@ export async function replyContactMessageAction(
   }
 }
 
-export async function updateBorrowRequestStatusAction(id: string, status: string): Promise<ActionState> {
-  try {
-    await updateBorrowRequestStatus(id, status);
-    revalidatePath("/admin/borrow-requests");
-    return { status: "success", message: "Status updated successfully." };
-  } catch (err) {
-    console.error("Update status error:", err);
-    return {
-      status: "error",
-      message: getErrorMessage(err, "Failed to update status"),
-    };
-  }
-}
-
 export async function updateSponsorsPartnersContentAction(
   _prevState: ActionState,
   formData: FormData
