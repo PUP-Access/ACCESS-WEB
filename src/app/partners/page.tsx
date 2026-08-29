@@ -3,6 +3,7 @@ import FooterSection from "@/features/landing/components/FooterSection";
 import { getSponsorsPartnersContent } from "@/features/cms";
 import { unstable_noStore as noStore } from "next/cache";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 import PartnersPageClient from "./PartnersPageClient";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +18,10 @@ export const metadata = {
 export default async function PartnersPage() {
   noStore();
   const content = await getSponsorsPartnersContent();
+
+  if (content.hideSection || (content.hideSponsors && content.hidePartners)) {
+    redirect("/");
+  }
 
   return (
     <div className="relative min-h-screen bg-[#0d0404] text-white overflow-x-hidden flex flex-col">

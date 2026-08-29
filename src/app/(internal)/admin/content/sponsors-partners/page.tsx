@@ -55,6 +55,19 @@ export default async function AdminSponsorsPartnersPage({
       <form action={handleUpdate} className="space-y-6">
         <AdminCard title="Landing Page Banner Settings">
           <div className="space-y-4">
+            <div className="flex items-center gap-3 pb-2 border-b border-white/5">
+              <input
+                type="checkbox"
+                name="hideSection"
+                id="hideSection"
+                defaultChecked={content.hideSection}
+                className="h-4 w-4 rounded border-white/10 bg-white/5 text-[#F26223] focus:ring-[#F26223] cursor-pointer"
+              />
+              <label htmlFor="hideSection" className="text-xs font-semibold text-white/80 cursor-pointer">
+                Hide Sponsors & Partners Section on Landing Page
+              </label>
+            </div>
+
             <div>
               <AdminFieldLabel>Landing Marquee Section Title</AdminFieldLabel>
               <input
@@ -85,9 +98,25 @@ export default async function AdminSponsorsPartnersPage({
           </div>
         </AdminCard>
 
+        <AdminCard title="Sponsors & Partners Roster">
+          <SponsorsManager initialItems={content.items || []} />
+        </AdminCard>
+
         <AdminCard title="Dedicated /partners Page Headlines">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                <input
+                  type="checkbox"
+                  name="hideSponsors"
+                  id="hideSponsors"
+                  defaultChecked={content.hideSponsors}
+                  className="h-4 w-4 rounded border-white/10 bg-white/5 text-[#F26223] focus:ring-[#F26223] cursor-pointer"
+                />
+                <label htmlFor="hideSponsors" className="text-xs font-semibold text-white/80 cursor-pointer">
+                  Hide Sponsors Section on /partners Page
+                </label>
+              </div>
               <div>
                 <AdminFieldLabel>Sponsors Section Title</AdminFieldLabel>
                 <input
@@ -108,6 +137,18 @@ export default async function AdminSponsorsPartnersPage({
             </div>
 
             <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                <input
+                  type="checkbox"
+                  name="hidePartners"
+                  id="hidePartners"
+                  defaultChecked={content.hidePartners}
+                  className="h-4 w-4 rounded border-white/10 bg-white/5 text-[#F26223] focus:ring-[#F26223] cursor-pointer"
+                />
+                <label htmlFor="hidePartners" className="text-xs font-semibold text-white/80 cursor-pointer">
+                  Hide Partners Section on /partners Page
+                </label>
+              </div>
               <div>
                 <AdminFieldLabel>Partners Section Title</AdminFieldLabel>
                 <input
@@ -127,10 +168,6 @@ export default async function AdminSponsorsPartnersPage({
               </div>
             </div>
           </div>
-        </AdminCard>
-
-        <AdminCard title="Sponsors & Partners Roster">
-          <SponsorsManager initialItems={content.items || []} />
         </AdminCard>
 
         <div className="sticky bottom-6 z-20 flex justify-end">

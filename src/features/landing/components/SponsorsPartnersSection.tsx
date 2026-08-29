@@ -238,19 +238,33 @@ function DynamicPerspectiveMarquee({ items }: { items: SponsorPartnerItem[] }) {
 }
 
 export default function SponsorsPartnersSection({ content }: SponsorsPartnersSectionProps) {
-  const visibleItems = (content.items || []).filter((i) => i.isVisible !== false);
+  const visibleItems = (content.items || []).filter((i) => {
+    if (i.isVisible === false) return false;
+    if (content.hideSponsors && i.type === "sponsor") return false;
+    if (content.hidePartners && i.type === "partner") return false;
+    return true;
+  });
+
+  const fallbackItems: SponsorPartnerItem[] = [
+    { id: "1", name: "Nexus Labs", logoUrl: "", websiteUrl: "", category: "Co-Presenter", isVisible: true, type: "sponsor" as const, tier: "featured" as const, orderIndex: 1 },
+    { id: "2", name: "Apex Global", logoUrl: "", websiteUrl: "", category: "Gold Sponsor", isVisible: true, type: "sponsor" as const, tier: "standard" as const, orderIndex: 2 },
+    { id: "3", name: "Cognitive AI", logoUrl: "", websiteUrl: "", category: "Gold Sponsor", isVisible: true, type: "sponsor" as const, tier: "standard" as const, orderIndex: 3 },
+    { id: "4", name: "Synapse Corp", logoUrl: "", websiteUrl: "", category: "Silver Sponsor", isVisible: true, type: "sponsor" as const, tier: "standard" as const, orderIndex: 4 },
+    { id: "5", name: "Vector Ventures", logoUrl: "", websiteUrl: "", category: "Industry Partner", isVisible: true, type: "partner" as const, tier: "featured" as const, orderIndex: 5 },
+    { id: "6", name: "Orion Systems", logoUrl: "", websiteUrl: "", category: "Academic Partner", isVisible: true, type: "partner" as const, tier: "standard" as const, orderIndex: 6 },
+    { id: "7", name: "Kinetic Dynamics", logoUrl: "", websiteUrl: "", category: "Media Partner", isVisible: true, type: "partner" as const, tier: "standard" as const, orderIndex: 7 },
+  ].filter((i) => {
+    if (content.hideSponsors && i.type === "sponsor") return false;
+    if (content.hidePartners && i.type === "partner") return false;
+    return true;
+  });
+
   const displayItems: SponsorPartnerItem[] =
-    visibleItems.length > 0
-      ? visibleItems
-      : [
-          { id: "1", name: "Nexus Labs", logoUrl: "", websiteUrl: "", category: "Co-Presenter", isVisible: true, type: "sponsor", tier: "featured", orderIndex: 1 },
-          { id: "2", name: "Apex Global", logoUrl: "", websiteUrl: "", category: "Gold Sponsor", isVisible: true, type: "sponsor", tier: "standard", orderIndex: 2 },
-          { id: "3", name: "Cognitive AI", logoUrl: "", websiteUrl: "", category: "Gold Sponsor", isVisible: true, type: "sponsor", tier: "standard", orderIndex: 3 },
-          { id: "4", name: "Synapse Corp", logoUrl: "", websiteUrl: "", category: "Silver Sponsor", isVisible: true, type: "sponsor", tier: "standard", orderIndex: 4 },
-          { id: "5", name: "Vector Ventures", logoUrl: "", websiteUrl: "", category: "Industry Partner", isVisible: true, type: "partner", tier: "featured", orderIndex: 5 },
-          { id: "6", name: "Orion Systems", logoUrl: "", websiteUrl: "", category: "Academic Partner", isVisible: true, type: "partner", tier: "standard", orderIndex: 6 },
-          { id: "7", name: "Kinetic Dynamics", logoUrl: "", websiteUrl: "", category: "Media Partner", isVisible: true, type: "partner", tier: "standard", orderIndex: 7 },
-        ];
+    visibleItems.length > 0 ? visibleItems : fallbackItems;
+
+  if (content.hideSection || displayItems.length === 0) {
+    return null;
+  }
 
   return (
     <section

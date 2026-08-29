@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import type { SponsorPartnerItem } from "@/features/cms";
 import { uploadSponsorLogoAction } from "@/features/cms/actions/cms.actions";
@@ -12,8 +12,42 @@ type SponsorsManagerProps = {
 export default function SponsorsManager({ initialItems }: SponsorsManagerProps) {
   const [items, setItems] = useState<SponsorPartnerItem[]>(initialItems);
   const [filter, setFilter] = useState<"all" | "sponsor" | "partner">("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Unsaved changes check
+  const isDirty = JSON.stringify(items) !== JSON.stringify(initialItems);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
+  const formatFacebookUrl = (val: string): string => {
+    const trimmed = val.trim();
+    if (!trimmed) return "";
+    
+    // If it already starts with http:// or https://, leave it
+    if (/^https?:\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+    
+    // If it contains a dot (like facebook.com/profile), prepend https://
+    if (trimmed.includes(".")) {
+      return `https://${trimmed}`;
+    }
+    
+    // Otherwise assume it is just the username/handle and construct the full Facebook URL
+    return `https://facebook.com/${trimmed}`;
+  };
 
   // New item form state
   const [newItem, setNewItem] = useState<Partial<SponsorPartnerItem>>({
@@ -46,11 +80,12 @@ export default function SponsorsManager({ initialItems }: SponsorsManagerProps) 
   const handleAddItem = () => {
     if (!newItem.name?.trim()) return;
 
+    const formattedUrl = newItem.websiteUrl ? formatFacebookUrl(newItem.websiteUrl) : "";
     const created: SponsorPartnerItem = {
       id: crypto.randomUUID(),
       name: newItem.name.trim(),
       logoUrl: newItem.logoUrl || "",
-      websiteUrl: newItem.websiteUrl?.trim() || "",
+      websiteUrl: formattedUrl,
       type: newItem.type || "sponsor",
       tier: newItem.tier || "standard",
       category: newItem.category?.trim() || "",
@@ -58,7 +93,67 @@ export default function SponsorsManager({ initialItems }: SponsorsManagerProps) 
       orderIndex: items.length + 1,
     };
 
-    setItems((prev) => [...prev, created]);
+    setItems((prev) => [created, ...prev]);
+    setNewItem({
+      name: "",
+      logoUrl: "",
+      websiteUrl: "",
+      type: "sponsor",
+      tier: "standard",
+      category: "",
+      isVisible: true,
+    });
+  };
+
+  const handleStartEdit = (item: SponsorPartnerItem) => {
+    setEditingId(item.id);
+    setNewItem({
+      name: item.name,
+      logoUrl: item.logoUrl,
+      websiteUrl: item.websiteUrl,
+      type: item.type,
+      tier: item.tier,
+      category: item.category,
+      isVisible: item.isVisible,
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setNewItem({
+      name: "",
+      logoUrl: "",
+      websiteUrl: "",
+      type: "sponsor",
+      tier: "standard",
+      category: "",
+      isVisible: true,
+    });
+  };
+
+  const handleSaveEdit = () => {
+    if (!newItem.name?.trim() || !editingId) return;
+
+    const formattedUrl = newItem.websiteUrl ? formatFacebookUrl(newItem.websiteUrl) : "";
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === editingId
+          ? {
+              ...item,
+              name: newItem.name!.trim(),
+              logoUrl: newItem.logoUrl || "",
+              websiteUrl: formattedUrl,
+              type: newItem.type || "sponsor",
+              tier: newItem.tier || "standard",
+              category: newItem.category?.trim() || "",
+              isVisible: newItem.isVisible ?? true,
+            }
+          : item
+      )
+    );
+
+    // Reset
+    setEditingId(null);
     setNewItem({
       name: "",
       logoUrl: "",
@@ -95,6 +190,12 @@ export default function SponsorsManager({ initialItems }: SponsorsManagerProps) 
   };
 
   const filteredItems = items.filter((item) => {
+    if (searchQuery.trim() !== "") {
+      const q = searchQuery.toLowerCase();
+      if (!item.name.toLowerCase().includes(q)) {
+        return false;
+      }
+    }
     if (filter === "all") return true;
     return item.type === filter;
   });
@@ -104,10 +205,17 @@ export default function SponsorsManager({ initialItems }: SponsorsManagerProps) 
       {/* Hidden input storing JSON serialization for Form submission */}
       <input type="hidden" name="itemsJson" value={JSON.stringify(items)} />
 
+      {isDirty && (
+        <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3 text-xs font-semibold text-amber-300 flex items-center gap-2 shadow-sm">
+          <span>⚠️</span>
+          <span>You have unsaved changes in the roster. Click <strong>"Save All Sponsors & Partners Changes"</strong> at the bottom to save your work.</span>
+        </div>
+      )}
+
       {/* ── ADD NEW ITEM SECTION ── */}
       <div className="rounded-2xl border border-white/15 bg-white/5 p-5 space-y-4">
         <h4 className="text-sm font-bold uppercase tracking-wider text-[#FFB89A]">
-          Add New Sponsor or Partner
+          {editingId ? "Edit Sponsor or Partner" : "Add New Sponsor or Partner"}
         </h4>
 
         {uploadError && (
@@ -177,13 +285,17 @@ export default function SponsorsManager({ initialItems }: SponsorsManagerProps) 
 
           <div>
             <label className="block text-xs font-medium text-white/70 mb-1">
-              Website URL (Optional)
+              Facebook Page URL (Optional)
             </label>
             <input
-              type="url"
+              type="text"
               value={newItem.websiteUrl || ""}
               onChange={(e) => setNewItem({ ...newItem, websiteUrl: e.target.value })}
-              placeholder="https://company.com"
+              onBlur={(e) => {
+                const formatted = formatFacebookUrl(e.target.value);
+                setNewItem({ ...newItem, websiteUrl: formatted });
+              }}
+              placeholder="e.g. facebook.com/username or username"
               className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-[#F26223] focus:outline-none"
             />
           </div>
@@ -202,6 +314,9 @@ export default function SponsorsManager({ initialItems }: SponsorsManagerProps) 
               }}
               className="w-full text-xs text-white/60 file:mr-2 file:rounded-lg file:border-0 file:bg-[#F26223]/20 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-[#FFD4BC] hover:file:bg-[#F26223]/30"
             />
+            <p className="mt-1 text-[10px] text-white/40">
+              Recommended: 200x200px square image. Transparent PNG or WEBP works best.
+            </p>
           </div>
         </div>
 
@@ -227,49 +342,106 @@ export default function SponsorsManager({ initialItems }: SponsorsManagerProps) 
           </div>
         )}
 
-        <div className="pt-2 flex justify-end">
-          <button
-            type="button"
-            onClick={handleAddItem}
-            disabled={!newItem.name?.trim() || isUploading}
-            className="rounded-xl px-5 py-2 text-xs font-bold text-white transition hover:opacity-90 disabled:opacity-40"
-            style={{ background: "#F26223" }}
-          >
-            + Add to List
-          </button>
+        <div className="pt-2 flex justify-end gap-2">
+          {editingId ? (
+            <>
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="rounded-xl px-5 py-2 text-xs font-semibold text-white/70 border border-white/10 hover:bg-white/10 transition cursor-pointer"
+              >
+                Cancel Edit
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveEdit}
+                disabled={!newItem.name?.trim() || isUploading}
+                className="rounded-xl px-5 py-2 text-xs font-bold text-white transition hover:opacity-90 disabled:opacity-40 cursor-pointer"
+                style={{ background: "#F26223" }}
+              >
+                Save Changes
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={handleAddItem}
+              disabled={!newItem.name?.trim() || isUploading}
+              className="rounded-xl px-5 py-2 text-xs font-bold text-white transition hover:opacity-90 disabled:opacity-40 cursor-pointer"
+              style={{ background: "#F26223" }}
+            >
+              + Add to List
+            </button>
+          )}
         </div>
       </div>
 
       {/* ── CURRENT ITEMS LIST ── */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <h4 className="text-sm font-bold text-white">
             Current Partners & Sponsors ({items.length})
           </h4>
 
-          {/* Filter Pills */}
-          <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-            {(["all", "sponsor", "partner"] as const).map((f) => (
-              <button
-                key={f}
-                type="button"
-                onClick={() => setFilter(f)}
-                className={`px-3 py-1 text-xs font-semibold rounded-lg capitalize transition ${
-                  filter === f
-                    ? "bg-[#F26223] text-white"
-                    : "text-white/60 hover:text-white"
-                }`}
-              >
-                {f === "all" ? "All" : `${f}s`}
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Search Input */}
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search roster by name..."
+              className="rounded-xl border border-white/10 bg-black/40 px-3 py-1.5 text-xs text-white placeholder-white/30 focus:border-[#F26223] focus:outline-none w-44"
+            />
+
+            {/* Filter Pills */}
+            <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
+              {(["all", "sponsor", "partner"] as const).map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setFilter(f)}
+                  className={`px-3 py-1 text-xs font-semibold rounded-lg capitalize transition cursor-pointer ${
+                    filter === f
+                      ? "bg-[#F26223] text-white"
+                      : "text-white/60 hover:text-white"
+                  }`}
+                >
+                  {f === "all" ? "All" : `${f}s`}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         {filteredItems.length === 0 ? (
-          <p className="text-xs text-white/40 italic p-4 text-center border border-white/10 rounded-xl">
-            No entries found in this view. Add one above!
-          </p>
+          items.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.01] p-8 text-center flex flex-col items-center justify-center space-y-4">
+              <p className="text-xs text-white/40 max-w-sm leading-relaxed">
+                Roster is currently empty. The landing page marquee will display default mock items unless hidden.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setItems([
+                    { id: "sp-1", name: "Nexus Labs", logoUrl: "", websiteUrl: "https://facebook.com", type: "sponsor" as const, tier: "featured" as const, category: "Co-Presenter", isVisible: true, orderIndex: 1 },
+                    { id: "sp-2", name: "Apex Global", logoUrl: "", websiteUrl: "https://facebook.com", type: "sponsor" as const, tier: "standard" as const, category: "Gold Sponsor", isVisible: true, orderIndex: 2 },
+                    { id: "sp-3", name: "Cognitive AI", logoUrl: "", websiteUrl: "https://facebook.com", type: "sponsor" as const, tier: "standard" as const, category: "Gold Sponsor", isVisible: true, orderIndex: 3 },
+                    { id: "sp-4", name: "Synapse Corp", logoUrl: "", websiteUrl: "https://facebook.com", type: "sponsor" as const, tier: "standard" as const, category: "Silver Sponsor", isVisible: true, orderIndex: 4 },
+                    { id: "sp-5", name: "Vector Ventures", logoUrl: "", websiteUrl: "https://facebook.com", type: "partner" as const, tier: "featured" as const, category: "Industry Partner", isVisible: true, orderIndex: 5 },
+                    { id: "sp-6", name: "Orion Systems", logoUrl: "", websiteUrl: "https://facebook.com", type: "partner" as const, tier: "standard" as const, category: "Academic Partner", isVisible: true, orderIndex: 6 },
+                    { id: "sp-7", name: "Kinetic Dynamics", logoUrl: "", websiteUrl: "https://facebook.com", type: "partner" as const, tier: "standard" as const, category: "Media Partner", isVisible: true, orderIndex: 7 },
+                  ]);
+                }}
+                className="rounded-xl bg-[#F26223]/10 border border-[#F26223]/30 px-4 py-2 text-xs font-semibold text-[#FFB89A] hover:bg-[#F26223]/25 transition cursor-pointer"
+              >
+                Seed Default Sponsors & Partners
+              </button>
+            </div>
+          ) : (
+            <p className="text-xs text-white/40 italic p-6 text-center border border-white/10 rounded-xl bg-white/[0.01]">
+              No entries found matching this search or filter.
+            </p>
+          )
         ) : (
           <div className="space-y-2">
             {filteredItems.map((item, index) => {
@@ -279,7 +451,9 @@ export default function SponsorsManager({ initialItems }: SponsorsManagerProps) 
                 <div
                   key={item.id}
                   className={`flex items-center justify-between gap-3 rounded-2xl border p-3 transition ${
-                    item.isVisible
+                    item.id === editingId
+                      ? "border-[#F26223] bg-[#F26223]/10"
+                      : item.isVisible
                       ? "border-white/10 bg-white/[0.04]"
                       : "border-white/5 bg-white/[0.01] opacity-50"
                   }`}
@@ -346,7 +520,7 @@ export default function SponsorsManager({ initialItems }: SponsorsManagerProps) 
 
                       <p className="text-[11px] text-white/50 truncate">
                         {item.category || "No category tag"}{" "}
-                        {item.websiteUrl && `• ${item.websiteUrl}`}
+                        {item.websiteUrl && `• FB Page: ${item.websiteUrl}`}
                       </p>
                     </div>
                   </div>
@@ -355,8 +529,16 @@ export default function SponsorsManager({ initialItems }: SponsorsManagerProps) 
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <button
                       type="button"
+                      onClick={() => handleStartEdit(item)}
+                      className="px-2.5 py-1 rounded-lg text-xs font-medium bg-white/10 text-white/80 hover:bg-white/20 transition cursor-pointer"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
                       onClick={() => handleToggleVisibility(item.id)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition ${
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition cursor-pointer ${
                         item.isVisible
                           ? "bg-white/10 text-white/80 hover:bg-white/20"
                           : "bg-rose-500/20 text-rose-300 hover:bg-rose-500/30"
@@ -368,7 +550,7 @@ export default function SponsorsManager({ initialItems }: SponsorsManagerProps) 
                     <button
                       type="button"
                       onClick={() => handleDeleteItem(item.id)}
-                      className="p-1.5 rounded-lg text-white/40 hover:bg-rose-500/20 hover:text-rose-300 transition"
+                      className="p-1.5 rounded-lg text-white/40 hover:bg-rose-500/20 hover:text-rose-300 transition cursor-pointer"
                       title="Delete entry"
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

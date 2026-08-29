@@ -91,6 +91,9 @@ export const SponsorsPartnersContentSchema = z.object({
       "Collaborating with industry leaders, student organizations, and academic institutions."
     ),
   ctaLabel: z.string().min(1).default("Want to be our partner?"),
+  hideSection: z.boolean().optional().default(false),
+  hideSponsors: z.boolean().optional().default(false),
+  hidePartners: z.boolean().optional().default(false),
   items: z.array(SponsorPartnerItemSchema).default([]),
 });
 
@@ -163,6 +166,9 @@ export const DEFAULT_SPONSORS_PARTNERS_CONTENT: SponsorsPartnersContent = {
   partnersSubtitle:
     "Collaborating with industry leaders, student organizations, and academic institutions.",
   ctaLabel: "Want to be our partner?",
+  hideSection: false,
+  hideSponsors: false,
+  hidePartners: false,
   items: [
     {
       id: "sp-1",
