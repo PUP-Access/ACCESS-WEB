@@ -257,6 +257,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          is_archived: boolean | null
           is_read: boolean | null
           organization: string | null
           purpose: string | null
@@ -269,6 +270,7 @@ export type Database = {
           email: string
           full_name: string
           id?: string
+          is_archived?: boolean | null
           is_read?: boolean | null
           organization?: string | null
           purpose?: string | null
@@ -281,6 +283,7 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          is_archived?: boolean | null
           is_read?: boolean | null
           organization?: string | null
           purpose?: string | null

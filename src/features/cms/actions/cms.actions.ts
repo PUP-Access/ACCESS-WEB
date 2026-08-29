@@ -188,6 +188,7 @@ export async function updateOfficersSectionAction(
             label: p.label,
             link: p.link,
             imageUrl: existing?.imageUrl || "",
+            isVisible: p.isVisible !== false,
           };
         });
       } catch (e) {
