@@ -96,7 +96,7 @@ function SponsorCard({
 
       {item.websiteUrl && (
         <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-[#FFB89A]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          Visit Website ↗
+          Visit Facebook Page ↗
         </span>
       )}
     </div>
@@ -133,94 +133,99 @@ export default function PartnersPageClient({ content }: PartnersPageClientProps)
   return (
     <div className="flex flex-col items-center gap-20 sm:gap-28">
       {/* ── 1. ACCESS SPONSORS SECTION ── */}
-      <section className="w-full flex flex-col items-center text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col items-center"
-        >
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-widest title-header">
-            {content.sponsorsTitle || "ACCESS Sponsors"}
-          </h1>
-          <p className="mt-3.5 text-sm sm:text-base text-white/70 max-w-xl mx-auto leading-relaxed">
-            {content.sponsorsSubtitle ||
-              "Empowering computer engineering students through state-of-the-art technological resources and event support."}
-          </p>
-        </motion.div>
-
-        {/* Featured / Principal Sponsor (Centered on top) */}
-        {featuredSponsor && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
-            className="mt-12 flex justify-center w-full"
-          >
-            <SponsorCard item={featuredSponsor} isFeatured={true} />
-          </motion.div>
-        )}
-
-        {/* Standard Sponsors Grid */}
-        {standardSponsors.length > 0 && (
+      {!content.hideSponsors && (
+        <section className="w-full flex flex-col items-center text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.25 }}
-            className="mt-10 grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl"
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-center"
           >
-            {standardSponsors.map((sponsor) => (
-              <SponsorCard key={sponsor.id} item={sponsor} />
-            ))}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-widest title-header">
+              {content.sponsorsTitle || "ACCESS Sponsors"}
+            </h1>
+            <p className="mt-3.5 text-sm sm:text-base text-white/70 max-w-xl mx-auto leading-relaxed">
+              {content.sponsorsSubtitle ||
+                "Empowering computer engineering students through state-of-the-art technological resources and event support."}
+            </p>
           </motion.div>
-        )}
 
-        {sponsors.length === 0 && (
-          <p className="mt-8 text-white/40 text-sm italic">
-            No sponsors listed at the moment.
-          </p>
-        )}
-      </section>
+          {/* Featured / Principal Sponsor (Centered on top) */}
+          {featuredSponsor && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="mt-12 flex justify-center w-full"
+            >
+              <SponsorCard item={featuredSponsor} isFeatured={true} />
+            </motion.div>
+          )}
+
+          {/* Standard Sponsors Grid */}
+          {standardSponsors.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.25 }}
+              className="mt-10 grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl"
+            >
+              {standardSponsors.map((sponsor) => (
+                <SponsorCard key={sponsor.id} item={sponsor} />
+              ))}
+            </motion.div>
+          )}
+
+          {sponsors.length === 0 && (
+            <p className="mt-8 text-white/40 text-sm italic">
+              No sponsors listed at the moment.
+            </p>
+          )}
+        </section>
+      )}
 
       {/* ── 2. ACCESS PARTNERS SECTION ── */}
-      <section className="w-full flex flex-col items-center text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col items-center"
-        >
-          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-widest title-header">
-            {content.partnersTitle || "ACCESS Partners"}
-          </h2>
-          <p className="mt-3.5 text-sm sm:text-base text-white/70 max-w-xl mx-auto leading-relaxed">
-            {content.partnersSubtitle ||
-              "Collaborating with industry leaders, student organizations, and academic institutions."}
-          </p>
-        </motion.div>
-
-        {/* Partners 3-Column Responsive Grid */}
-        {partners.length > 0 ? (
+      {!content.hidePartners && (
+        <section className="w-full flex flex-col items-center text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.15 }}
-            className="mt-12 grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl"
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-center"
           >
-            {partners.map((partner) => (
-              <SponsorCard key={partner.id} item={partner} />
-            ))}
+            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-widest title-header">
+              {content.partnersTitle || "ACCESS Partners"}
+            </h2>
+            <p className="mt-3.5 text-sm sm:text-base text-white/70 max-w-xl mx-auto leading-relaxed">
+              {content.partnersSubtitle ||
+                "Collaborating with industry leaders, student organizations, and academic institutions."}
+            </p>
           </motion.div>
-        ) : (
-          <p className="mt-8 text-white/40 text-sm italic">
-            No partners listed at the moment.
-          </p>
-        )}
-      </section>
+
+          {/* Partners 3-Column Responsive Grid */}
+          {partners.length > 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="mt-12 grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl"
+            >
+              {partners.map((partner) => (
+                <SponsorCard key={partner.id} item={partner} />
+              ))}
+            </motion.div>
+          ) : (
+            <p className="mt-8 text-white/40 text-sm italic">
+              No partners listed at the moment.
+            </p>
+          )}
+        </section>
+      )}
 
       {/* ── 3. BOTTOM CALL TO ACTION ── */}
+      {/*
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -263,9 +268,10 @@ export default function PartnersPageClient({ content }: PartnersPageClientProps)
           </div>
         </div>
       </motion.section>
+      */}
 
       {/* Inquiry Modal */}
-      <PartnerInquiryModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+      {/* <PartnerInquiryModal isOpen={modalOpen} onClose={() => setModalOpen(false)} /> */}
     </div>
   );
 }
