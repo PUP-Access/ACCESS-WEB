@@ -2,6 +2,7 @@ import type { OfficerItem } from "./officers-hierarchy";
 
 export interface ClassRepSectionItem extends OfficerItem {
   section: string;
+  yearId: string;
 }
 
 export interface YearLevelReps {
@@ -20,6 +21,7 @@ function createDefaultClassReps(yearId: string, yearPrefix: string, sectionCount
 
     return {
       id: `rep-${yearId}-${secNum}`,
+      yearId,
       name: "Tantia, Antonio Mickel",
       displayName: "Antonio Mickel Tantia",
       role: "CLASS REPRESENTATIVE",
