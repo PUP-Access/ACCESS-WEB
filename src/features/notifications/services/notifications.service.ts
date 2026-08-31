@@ -45,3 +45,15 @@ export async function markAllNotificationsAsRead(): Promise<void> {
 
   throwSupabaseError(error);
 }
+
+export async function clearAllNotifications(): Promise<void> {
+  await checkRole({ roles: "Admin" });
+  const supabase = await createSupabaseServerClient();
+
+  const { error } = await supabase
+    .from("Notifications")
+    .delete()
+    .neq("id", "00000000-0000-0000-0000-000000000000"); // deletes all rows
+
+  throwSupabaseError(error);
+}

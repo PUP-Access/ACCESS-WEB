@@ -5,6 +5,7 @@ import { getActionErrorMessage } from "@/lib/errors";
 import {
   markNotificationAsRead,
   markAllNotificationsAsRead,
+  clearAllNotifications,
 } from "../services/notifications.service";
 
 type ActionState =
@@ -31,3 +32,14 @@ export async function markAllNotificationsAsReadAction(): Promise<ActionState> {
     return { status: "error", message: getActionErrorMessage(err, "Failed to mark all notifications as read") };
   }
 }
+
+export async function clearAllNotificationsAction(): Promise<ActionState> {
+  try {
+    await clearAllNotifications();
+    revalidatePath("/admin");
+    return { status: "success" };
+  } catch (err) {
+    return { status: "error", message: getActionErrorMessage(err, "Failed to clear notifications") };
+  }
+}
+

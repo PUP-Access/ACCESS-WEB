@@ -13,6 +13,10 @@ CREATE TABLE IF NOT EXISTS public."Notifications" (
 -- 2. Enable RLS
 ALTER TABLE public."Notifications" ENABLE ROW LEVEL SECURITY;
 
+-- 2b. Enable full replica identity for Supabase Realtime
+ALTER TABLE public."Notifications" REPLICA IDENTITY FULL;
+
+
 -- 3. Select Policy
 DROP POLICY IF EXISTS "Admins can select notifications" ON public."Notifications";
 CREATE POLICY "Admins can select notifications"
@@ -100,6 +104,26 @@ CREATE OR REPLACE TRIGGER trigger_notify_on_pending_user
   FOR EACH ROW
   EXECUTE FUNCTION public.notify_on_pending_user();
 
--- 8. Enable Realtime broadcast for Notifications table
-ALTER PUBLICATION supabase_realtime ADD TABLE public."Notifications";
+-- 8. Delete Policy (Clear notifications)
+DROP POLICY IF EXISTS "Admins can delete notifications" ON public."Notifications";
+CREATE POLICY "Admins can delete notifications"
+  ON public."Notifications"
+  FOR DELETE
+  USING (
+    exists (
+      SELECT 1 FROM public."Users"
+      WHERE id = auth.uid() AND role = 'Admin'
+    )
+  );
 
+-- 9. Auto-purge function: deletes notifications older than 30 days
+CREATE OR REPLACE FUNCTION public.purge_old_notifications()
+RETURNS void AS $$
+BEGIN
+  DELETE FROM public."Notifications"
+  WHERE created_at < now() - interval '30 days';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 10. Enable Realtime broadcast for Notifications table
+ALTER PUBLICATION supabase_realtime ADD TABLE public."Notifications";

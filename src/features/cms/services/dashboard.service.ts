@@ -45,16 +45,14 @@ export async function getAdminDashboardStats() {
         .eq("status", "Active"),
       supabase
         .from("Assets")
-        .select("status, quantity")
+        .select("quantity")
         .eq("is_deleted", false),
     ]);
 
     const assetsData = assetsResult.data ?? [];
     const totalAssetsCount = assetsData.length;
     const totalAssetStockCount = assetsData.reduce((sum, a) => sum + (a.quantity || 0), 0);
-    const assetsInMaintenanceCount = assetsData.filter(
-      (a) => a.status === "Maintenance" || a.status === "Lost"
-    ).length;
+    const assetsInMaintenanceCount = 0; // Assets table has no status column
 
     return {
       pendingBorrowRequests,
