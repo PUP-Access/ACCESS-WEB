@@ -137,7 +137,7 @@ export const ClassRepItemSchema = z.object({
   name: z.string().min(1, "Name is required"),
   displayName: z.string().optional().default(""),
   role: z.string().optional().default("CLASS REPRESENTATIVE"),
-  yearId: z.string().min(1, "Year level is required"),
+  yearId: z.string().optional().default(""),
   section: z.string().min(1, "Section is required"),
   courseYear: z.string().optional().default(""),
   bio: z.string().optional().default(""),

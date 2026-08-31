@@ -172,6 +172,11 @@ export default function AdminOfficersManager({
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewBanner, setPreviewBanner] = useState<string | null>(null);
   const [isNew, setIsNew] = useState(false);
+  const [deletingItem, setDeletingItem] = useState<{
+    id: string;
+    name: string;
+    type: "access" | "class-reps" | "batch-reps";
+  } | null>(null);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   // Filter & Search states
@@ -286,7 +291,13 @@ export default function AdminOfficersManager({
 
   const filteredClassReps = useMemo(() => {
     return allClassRepsList.filter((item) => {
-      if (selectedClassYear !== "all" && item.yearId !== selectedClassYear) return false;
+      if (selectedClassYear !== "all") {
+        if (selectedClassYear === "upper-and-p") {
+          if (!["3rd-year", "4th-year", "p-year"].includes(item.yearId)) return false;
+        } else if (item.yearId !== selectedClassYear) {
+          return false;
+        }
+      }
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         return (
@@ -319,7 +330,13 @@ export default function AdminOfficersManager({
 
   const filteredBatchReps = useMemo(() => {
     return allBatchRepsList.filter((item) => {
-      if (selectedBatchCohort !== "all" && item.batchId !== selectedBatchCohort) return false;
+      if (selectedBatchCohort !== "all") {
+        if (selectedBatchCohort === "upper-and-p") {
+          if (!["3rd-year", "4th-year", "p-year"].includes(item.batchId)) return false;
+        } else if (item.batchId !== selectedBatchCohort) {
+          return false;
+        }
+      }
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         return (
@@ -483,38 +500,45 @@ export default function AdminOfficersManager({
   };
 
   // Delete Handlers
-  const handleDeleteAccess = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete ${name}?`)) return;
-    startTransition(async () => {
-      const res = await deleteOfficerHierarchyAction({ status: "idle" }, id);
-      if (res.status === "success") {
-        setFeedback({ type: "success", message: `Deleted ${name}` });
-        if (res.data) setContent(res.data);
-        router.refresh();
-      }
-    });
+  const handleDeleteAccess = (id: string, name: string) => {
+    setDeletingItem({ id, name, type: "access" });
   };
 
-  const handleDeleteClassRep = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete ${name}?`)) return;
-    startTransition(async () => {
-      const res = await deleteClassRepAction({ status: "idle" }, id);
-      if (res.status === "success") {
-        setFeedback({ type: "success", message: `Deleted ${name}` });
-        if (res.data) setClassReps(res.data);
-        router.refresh();
-      }
-    });
+  const handleDeleteClassRep = (id: string, name: string) => {
+    setDeletingItem({ id, name, type: "class-reps" });
   };
 
-  const handleDeleteBatchRep = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete ${name}?`)) return;
+  const handleDeleteBatchRep = (id: string, name: string) => {
+    setDeletingItem({ id, name, type: "batch-reps" });
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingItem) return;
+    const { id, name, type } = deletingItem;
+    setDeletingItem(null);
+
     startTransition(async () => {
-      const res = await deleteBatchRepAction({ status: "idle" }, id);
-      if (res.status === "success") {
-        setFeedback({ type: "success", message: `Deleted ${name}` });
-        if (res.data) setBatchReps(res.data);
-        router.refresh();
+      if (type === "access") {
+        const res = await deleteOfficerHierarchyAction({ status: "idle" }, id);
+        if (res.status === "success") {
+          setFeedback({ type: "success", message: `Deleted ${name}` });
+          if (res.data) setContent(res.data);
+          router.refresh();
+        }
+      } else if (type === "class-reps") {
+        const res = await deleteClassRepAction({ status: "idle" }, id);
+        if (res.status === "success") {
+          setFeedback({ type: "success", message: `Deleted ${name}` });
+          if (res.data) setClassReps(res.data);
+          router.refresh();
+        }
+      } else if (type === "batch-reps") {
+        const res = await deleteBatchRepAction({ status: "idle" }, id);
+        if (res.status === "success") {
+          setFeedback({ type: "success", message: `Deleted ${name}` });
+          if (res.data) setBatchReps(res.data);
+          router.refresh();
+        }
       }
     });
   };
@@ -708,7 +732,7 @@ export default function AdminOfficersManager({
                 key={officer.id}
                 item={{
                   id: officer.id,
-                  name: officer.name,
+                  name: officer.displayName || officer.name,
                   role: officer.role,
                   courseYear: officer.courseYear,
                   badgeLabel: officer.tierLabel,
@@ -766,8 +790,8 @@ export default function AdminOfficersManager({
               label="Upper & P Years"
               value={allClassRepsList.filter((r) => ["3rd-year", "4th-year", "p-year"].includes(r.yearId)).length}
               accent="#A855F7"
-              active={selectedClassYear === "3rd-year"}
-              onClick={() => setSelectedClassYear("3rd-year")}
+              active={selectedClassYear === "upper-and-p"}
+              onClick={() => setSelectedClassYear("upper-and-p")}
             />
           </section>
 
@@ -831,7 +855,7 @@ export default function AdminOfficersManager({
                 key={rep.id}
                 item={{
                   id: rep.id,
-                  name: rep.name,
+                  name: rep.displayName || rep.name,
                   role: rep.role,
                   courseYear: rep.section,
                   badgeLabel: rep.yearLabel,
@@ -889,8 +913,8 @@ export default function AdminOfficersManager({
               label="Upper & P Years"
               value={allBatchRepsList.filter((b) => ["3rd-year", "4th-year", "p-year"].includes(b.batchId)).length}
               accent="#A855F7"
-              active={selectedBatchCohort === "3rd-year"}
-              onClick={() => setSelectedBatchCohort("3rd-year")}
+              active={selectedBatchCohort === "upper-and-p"}
+              onClick={() => setSelectedBatchCohort("upper-and-p")}
             />
           </section>
 
@@ -954,7 +978,7 @@ export default function AdminOfficersManager({
                 key={rep.id}
                 item={{
                   id: rep.id,
-                  name: rep.name,
+                  name: rep.displayName || rep.name,
                   role: rep.role,
                   courseYear: rep.courseYear,
                   badgeLabel: rep.batchLabel,
@@ -1018,7 +1042,7 @@ export default function AdminOfficersManager({
                 <input
                   name="name"
                   required
-                  defaultValue={editingOfficer.name}
+                  value={editingOfficer.name || ""}
                   onChange={(e) =>
                     setEditingOfficer((prev) => (prev ? { ...prev, name: e.target.value } : null))
                   }
@@ -1030,7 +1054,7 @@ export default function AdminOfficersManager({
                 <AdminFieldLabel>Display Name (for Modal Popup)</AdminFieldLabel>
                 <input
                   name="displayName"
-                  defaultValue={editingOfficer.displayName}
+                  value={editingOfficer.displayName || ""}
                   onChange={(e) =>
                     setEditingOfficer((prev) => (prev ? { ...prev, displayName: e.target.value } : null))
                   }
@@ -1043,7 +1067,7 @@ export default function AdminOfficersManager({
                 <input
                   name="role"
                   required
-                  defaultValue={editingOfficer.role}
+                  value={editingOfficer.role || ""}
                   onChange={(e) =>
                     setEditingOfficer((prev) => (prev ? { ...prev, role: e.target.value } : null))
                   }
@@ -1055,7 +1079,7 @@ export default function AdminOfficersManager({
                 <AdminFieldLabel>Course & Year / Section</AdminFieldLabel>
                 <input
                   name="courseYear"
-                  defaultValue={editingOfficer.courseYear}
+                  value={editingOfficer.courseYear || ""}
                   onChange={(e) =>
                     setEditingOfficer((prev) => (prev ? { ...prev, courseYear: e.target.value } : null))
                   }
@@ -1067,7 +1091,7 @@ export default function AdminOfficersManager({
                 <AdminFieldLabel>Leadership Tier / Category*</AdminFieldLabel>
                 <select
                   name="tierId"
-                  defaultValue={editingOfficer.tierId}
+                  value={editingOfficer.tierId || ""}
                   onChange={(e) =>
                     setEditingOfficer((prev) => (prev ? { ...prev, tierId: e.target.value } : null))
                   }
@@ -1170,7 +1194,7 @@ export default function AdminOfficersManager({
                 <input
                   name="name"
                   required
-                  defaultValue={editingClassRep.name}
+                  value={editingClassRep.name || ""}
                   onChange={(e) =>
                     setEditingClassRep((prev) => (prev ? { ...prev, name: e.target.value } : null))
                   }
@@ -1182,7 +1206,7 @@ export default function AdminOfficersManager({
                 <AdminFieldLabel>Display Name</AdminFieldLabel>
                 <input
                   name="displayName"
-                  defaultValue={editingClassRep.displayName}
+                  value={editingClassRep.displayName || ""}
                   onChange={(e) =>
                     setEditingClassRep((prev) => (prev ? { ...prev, displayName: e.target.value } : null))
                   }
@@ -1194,7 +1218,7 @@ export default function AdminOfficersManager({
                 <AdminFieldLabel>Year Level*</AdminFieldLabel>
                 <select
                   name="yearId"
-                  defaultValue={editingClassRep.yearId}
+                  value={editingClassRep.yearId || ""}
                   onChange={(e) =>
                     setEditingClassRep((prev) => (prev ? { ...prev, yearId: e.target.value } : null))
                   }
@@ -1212,7 +1236,7 @@ export default function AdminOfficersManager({
                 <input
                   name="section"
                   required
-                  defaultValue={editingClassRep.section}
+                  value={editingClassRep.section || ""}
                   onChange={(e) =>
                     setEditingClassRep((prev) => (prev ? { ...prev, section: e.target.value } : null))
                   }
@@ -1307,7 +1331,7 @@ export default function AdminOfficersManager({
                 <input
                   name="name"
                   required
-                  defaultValue={editingBatchRep.name}
+                  value={editingBatchRep.name || ""}
                   onChange={(e) =>
                     setEditingBatchRep((prev) => (prev ? { ...prev, name: e.target.value } : null))
                   }
@@ -1319,7 +1343,7 @@ export default function AdminOfficersManager({
                 <AdminFieldLabel>Display Name</AdminFieldLabel>
                 <input
                   name="displayName"
-                  defaultValue={editingBatchRep.displayName}
+                  value={editingBatchRep.displayName || ""}
                   onChange={(e) =>
                     setEditingBatchRep((prev) => (prev ? { ...prev, displayName: e.target.value } : null))
                   }
@@ -1331,7 +1355,7 @@ export default function AdminOfficersManager({
                 <AdminFieldLabel>Year Level*</AdminFieldLabel>
                 <select
                   name="batchId"
-                  defaultValue={editingBatchRep.batchId}
+                  value={editingBatchRep.batchId || ""}
                   onChange={(e) => {
                     const val = e.target.value;
                     const opt = BATCH_REP_OPTIONS.find((b) => b.id === val);
@@ -1360,7 +1384,7 @@ export default function AdminOfficersManager({
                   name="role"
                   required
                   list="batch-role-options"
-                  defaultValue={editingBatchRep.role}
+                  value={editingBatchRep.role || ""}
                   onChange={(e) =>
                     setEditingBatchRep((prev) => (prev ? { ...prev, role: e.target.value } : null))
                   }
@@ -1377,7 +1401,7 @@ export default function AdminOfficersManager({
                 <AdminFieldLabel>Course & Year / Section</AdminFieldLabel>
                 <input
                   name="courseYear"
-                  defaultValue={editingBatchRep.courseYear}
+                  value={editingBatchRep.courseYear || ""}
                   onChange={(e) =>
                     setEditingBatchRep((prev) => (prev ? { ...prev, courseYear: e.target.value } : null))
                   }
@@ -1454,6 +1478,39 @@ export default function AdminOfficersManager({
             </p>
           </div>
         </EditModalShell>
+      )}
+
+      {/* Custom Delete Confirmation Modal */}
+      {deletingItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-150">
+          <div className="relative w-full max-w-md rounded-3xl border border-white/20 bg-neutral-950 p-6 text-white shadow-2xl space-y-6 animate-in scale-in duration-200">
+            <div className="pb-4 border-b border-white/10">
+              <h3 className="text-xl font-extrabold text-white">Confirm Deletion</h3>
+              <p className="text-xs text-zinc-400 mt-1">This action is irreversible.</p>
+            </div>
+
+            <p className="text-sm text-zinc-300 leading-relaxed">
+              Are you sure you want to delete <span className="font-extrabold text-[#F26223]">"{deletingItem.name}"</span>? All profile details, files, and card metadata associated with this representative will be permanently removed.
+            </p>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeletingItem(null)}
+                className="flex-1 py-3 px-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-zinc-300 hover:text-white font-bold text-xs transition duration-150"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                className="flex-1 py-3 px-4 rounded-xl bg-[#F26223] hover:bg-[#d9531e] text-white font-extrabold text-xs transition duration-150 shadow-[0_4px_16px_rgba(242,98,35,0.25)] border border-[#F26223]/30"
+              >
+                Delete Card
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -1674,7 +1731,7 @@ function SocialLinksFields({
           <input
             name="email"
             type="email"
-            defaultValue={email}
+            value={email || ""}
             onChange={(e) => onChange("email", e.target.value)}
             placeholder="e.g. name@access.org (or blank)"
             className={adminInputClass}
@@ -1684,7 +1741,7 @@ function SocialLinksFields({
           <AdminFieldLabel>Facebook Profile URL</AdminFieldLabel>
           <input
             name="facebookUrl"
-            defaultValue={facebookUrl}
+            value={facebookUrl || ""}
             onChange={(e) => onChange("facebookUrl", e.target.value)}
             placeholder="https://facebook.com/... (or blank)"
             className={adminInputClass}
@@ -1694,7 +1751,7 @@ function SocialLinksFields({
           <AdminFieldLabel>LinkedIn Profile URL</AdminFieldLabel>
           <input
             name="linkedinUrl"
-            defaultValue={linkedinUrl}
+            value={linkedinUrl || ""}
             onChange={(e) => onChange("linkedinUrl", e.target.value)}
             placeholder="https://linkedin.com/in/... (or blank)"
             className={adminInputClass}
@@ -1704,7 +1761,7 @@ function SocialLinksFields({
           <AdminFieldLabel>GitHub Profile URL</AdminFieldLabel>
           <input
             name="githubUrl"
-            defaultValue={githubUrl}
+            value={githubUrl || ""}
             onChange={(e) => onChange("githubUrl", e.target.value)}
             placeholder="https://github.com/... (or blank)"
             className={adminInputClass}

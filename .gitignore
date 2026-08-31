@@ -46,3 +46,11 @@ next-env.d.ts
 
 # temporary files
 supabase/.temp
+
+# test migrations
+buckets.csv
+schema.sql
+storage-config.sql
+storage-policies-only.sql
+migrate-storage.mjs
+migrate-storage.mjs:Zone.Identifier

@@ -188,6 +188,7 @@ export async function updateOfficersSectionAction(
             label: p.label,
             link: p.link,
             imageUrl: existing?.imageUrl || "",
+            isVisible: p.isVisible !== false,
           };
         });
       } catch (e) {
@@ -492,7 +493,6 @@ export async function replyContactMessageAction(
   }
 }
 
-
 export async function updateSponsorsPartnersContentAction(
   _prevState: ActionState,
   formData: FormData
@@ -506,6 +506,9 @@ export async function updateSponsorsPartnersContentAction(
     const partnersTitle = (formData.get("partnersTitle") as string) || current.partnersTitle;
     const partnersSubtitle = (formData.get("partnersSubtitle") as string) || current.partnersSubtitle;
     const ctaLabel = (formData.get("ctaLabel") as string) || current.ctaLabel;
+    const hideSection = formData.get("hideSection") === "on" || formData.get("hideSection") === "true";
+    const hideSponsors = formData.get("hideSponsors") === "on" || formData.get("hideSponsors") === "true";
+    const hidePartners = formData.get("hidePartners") === "on" || formData.get("hidePartners") === "true";
 
     let items = current.items || [];
     const itemsJson = formData.get("itemsJson");
@@ -525,6 +528,9 @@ export async function updateSponsorsPartnersContentAction(
       partnersTitle,
       partnersSubtitle,
       ctaLabel,
+      hideSection,
+      hideSponsors,
+      hidePartners,
       items,
     });
 

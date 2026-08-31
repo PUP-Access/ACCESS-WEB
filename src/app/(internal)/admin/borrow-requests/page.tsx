@@ -83,6 +83,9 @@ export default async function AdminBorrowRequestsPage({
                   <p className="text-xs text-white/45">{request.borrower_email}</p>
                   <p className="text-xs text-white/35">{request.organization_name}</p>
                 </td>
+                <td className="max-w-[220px] truncate" title={request.requested_item || "No item listed"}>
+                  {request.requested_item || "No item listed"}
+                </td>
                 <td>
                   <p>{formatDate(request.requested_start_date)}</p>
                   <p className="text-white/35">to</p>

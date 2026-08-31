@@ -81,6 +81,47 @@ export type Database = {
         }
         Relationships: []
       }
+      Notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          link: string | null
+          content: string
+          title: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          content: string
+          title: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          content?: string
+          title?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       AuditLogs: {
         Row: {
           action: string | null
@@ -251,6 +292,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          is_archived: boolean | null
           is_read: boolean | null
           organization: string | null
           purpose: string | null
@@ -263,6 +305,7 @@ export type Database = {
           email: string
           full_name: string
           id?: string
+          is_archived?: boolean | null
           is_read?: boolean | null
           organization?: string | null
           purpose?: string | null
@@ -275,6 +318,7 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          is_archived?: boolean | null
           is_read?: boolean | null
           organization?: string | null
           purpose?: string | null

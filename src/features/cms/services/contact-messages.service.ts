@@ -99,7 +99,7 @@ export async function archiveContactMessage(id: string, isArchived: boolean = tr
 
   const { data, error } = await supabase
     .from("ContactMessages")
-    .update({ is_archived: isArchived } as any)
+    .update({ is_archived: isArchived })
     .eq("id", id)
     .select()
     .single();
