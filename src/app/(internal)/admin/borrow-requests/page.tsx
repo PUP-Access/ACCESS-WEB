@@ -1,11 +1,12 @@
 import Link from "next/link";
 import {
+  AdminAlert,
   AdminEmptyState,
   AdminFilterPills,
   AdminPageHeader,
   AdminPageShell,
 } from "../components/admin-ui";
-import { getBorrowRequestsForAdmin } from "@/features/borrow";
+import { detectAndLogOverdueBorrowRequests, drainStorageCleanupQueue, getBorrowRequestsForAdmin } from "@/features/borrow";
 import RequestActions from "./components/RequestActions";
 import ViewLetterButton from "./components/ViewLetterButton";
 import { formatFullDateTime } from "@/lib/date-utils";
@@ -27,11 +28,17 @@ export default async function AdminBorrowRequestsPage({
   const currentPage = Number(params.page) || 1;
   const currentStatus = (params.status as (typeof STATUS_OPTIONS)[number]) || "Pending";
 
-  const { data, meta } = await getBorrowRequestsForAdmin({
-    page: currentPage,
-    status: currentStatus,
-    limit: 10,
-  });
+  const [{ data, meta }, overdueRequests] = await Promise.all([
+    getBorrowRequestsForAdmin({
+      page: currentPage,
+      status: currentStatus,
+      limit: 10,
+    }),
+    detectAndLogOverdueBorrowRequests(),
+    drainStorageCleanupQueue(),
+  ]);
+
+  const overdueIds = new Set(overdueRequests.map((r) => r.id));
 
   return (
     <AdminPageShell width="wide">
@@ -40,6 +47,13 @@ export default async function AdminBorrowRequestsPage({
         title="Borrow Requests"
         description="Review equipment borrowing requests submitted by authorized users."
       />
+
+      {overdueIds.size > 0 && (
+        <AdminAlert
+          status="error"
+          message={`${overdueIds.size} item${overdueIds.size === 1 ? " is" : "s are"} overdue for return.`}
+        />
+      )}
 
       <AdminFilterPills
         options={STATUS_OPTIONS}
@@ -85,7 +99,11 @@ export default async function AdminBorrowRequestsPage({
                   )}
                 </td>
                 <td>
-                  <RequestActions id={request.id} status={request.status} />
+                  <RequestActions
+                    id={request.id}
+                    status={request.status}
+                    isOverdue={overdueIds.has(request.id)}
+                  />
                 </td>
                 <td className="text-white/45">{formatDate(request.created_at)}</td>
               </tr>

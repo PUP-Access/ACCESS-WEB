@@ -8,21 +8,6 @@ Enum user_role {
   Pending
 }
 
-Enum asset_status {
-  Available
-  Reserved
-  Borrowed
-  Maintenance
-  Lost
-}
-
-Enum asset_condition {
-  Excellent
-  Good
-  Fair
-  Poor
-}
-
 Enum event_status {
   Draft
   Published
@@ -53,8 +38,6 @@ Table Assets {
   category varchar
   description text
   image_url varchar [note: 'Supabase Storage Public URL']
-  status asset_status
-  condition asset_condition
   is_deleted boolean [default: false, note: 'Soft delete flag']
   created_at timestamp
   updated_at timestamp

@@ -1,9 +1,12 @@
 import { signOut } from "@/features/auth/actions/auth.actions";
 import { requireAdmin } from "@/utils/requireAdmin";
+import { getRecentNotifications } from "@/features/notifications";
 import AdminSidebar from "./components/AdminSidebar";
+import NotificationBell from "./components/NotificationBell";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
+  const notifications = await getRecentNotifications(20).catch(() => []);
 
   return (
     <div className="admin-shell relative flex min-h-screen bg-[#120808] text-white print:bg-white print:text-black print:block print:min-h-0">
@@ -26,7 +29,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <AdminSidebar adminEmail={admin.email} />
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col print:block print:w-full print:p-0 print:m-0">
-        <header className="admin-glass flex items-center justify-between border-b border-white/10 px-6 py-4 backdrop-blur-xl print:hidden">
+        <header className="admin-glass relative z-30 flex items-center justify-between border-b border-white/10 px-6 py-4 backdrop-blur-xl print:hidden">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#FFB89A]/80">
               ACCESS CRM
@@ -37,6 +40,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
 
           <div className="flex items-center gap-4">
+            <NotificationBell initialNotifications={notifications} />
             {admin.email ? (
               <p className="hidden text-right text-xs text-white/55 sm:block">
                 <span className="block text-[10px] uppercase tracking-widest text-white/35">

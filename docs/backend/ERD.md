@@ -29,8 +29,6 @@ erDiagram
         string category
         string description
         string image_url "Supabase Storage Public URL"
-        string status "Enum: Available, Reserved, Borrowed, Maintenance, Lost"
-        string condition "Enum: Excellent, Good, Fair, Poor"
         boolean is_deleted "Soft delete flag, default false"
         datetime created_at
         datetime updated_at

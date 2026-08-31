@@ -22,6 +22,30 @@ export function parseUtcDate(dateStr: string | null | undefined): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
+const PHT_OFFSET_MINUTES = 8 * 60; // Philippines is fixed UTC+8, no DST
+
+/**
+ * Converts Philippine-Time wall-clock components (as entered by a user) into
+ * the correct absolute UTC instant, regardless of the server process's local timezone.
+ */
+export function manilaWallTimeToUtcDate(
+  year: number,
+  month: number,
+  day: number,
+  hour: number,
+  minute: number
+): Date {
+  return new Date(Date.UTC(year, month - 1, day, hour, minute) - PHT_OFFSET_MINUTES * 60_000);
+}
+
+/**
+ * Extracts the Philippine-Time wall-clock hour/minute for an absolute instant.
+ */
+export function getManilaHourMinute(date: Date): { hour: number; minute: number } {
+  const manilaMinutes = (date.getUTCHours() * 60 + date.getUTCMinutes() + PHT_OFFSET_MINUTES) % (24 * 60);
+  return { hour: Math.floor(manilaMinutes / 60), minute: manilaMinutes % 60 };
+}
+
 /**
  * Formats a date into a clean, localized string (e.g. "Aug 11, 2026, 11:09 PM").
  */

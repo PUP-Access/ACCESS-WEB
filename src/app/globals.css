@@ -329,6 +329,11 @@ input:-webkit-autofill:active {
   color: rgba(255, 255, 255, 0.7);
 }
 
+.admin-badge-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+}
+
 .admin-badge-unread {
   background: rgba(255, 184, 0, 0.15);
   color: #ffd56b;
