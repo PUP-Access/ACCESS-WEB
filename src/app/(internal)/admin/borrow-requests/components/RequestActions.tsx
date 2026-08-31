@@ -12,6 +12,7 @@ import RejectReasonModal from "./RejectReasonModal";
 type RequestActionsProps = {
   id: string;
   status: BorrowRequest["status"];
+  isOverdue?: boolean;
 };
 
 function statusBadgeClass(status: string | null) {
@@ -20,7 +21,7 @@ function statusBadgeClass(status: string | null) {
   return "admin-badge admin-badge-draft";
 }
 
-export default function RequestActions({ id, status }: RequestActionsProps) {
+export default function RequestActions({ id, status, isOverdue = false }: RequestActionsProps) {
   const [isPending, startTransition] = useTransition();
 
   function runAction(action: (id: string) => Promise<{ status: string; message?: string }>) {
@@ -63,14 +64,17 @@ export default function RequestActions({ id, status }: RequestActionsProps) {
 
   if (status === "Active") {
     return (
-      <button
-        type="button"
-        disabled={isPending}
-        onClick={() => runAction(returnBorrowRequestAction)}
-        className="admin-btn admin-btn-primary py-1 px-3 text-[10px] disabled:opacity-50"
-      >
-        {isPending ? "Working..." : "Mark Returned"}
-      </button>
+      <div className="flex items-center gap-2">
+        {isOverdue && <span className="admin-badge admin-badge-danger">Overdue</span>}
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() => runAction(returnBorrowRequestAction)}
+          className="admin-btn admin-btn-primary py-1 px-3 text-[10px] disabled:opacity-50"
+        >
+          {isPending ? "Working..." : "Mark Returned"}
+        </button>
+      </div>
     );
   }
 

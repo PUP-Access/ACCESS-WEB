@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.17"
+    PostgrestVersion: "14.5"
   }
   graphql_public: {
     Tables: {
@@ -42,7 +42,6 @@ export type Database = {
       Assets: {
         Row: {
           category: string
-          condition: Database["public"]["Enums"]["asset_condition"] | null
           created_at: string | null
           description: string | null
           id: string
@@ -50,14 +49,12 @@ export type Database = {
           is_deleted: boolean | null
           name: string
           quantity: number
-          status: Database["public"]["Enums"]["asset_status"] | null
           target_qr_identifier: string | null
           unit: string | null
           updated_at: string | null
         }
         Insert: {
           category: string
-          condition?: Database["public"]["Enums"]["asset_condition"] | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -65,14 +62,12 @@ export type Database = {
           is_deleted?: boolean | null
           name: string
           quantity?: number
-          status?: Database["public"]["Enums"]["asset_status"] | null
           target_qr_identifier?: string | null
           unit?: string | null
           updated_at?: string | null
         }
         Update: {
           category?: string
-          condition?: Database["public"]["Enums"]["asset_condition"] | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -80,7 +75,6 @@ export type Database = {
           is_deleted?: boolean | null
           name?: string
           quantity?: number
-          status?: Database["public"]["Enums"]["asset_status"] | null
           target_qr_identifier?: string | null
           unit?: string | null
           updated_at?: string | null
@@ -414,6 +408,24 @@ export type Database = {
           },
         ]
       }
+      rate_limit_counters: {
+        Row: {
+          count: number
+          key: string
+          window_start: string
+        }
+        Insert: {
+          count?: number
+          key: string
+          window_start: string
+        }
+        Update: {
+          count?: number
+          key?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       SiteContent: {
         Row: {
           key: string
@@ -442,6 +454,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      storage_cleanup_queue: {
+        Row: {
+          bucket: string
+          id: string
+          path: string
+          queued_at: string
+        }
+        Insert: {
+          bucket: string
+          id?: string
+          path: string
+          queued_at?: string
+        }
+        Update: {
+          bucket?: string
+          id?: string
+          path?: string
+          queued_at?: string
+        }
+        Relationships: []
       }
       Users: {
         Row: {
@@ -476,6 +509,10 @@ export type Database = {
     }
     Functions: {
       get_server_time: { Args: never; Returns: string }
+      increment_rate_limit: {
+        Args: { p_key: string; p_window_seconds: number }
+        Returns: number
+      }
       is_admin: { Args: never; Returns: boolean }
       is_authorized: { Args: never; Returns: boolean }
       log_audit_event: {
@@ -487,15 +524,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      purge_old_audit_logs: { Args: never; Returns: undefined }
+      purge_old_borrow_requests: { Args: never; Returns: undefined }
     }
     Enums: {
-      asset_condition: "Excellent" | "Good" | "Fair" | "Poor"
-      asset_status:
-        | "Available"
-        | "Reserved"
-        | "Borrowed"
-        | "Maintenance"
-        | "Lost"
       borrow_status:
         | "Pending"
         | "Approved"
@@ -635,14 +667,6 @@ export const Constants = {
   },
   public: {
     Enums: {
-      asset_condition: ["Excellent", "Good", "Fair", "Poor"],
-      asset_status: [
-        "Available",
-        "Reserved",
-        "Borrowed",
-        "Maintenance",
-        "Lost",
-      ],
       borrow_status: [
         "Pending",
         "Approved",

@@ -301,6 +301,52 @@ export async function returnBorrowRequest(id: string): Promise<BorrowRequest> {
   return updated;
 }
 
+const OVERDUE_ACTION = "BORROW_REQUEST_OVERDUE_DETECTED";
+
+/**
+ * Finds Active, unreturned requests past their requested_end_date, and logs
+ * an audit entry for any that haven't been flagged yet (dedup via AuditLogs
+ * lookup, not a DB column — "Active" stays the status of record).
+ */
+export async function detectAndLogOverdueBorrowRequests(): Promise<BorrowRequest[]> {
+  await checkRole({ roles: "Admin" });
+  const supabase = await createSupabaseServerClient();
+
+  const nowIso = new Date().toISOString();
+  const { data: overdue, error } = await supabase
+    .from("BorrowRequests")
+    .select("*")
+    .eq("status", "Active")
+    .is("returned_at", null)
+    .lt("requested_end_date", nowIso);
+
+  if (error) throw error;
+  if (!overdue || overdue.length === 0) return [];
+
+  const ids = overdue.map((r) => r.id);
+  const { data: existingLogs, error: logsError } = await supabase
+    .from("AuditLogs")
+    .select("entity_id")
+    .eq("action", OVERDUE_ACTION)
+    .eq("entity_type", "BorrowRequest")
+    .in("entity_id", ids);
+
+  if (logsError) console.error("Failed to check existing overdue audit logs:", logsError);
+  const alreadyLogged = new Set((existingLogs ?? []).map((l) => l.entity_id));
+
+  for (const request of overdue) {
+    if (alreadyLogged.has(request.id)) continue;
+    await logBorrowAuditEvent(supabase, OVERDUE_ACTION, request.id, {
+      status: "Active",
+      requestedEndDate: request.requested_end_date,
+      borrower: request.borrower_contact_name,
+      item: request.requested_item,
+    });
+  }
+
+  return overdue;
+}
+
 export type ResolvedLetter =
   | { kind: "legacy-public-url"; url: string }
   | { kind: "signed"; url: string; expiresAt: string }

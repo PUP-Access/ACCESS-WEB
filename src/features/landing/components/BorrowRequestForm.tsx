@@ -2,7 +2,11 @@
 
 import { useCallback, useRef, useState, useEffect, useTransition } from "react";
 import BorrowSuccessModal from "./BorrowSuccessModal";
-import { submitBorrowRequestAction } from "@/features/landing/services/borrow.actions";
+import {
+  submitBorrowRequestAction,
+  checkBorrowAvailabilityAction,
+  type BorrowAvailabilityCheckResult,
+} from "@/features/landing/services/borrow.actions";
 import { getClientActionErrorMessage } from "@/lib/client-action-errors";
 
 export type BorrowFormData = {
@@ -101,6 +105,8 @@ function validateStep2(form: BorrowFormData): FormErrors {
   if (form.startDate && form.endDate) {
     const start = toDateTime(form.startDate, form.startHour, form.startMinute, form.startPeriod);
     const end = toDateTime(form.endDate, form.endHour, form.endMinute, form.endPeriod);
+    if (start && start.getDay() === 0) errors.startDate = "Start date cannot be a Sunday.";
+    if (end && end.getDay() === 0) errors.endDate = "End date cannot be a Sunday.";
     if (start && end && end <= start) {
       errors.endDate = "End date and time must be after the start.";
     }
@@ -301,6 +307,8 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
   const [isDragging, setIsDragging] = useState(false);
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [availability, setAvailability] = useState<Record<string, BorrowAvailabilityCheckResult["results"][number]>>({});
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
 
   const findSelectedAsset = useCallback(() => {
     return equipments
@@ -339,6 +347,47 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
       }
     }
   }, [form.startDate, form.startHour, form.startMinute, form.startPeriod, form.endDate, form.endHour, form.endMinute, form.endPeriod]);
+
+  useEffect(() => {
+    const items = form.borrowItems || [];
+    if (items.length === 0 || !form.startDate || !form.endDate) {
+      return;
+    }
+
+    let cancelled = false;
+    const timeout = setTimeout(() => {
+      if (cancelled) return;
+      setCheckingAvailability(true);
+      checkBorrowAvailabilityAction(
+        items.map((i) => ({ assetId: i.assetId, quantity: i.quantity })),
+        form.startDate,
+        form.startHour,
+        form.startMinute,
+        form.startPeriod,
+        form.endDate,
+        form.endHour,
+        form.endMinute,
+        form.endPeriod
+      )
+        .then((result) => {
+          if (cancelled) return;
+          const byAssetId: typeof availability = {};
+          for (const r of result.results) byAssetId[r.assetId] = r;
+          setAvailability(byAssetId);
+        })
+        .catch(() => {
+          if (!cancelled) setAvailability({});
+        })
+        .finally(() => {
+          if (!cancelled) setCheckingAvailability(false);
+        });
+    }, 500);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [form.borrowItems, form.startDate, form.startHour, form.startMinute, form.startPeriod, form.endDate, form.endHour, form.endMinute, form.endPeriod]);
 
   const updateField = <K extends keyof BorrowFormData>(key: K, value: BorrowFormData[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -430,30 +479,51 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
     }
 
     setFieldErrors({});
-    const formData = new FormData();
-    formData.set("fullName", form.fullName);
-    formData.set("email", form.email);
-    formData.set("courseYearSection", form.courseYearSection);
-    formData.set("contactNumber", `+63 ${form.contactNumber}`);
-    formData.set("organization", form.organization);
-    formData.set("purpose", form.purpose);
-    formData.set("additionalInfo", form.additionalInfo);
-    
-    formData.set(
-      "items",
-      JSON.stringify((form.borrowItems || []).map((i) => ({ assetId: i.assetId, quantity: i.quantity })))
-    );
-    formData.set("startDate", form.startDate);
-    formData.set("startHour", form.startHour);
-    formData.set("startMinute", form.startMinute);
-    formData.set("startPeriod", form.startPeriod);
-    formData.set("endDate", form.endDate);
-    formData.set("endHour", form.endHour);
-    formData.set("endMinute", form.endMinute);
-    formData.set("endPeriod", form.endPeriod);
-    formData.set("letterFile", form.letterFile);
 
+    const letterFile = form.letterFile;
     startTransition(async () => {
+      const items = (form.borrowItems || []).map((i) => ({ assetId: i.assetId, quantity: i.quantity }));
+
+      const availabilityCheck = await checkBorrowAvailabilityAction(
+        items,
+        form.startDate,
+        form.startHour,
+        form.startMinute,
+        form.startPeriod,
+        form.endDate,
+        form.endHour,
+        form.endMinute,
+        form.endPeriod
+      );
+
+      const byAssetId: typeof availability = {};
+      for (const r of availabilityCheck.results) byAssetId[r.assetId] = r;
+      setAvailability(byAssetId);
+
+      if (availabilityCheck.status === "error") {
+        setFieldErrors({ form: availabilityCheck.message });
+        return;
+      }
+
+      const formData = new FormData();
+      formData.set("fullName", form.fullName);
+      formData.set("email", form.email);
+      formData.set("courseYearSection", form.courseYearSection);
+      formData.set("contactNumber", `+63 ${form.contactNumber}`);
+      formData.set("organization", form.organization);
+      formData.set("purpose", form.purpose);
+      formData.set("additionalInfo", form.additionalInfo);
+      formData.set("items", JSON.stringify(items));
+      formData.set("startDate", form.startDate);
+      formData.set("startHour", form.startHour);
+      formData.set("startMinute", form.startMinute);
+      formData.set("startPeriod", form.startPeriod);
+      formData.set("endDate", form.endDate);
+      formData.set("endHour", form.endHour);
+      formData.set("endMinute", form.endMinute);
+      formData.set("endPeriod", form.endPeriod);
+      formData.set("letterFile", letterFile as File);
+
       try {
         const result = await submitBorrowRequestAction({ status: "idle" }, formData);
         if (result.status === "error") {
@@ -681,15 +751,20 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                         const exists = (form.borrowItems || []).some(
                           (i) => i.assetId === selectedAsset.id
                         );
-                        if (!exists) {
-                          updateField("borrowItems", [
-                            ...(form.borrowItems || []),
-                            { assetId: selectedAsset.id, category: form.currentItemCategory, item: form.currentItem, quantity: form.currentItemQuantity || 1 }
-                          ]);
-                          updateField("currentItem", "");
-                          updateField("currentItemQuantity", 1);
-                          setFieldErrors({ ...fieldErrors, borrowItems: undefined });
+                        if (exists) {
+                          setFieldErrors({
+                            ...fieldErrors,
+                            borrowItems: `${form.currentItem} is already in your list. Remove it below if you want to change the quantity.`,
+                          });
+                          return;
                         }
+                        updateField("borrowItems", [
+                          ...(form.borrowItems || []),
+                          { assetId: selectedAsset.id, category: form.currentItemCategory, item: form.currentItem, quantity: form.currentItemQuantity || 1 }
+                        ]);
+                        updateField("currentItem", "");
+                        updateField("currentItemQuantity", 1);
+                        setFieldErrors({ ...fieldErrors, borrowItems: undefined });
                       }
                     }}
                     disabled={!form.currentItemCategory || !form.currentItem}
@@ -702,11 +777,26 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                 {/* List of chosen items */}
                 {(form.borrowItems || []).length > 0 && (
                   <div className="flex flex-wrap gap-2 pt-2">
-                    {(form.borrowItems || []).map((bi, idx) => (
+                    {(form.borrowItems || []).map((bi, idx) => {
+                      const itemAvailability = availability[bi.assetId];
+                      return (
                       <div key={idx} className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white px-3 py-1.5 rounded-lg text-sm shadow-sm transition-all">
                         <span className="font-medium">{bi.item}</span>
                         <span className="text-[#F26223] font-bold px-1.5 py-0.5 bg-black/20 rounded-md text-xs">x{bi.quantity}</span>
                         <span className="text-white/50 text-xs uppercase tracking-wider">({bi.category})</span>
+                        {form.startDate && form.endDate && (
+                          checkingAvailability ? (
+                            <span className="text-white/40 text-xs italic">Checking…</span>
+                          ) : itemAvailability ? (
+                            itemAvailability.available ? (
+                              <span className="text-green-400 text-xs font-semibold">✓ Available</span>
+                            ) : (
+                              <span className="text-red-400 text-xs font-semibold">
+                                ✗ Only {itemAvailability.availableQuantity} available
+                              </span>
+                            )
+                          ) : null
+                        )}
                         <button
                           type="button"
                           onClick={() => {
@@ -721,7 +811,8 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
                           </svg>
                         </button>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
                 {fieldErrors.borrowItems && (
@@ -887,14 +978,14 @@ export default function BorrowRequestForm({ onBackToLanding, equipments = [] }: 
               ) : (
                 <button
                   type="submit"
-                  disabled={isPending}
+                  disabled={isPending || checkingAvailability}
                   className="rounded-xl px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:opacity-95 hover:shadow-[0_6px_20px_rgba(242,98,35,0.5)] disabled:opacity-60"
                   style={{
                     background: "#F26223",
                     boxShadow: "0 4px 16px rgba(242,98,35,0.35)",
                   }}
                 >
-                  {isPending ? "Submitting..." : "Submit"}
+                  {isPending ? "Submitting..." : checkingAvailability ? "Checking availability..." : "Submit"}
                 </button>
               )}
             </div>
@@ -1156,17 +1247,19 @@ function CustomDateTimePickerPopover({
             const isToday = adjustedDateStr === todayStr;
             const isPastDate =
               adjustedDateStr < todayStr || (minDateStr !== null && adjustedDateStr < minDateStr);
+            const isSundayDay = curDate.getDay() === 0;
+            const isDisabledDay = isPastDate || isSundayDay;
             return (
               <button
                 key={d}
                 type="button"
-                disabled={isPastDate}
+                disabled={isDisabledDay}
                 onClick={(e) => {
-                  if (isPastDate) return;
+                  if (isDisabledDay) return;
                   handleDayClick(d, e);
                 }}
                 className={`h-8 w-8 sm:h-8.5 sm:w-8.5 mx-auto rounded-xl flex items-center justify-center text-xs sm:text-sm transition-all cursor-pointer ${
-                  isPastDate
+                  isDisabledDay
                     ? "opacity-25 cursor-not-allowed text-white/30"
                     : isSelected
                     ? "bg-gradient-to-br from-[#FF6B35] to-[#EB551D] text-white font-black shadow-[0_4px_16px_rgba(255,107,53,0.55)] scale-105"
