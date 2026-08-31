@@ -38,6 +38,28 @@ function formatDate(value: string | null) {
   return new Date(value).toLocaleString();
 }
 
+function SummaryItem({
+  label,
+  value,
+  href,
+}: {
+  label: string;
+  value: string | number;
+  href: string;
+}) {
+  return (
+    <div className="flex items-center justify-between border-b border-white/5 pb-2.5 last:border-0 last:pb-0">
+      <span className="text-xs font-medium text-white/45">{label}</span>
+      <Link
+        href={href}
+        className="text-sm font-semibold text-[#FFB89A] hover:text-[#FFD4BC] hover:underline transition"
+      >
+        {value}
+      </Link>
+    </div>
+  );
+}
+
 const QUICK_ACTIONS = [
   { href: "/admin/users", label: "Manage user accounts & roles", tag: "Accounts" },
   { href: "/admin/content/landing", label: "Edit landing hero", tag: "Content" },
@@ -59,35 +81,35 @@ export default async function AdminDashboardPage() {
         description="Manage landing content, events, borrow requests, and contact messages from one place."
       />
 
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {/* Row 1: Attention Required Stats (Actionable Items Only) */}
+      <div>
+        <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-[#FFB89A]/60 mb-3">Attention Required</h3>
+        <div className="grid gap-4 sm:grid-cols-3">
           <StatCard
-            label="Pending borrows"
+            label="Pending Borrows"
             value={stats.pendingBorrowRequests}
-            href="/admin/borrow-requests"
+            href="/admin/borrow-requests?status=Pending"
             accent="#F26223"
           />
           <StatCard
-            label="Unread messages"
+            label="Unread Messages"
             value={stats.unreadContactMessages}
             href="/admin/contact-messages"
             accent="#FFB800"
           />
           <StatCard
-            label="Draft events"
-            value={stats.draftEvents}
-            href="/admin/events?status=Draft"
-            accent="#862520"
+            label="Pending Registrations"
+            value={stats.pendingUserRegistrations}
+            href="/admin/users?role=Pending"
+            accent="#E0A96D"
           />
-          <StatCard
-            label="Active FAQs"
-            value={stats.faqCount}
-            href="/admin/content/faqs"
-            accent="#FF8C00"
-          />
-        </section>
+        </div>
+      </div>
 
-        <section className="grid gap-6 lg:grid-cols-5">
-          <div className="admin-card rounded-2xl p-6 lg:col-span-2">
+      <section className="grid gap-6 lg:grid-cols-5">
+        <div className="space-y-6 lg:col-span-2">
+          {/* Quick Actions Card */}
+          <div className="admin-card rounded-2xl p-6">
             <h3 className="text-lg font-semibold text-white">Quick actions</h3>
             <p className="mt-1 text-xs text-white/40">Jump straight into common admin tasks.</p>
             <ul className="mt-5 space-y-2">
@@ -106,6 +128,22 @@ export default async function AdminDashboardPage() {
               ))}
             </ul>
           </div>
+
+          {/* System Status Card (Consolidated Metrics) */}
+          <div className="admin-card rounded-2xl p-6">
+            <h3 className="text-lg font-semibold text-white">System Status</h3>
+            <p className="mt-1 text-xs text-white/40">Overview of users, assets, and content.</p>
+            <div className="mt-5 space-y-3">
+              <SummaryItem label="Active Borrows" value={stats.activeBorrowRequests} href="/admin/borrow-requests?status=Active" />
+              <SummaryItem label="Total Registered Users" value={`${stats.totalRegisteredUsers} accounts`} href="/admin/users" />
+              <SummaryItem label="Asset Catalog Size" value={`${stats.totalAssetsCount} types`} href="/admin/inventory" />
+              <SummaryItem label="Total Stock Quantity" value={`${stats.totalAssetStockCount} items`} href="/admin/inventory" />
+              <SummaryItem label="Assets in Maintenance" value={stats.assetsInMaintenanceCount} href="/admin/inventory" />
+              <SummaryItem label="Draft Events" value={stats.draftEvents} href="/admin/events?status=Draft" />
+              <SummaryItem label="Active FAQs" value={stats.faqCount} href="/admin/content/faqs" />
+            </div>
+          </div>
+        </div>
 
           <div className="admin-card rounded-2xl p-6 lg:col-span-3 min-w-0">
             <div className="mb-5 flex items-center justify-between gap-3">
