@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 import { throwSupabaseError } from "@/lib/errors";
 import { checkRole } from "@/utils/checkRole";
+import { rolesForArea } from "@/utils/adminAccess";
 import { DEFAULT_OFFICERS_HIERARCHY_CONTENT } from "../data/officers-hierarchy";
 import {
   OfficersHierarchyContentSchema,
@@ -44,7 +45,7 @@ export async function getOfficersHierarchyContent(): Promise<OfficersHierarchyCo
 export async function saveOfficersHierarchyContent(
   content: OfficersHierarchyContent
 ): Promise<OfficersHierarchyContent> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("officers") });
   const supabase = createSupabaseAdminClient();
   const serverSupabase = await createSupabaseServerClient();
   const {
@@ -89,7 +90,7 @@ export async function saveOfficersHierarchyContent(
 }
 
 export async function uploadOfficerAsset(file: File, folder = "officers"): Promise<string> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("officers") });
   const supabase = createSupabaseAdminClient();
 
   const ext = (file.name.split(".").pop() ?? "png").toLowerCase();
@@ -115,7 +116,7 @@ export async function saveOfficerCardItem(
   imageFile?: File | null,
   bannerFile?: File | null
 ): Promise<OfficersHierarchyContent> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("officers") });
 
   let finalImageUrl = item.imageUrl || "";
   let finalBannerUrl = item.bannerUrl || "";
@@ -166,7 +167,7 @@ export async function saveOfficerCardItem(
 export async function deleteOfficerCardItem(
   officerId: string
 ): Promise<OfficersHierarchyContent> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("officers") });
 
   const currentContent = await getOfficersHierarchyContent();
 

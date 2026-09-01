@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getErrorMessage } from "@/lib/errors";
+import { rolesForArea } from "@/utils/adminAccess";
 import { revalidatePublicSite } from "../revalidate-public-site";
 import {
   AboutContentSchema,
@@ -121,7 +122,7 @@ export async function updateAboutImagesAction(
       const file = formData.get(`image${i}`);
       
       if (file instanceof File && file.size > 0) {
-        const uploadedUrl = await uploadSiteContentImage(file);
+        const uploadedUrl = await uploadSiteContentImage(file, rolesForArea("about-images"));
         newImages.push(uploadedUrl);
       } else if (!isRemoved && currentList[i]) {
         newImages.push(currentList[i]);
@@ -171,7 +172,7 @@ export async function updateOfficersSectionAction(
         : "/meet-the-officers.webp";
 
     if (templateFile instanceof File && templateFile.size > 0) {
-      templateImageUrl = await uploadSiteContentImage(templateFile);
+      templateImageUrl = await uploadSiteContentImage(templateFile, rolesForArea("officers-section"));
     }
 
     // Parse dynamic buttons

@@ -1,11 +1,12 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 import { AppError, throwSupabaseError } from "@/lib/errors";
+import type { UserRole } from "./adminAccess";
 
 export type Roles = {
-  roles?: "Default" | "Organization" | "Pending" | "Admin" | null;
+  roles: UserRole | readonly UserRole[];
 };
 
-export async function checkRole({ roles = "Default" }: Roles) {
+export async function checkRole({ roles }: Roles) {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -32,7 +33,8 @@ export async function checkRole({ roles = "Default" }: Roles) {
     );
   }
 
-  if (userRole !== roles) {
+  const allowedRoles = Array.isArray(roles) ? roles : [roles];
+  if (!allowedRoles.includes(userRole)) {
     throw new AppError("Forbidden", 403);
   }
 }

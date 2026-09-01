@@ -1,5 +1,6 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 import { checkRole } from "@/utils/checkRole";
+import { rolesForArea } from "@/utils/adminAccess";
 
 /**
  * Drains storage_cleanup_queue (populated by the monthly purge_old_borrow_requests
@@ -7,7 +8,7 @@ import { checkRole } from "@/utils/checkRole";
  * removing the queued files via the app's authenticated Supabase client.
  */
 export async function drainStorageCleanupQueue(limit = 50): Promise<number> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("borrow-requests") });
   const supabase = createSupabaseAdminClient();
 
   const { data: queued, error } = await supabase

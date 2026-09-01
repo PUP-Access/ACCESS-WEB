@@ -580,7 +580,7 @@ export type Database = {
         | "Returned"
         | "Cancelled"
       event_status: "Draft" | "Published"
-      user_role: "Admin" | "Default" | "Organization" | "Pending"
+      user_role: "Admin" | "Organization" | "Pending" | "Tech" | "SponsorsPartners" | "Govs"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -720,7 +720,7 @@ export const Constants = {
         "Cancelled",
       ],
       event_status: ["Draft", "Published"],
-      user_role: ["Admin", "Default", "Organization", "Pending"],
+      user_role: ["Admin", "Organization", "Pending", "Tech", "SponsorsPartners", "Govs"],
     },
   },
 } as const

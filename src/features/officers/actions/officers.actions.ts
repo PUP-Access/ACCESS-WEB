@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getActionErrorMessage } from "@/lib/errors";
 import { checkRole } from "@/utils/checkRole";
+import { rolesForArea } from "@/utils/adminAccess";
 import {
   CreateOfficerSchema,
   UpdateOfficerSchema,
@@ -25,7 +26,7 @@ export async function createOfficerAction(
   formData: FormData
 ): Promise<ActionState> {
   try {
-    await checkRole({ roles: "Admin" });
+    await checkRole({ roles: rolesForArea("officers") });
 
     const rawData = Object.fromEntries(formData);
     const result = CreateOfficerSchema.safeParse(rawData);
@@ -63,7 +64,7 @@ export async function updateOfficerAction(
   formData: FormData
 ): Promise<ActionState> {
   try {
-    await checkRole({ roles: "Admin" });
+    await checkRole({ roles: rolesForArea("officers") });
 
     const officerId = formData.get("id");
     if (!officerId || typeof officerId !== "string") {
@@ -111,7 +112,7 @@ export async function deactivateOfficerAction(
   officerId: string
 ): Promise<ActionState> {
   try {
-    await checkRole({ roles: "Admin" });
+    await checkRole({ roles: rolesForArea("officers") });
 
     if (!officerId || typeof officerId !== "string") {
       return {
@@ -140,7 +141,7 @@ export async function reorderOfficersAction(
   input: unknown
 ): Promise<ActionState> {
   try {
-    await checkRole({ roles: "Admin" });
+    await checkRole({ roles: rolesForArea("officers") });
 
     const result = ReorderOfficersSchema.safeParse(input);
 

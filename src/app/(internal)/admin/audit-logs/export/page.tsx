@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import { checkRole } from "@/utils/checkRole";
+import { rolesForArea } from "@/utils/adminAccess";
 import { getAuditLogsForAdmin } from "@/features/audit";
 import { formatFullDateTime } from "@/lib/date-utils";
 import AuditExportToolbar from "./AuditExportToolbar";
@@ -93,7 +94,7 @@ export default async function AuditLogsExportPage({
 }: {
   searchParams?: Promise<{ action?: string }>;
 }) {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("audit-logs") });
 
   const params = (await searchParams) ?? {};
   const currentAction = params.action || "All";

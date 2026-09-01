@@ -1,6 +1,7 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 import { throwSupabaseError } from "@/lib/errors";
 import { checkRole } from "@/utils/checkRole";
+import { rolesForArea } from "@/utils/adminAccess";
 import type { Tables } from "@/lib/supabase/database.types";
 
 export type ContactMessage = Tables<"ContactMessages">;
@@ -30,7 +31,7 @@ export async function getContactMessagesForAdmin(options?: {
   unreadOnly?: boolean;
   limit?: number;
 }) {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("contact-messages") });
   const supabase = createSupabaseAdminClient();
 
   let query = supabase
@@ -52,7 +53,7 @@ export async function getContactMessagesForAdmin(options?: {
 }
 
 export async function markContactMessageRead(id: string) {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("contact-messages") });
   const supabase = createSupabaseAdminClient();
 
   const { data, error } = await supabase
@@ -67,7 +68,7 @@ export async function markContactMessageRead(id: string) {
 }
 
 export async function markContactMessageUnread(id: string) {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("contact-messages") });
   const supabase = createSupabaseAdminClient();
 
   const { data, error } = await supabase
@@ -82,7 +83,7 @@ export async function markContactMessageUnread(id: string) {
 }
 
 export async function deleteContactMessage(id: string) {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("contact-messages") });
   const supabase = createSupabaseAdminClient();
 
   const { error } = await supabase
@@ -94,7 +95,7 @@ export async function deleteContactMessage(id: string) {
 }
 
 export async function archiveContactMessage(id: string, isArchived: boolean = true) {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("contact-messages") });
   const supabase = createSupabaseAdminClient();
 
   const { data, error } = await supabase
@@ -109,7 +110,7 @@ export async function archiveContactMessage(id: string, isArchived: boolean = tr
 }
 
 export async function getUnreadContactMessageCount(): Promise<number> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("contact-messages") });
   const supabase = createSupabaseAdminClient();
 
   const { count, error } = await supabase

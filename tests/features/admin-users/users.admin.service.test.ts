@@ -95,7 +95,7 @@ describe("Users Admin Service", () => {
           { role: "Organization" },
           { role: "Organization" },
           { role: "Organization" },
-          { role: "Default" },
+          { role: "Tech" },
           { role: "Admin" },
         ],
         error: null,
@@ -103,12 +103,11 @@ describe("Users Admin Service", () => {
 
       const stats = await getUserStats();
 
-      expect(checkRoleModule.checkRole).toHaveBeenCalledWith({ roles: "Admin" });
+      expect(checkRoleModule.checkRole).toHaveBeenCalledWith({ roles: ["Admin"] });
       expect(stats).toEqual({
         total: 7,
         pending: 2,
         organization: 3,
-        defaultUsers: 1,
         admin: 1,
       });
     });
@@ -121,7 +120,6 @@ describe("Users Admin Service", () => {
         total: 0,
         pending: 0,
         organization: 0,
-        defaultUsers: 0,
         admin: 0,
       });
     });
@@ -224,6 +222,35 @@ describe("Users Admin Service", () => {
       );
       expect(result).toEqual(updatedRow);
     });
+
+    it("accepts the new scoped admin roles (Tech, SponsorsPartners, Govs)", async () => {
+      const mockSingle = vi.fn().mockResolvedValue({
+        data: { id: "user-2", email: "tech@pupaccess.org", organization_name: null, role: "Tech" },
+        error: null,
+      });
+      const mockSelectAfterUpdate = vi.fn().mockReturnValue({ single: mockSingle });
+      const mockEq = vi.fn().mockReturnValue({ select: mockSelectAfterUpdate });
+      mockAdminUpdate.mockReturnValue({ eq: mockEq });
+
+      await expect(updateUserRole("user-2", "Tech")).resolves.toBeDefined();
+      expect(mockAdminUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({ role: "Tech" })
+      );
+    });
+
+    it("does not send the borrowing-approval email for scoped admin roles", async () => {
+      const mockSingle = vi.fn().mockResolvedValue({
+        data: { id: "user-3", email: "govs@pupaccess.org", organization_name: null, role: "Govs" },
+        error: null,
+      });
+      const mockSelectAfterUpdate = vi.fn().mockReturnValue({ single: mockSingle });
+      const mockEq = vi.fn().mockReturnValue({ select: mockSelectAfterUpdate });
+      mockAdminUpdate.mockReturnValue({ eq: mockEq });
+
+      await updateUserRole("user-3", "Govs");
+
+      expect(mockSend).not.toHaveBeenCalled();
+    });
   });
 
   describe("deleteUserAccount", () => {
@@ -258,7 +285,7 @@ describe("Users Admin Service", () => {
         id: "target-user-id",
         email: "target@pupaccess.org",
         organization_name: "Org To Delete",
-        role: "Default",
+        role: "Pending",
       };
 
       const mockMaybeSingle = vi.fn().mockResolvedValue({ data: targetUser, error: null });
@@ -281,7 +308,7 @@ describe("Users Admin Service", () => {
         {
           email: "target@pupaccess.org",
           organization: "Org To Delete",
-          role: "Default",
+          role: "Pending",
         }
       );
     });

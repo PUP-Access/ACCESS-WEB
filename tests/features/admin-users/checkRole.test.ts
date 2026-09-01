@@ -64,13 +64,27 @@ describe("checkRole Utility", () => {
     await expect(checkRole({ roles: "Admin" })).resolves.toBeUndefined();
   });
 
-  it("defaults role check to 'Default' when no role is specified", async () => {
+  it("passes when user role is included in an array of allowed roles", async () => {
     mockGetUser.mockResolvedValue({
-      data: { user: { id: "default-user" } },
+      data: { user: { id: "tech-user" } },
       error: null,
     });
-    mockMaybeSingle.mockResolvedValue({ data: { role: "Default" }, error: null });
+    mockMaybeSingle.mockResolvedValue({ data: { role: "Tech" }, error: null });
 
-    await expect(checkRole({})).resolves.toBeUndefined();
+    await expect(
+      checkRole({ roles: ["Admin", "Tech"] })
+    ).resolves.toBeUndefined();
+  });
+
+  it("throws 403 Forbidden when user role is not included in an array of allowed roles", async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: "govs-user" } },
+      error: null,
+    });
+    mockMaybeSingle.mockResolvedValue({ data: { role: "Govs" }, error: null });
+
+    await expect(
+      checkRole({ roles: ["Admin", "Tech"] })
+    ).rejects.toThrow("Forbidden");
   });
 });

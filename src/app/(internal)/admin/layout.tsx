@@ -26,7 +26,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         }}
       />
 
-      <AdminSidebar adminEmail={admin.email} />
+      <AdminSidebar adminEmail={admin.email} role={admin.role} />
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col print:block print:w-full print:p-0 print:m-0">
         <header className="admin-glass relative z-30 flex items-center justify-between border-b border-white/10 px-6 py-4 backdrop-blur-xl print:hidden">

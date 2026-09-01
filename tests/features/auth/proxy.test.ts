@@ -103,6 +103,76 @@ describe("Proxy / Middleware Route Protection", () => {
     expect(res.headers.get("x-middleware-rewrite")).toBeNull();
   });
 
+  it("allows a Tech user into their allowed area (/admin/borrow-requests)", async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: "tech-1", app_metadata: {} } },
+      error: null,
+    });
+    mockMaybeSingle.mockResolvedValue({ data: { role: "Tech" } });
+
+    const req = createRequest("/admin/borrow-requests");
+    const res = await proxy(req);
+
+    expect(res.headers.get("location")).toBeNull();
+    expect(res.headers.get("x-middleware-rewrite")).toBeNull();
+  });
+
+  it("rewrites a Tech user hitting an area outside their scope (/admin/users) to /404", async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: "tech-1", app_metadata: {} } },
+      error: null,
+    });
+    mockMaybeSingle.mockResolvedValue({ data: { role: "Tech" } });
+
+    const req = createRequest("/admin/users");
+    const res = await proxy(req);
+
+    expect(res.headers.get("x-middleware-rewrite")).toContain("/404");
+  });
+
+  it("rewrites a SponsorsPartners user hitting Tech's area (/admin/inventory) to /404", async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: "sp-1", app_metadata: {} } },
+      error: null,
+    });
+    mockMaybeSingle.mockResolvedValue({ data: { role: "SponsorsPartners" } });
+
+    const req = createRequest("/admin/inventory");
+    const res = await proxy(req);
+
+    expect(res.headers.get("x-middleware-rewrite")).toContain("/404");
+  });
+
+  it("allows a Govs user into their allowed area (/admin/events) but not sponsors-partners", async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: "govs-1", app_metadata: {} } },
+      error: null,
+    });
+    mockMaybeSingle.mockResolvedValue({ data: { role: "Govs" } });
+
+    const allowedReq = createRequest("/admin/events");
+    const allowedRes = await proxy(allowedReq);
+    expect(allowedRes.headers.get("x-middleware-rewrite")).toBeNull();
+
+    const deniedReq = createRequest("/admin/content/sponsors-partners");
+    const deniedRes = await proxy(deniedReq);
+    expect(deniedRes.headers.get("x-middleware-rewrite")).toContain("/404");
+  });
+
+  it("redirects a non-Admin scoped role landing on bare /admin to their default page instead of 404", async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: "tech-1", app_metadata: {} } },
+      error: null,
+    });
+    mockMaybeSingle.mockResolvedValue({ data: { role: "Tech" } });
+
+    const req = createRequest("/admin");
+    const res = await proxy(req);
+
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe("https://pupaccess.org/admin/borrow-requests");
+  });
+
   it("redirects authenticated user visiting /auth/login back to home /", async () => {
     mockGetUser.mockResolvedValue({
       data: {
@@ -110,7 +180,7 @@ describe("Proxy / Middleware Route Protection", () => {
       },
       error: null,
     });
-    mockMaybeSingle.mockResolvedValue({ data: { role: "Default" } });
+    mockMaybeSingle.mockResolvedValue({ data: { role: "Organization" } });
 
     const req = createRequest("/auth/login");
     const res = await proxy(req);
@@ -126,7 +196,7 @@ describe("Proxy / Middleware Route Protection", () => {
       },
       error: null,
     });
-    mockMaybeSingle.mockResolvedValue({ data: { role: "Default" } });
+    mockMaybeSingle.mockResolvedValue({ data: { role: "Organization" } });
 
     const req = createRequest("/auth/register");
     const res = await proxy(req);

@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 import { AppError } from "@/lib/errors";
 import { Database } from "@/lib/supabase/database.types";
 import { checkRole } from "@/utils/checkRole";
+import { rolesForArea } from "@/utils/adminAccess";
 import {
   CreateAssetInput,
   UpdateAssetInput,
@@ -28,7 +29,7 @@ export type AssetsPaginationMeta = {
 export async function getAssetsForAdmin(
   { search = "", category = "All", page = 1, limit = 50 }: AssetsAdminFilter = {}
 ): Promise<{ data: Asset[]; meta: AssetsPaginationMeta }> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("inventory") });
   const supabase = await createSupabaseServerClient();
 
   const safeLimit = Math.min(Math.max(limit, 1), 100);
@@ -91,7 +92,7 @@ async function mergeQuantityIntoExisting(
 export async function createAsset(
   input: CreateAssetInput
 ): Promise<{ asset: Asset; merged: boolean }> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("inventory") });
   const supabase = await createSupabaseServerClient();
 
   const { data: existing } = await supabase
@@ -139,7 +140,7 @@ export async function createAsset(
 }
 
 export async function updateAsset(input: UpdateAssetInput): Promise<Asset> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("inventory") });
   const supabase = await createSupabaseServerClient();
 
   const { id, ...updates } = input;
@@ -162,7 +163,7 @@ export async function updateAsset(input: UpdateAssetInput): Promise<Asset> {
 }
 
 export async function deleteAsset(input: DeleteAssetInput): Promise<void> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("inventory") });
   const supabase = await createSupabaseServerClient();
 
   // Soft delete
@@ -177,7 +178,7 @@ export async function deleteAsset(input: DeleteAssetInput): Promise<void> {
 }
 
 export async function decrementAssetQuantity(input: DeleteAssetInput): Promise<Asset> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("inventory") });
   const supabase = await createSupabaseServerClient();
 
   const { data: existing, error: fetchError } = await supabase

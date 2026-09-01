@@ -38,7 +38,7 @@ describe("Adversarial & Edge-Case Roles and Profiles Tests", () => {
   });
 
   describe("Edge Case 1: Strict Role Equality vs. Role Hierarchy", () => {
-    it("exposes that checkRole strictly checks exact string match and rejects an Admin if the route checks for Default", async () => {
+    it("exposes that checkRole strictly checks membership and rejects an Admin if the route only lists a scoped role", async () => {
       // Re-bind original checkRole logic to test its exact behavior
       const actualCheckRole = (await vi.importActual<typeof import("@/utils/checkRole")>(
         "@/utils/checkRole"
@@ -60,9 +60,12 @@ describe("Adversarial & Edge-Case Roles and Profiles Tests", () => {
         }),
       });
 
-      // When an Admin accesses a resource protected by checkRole({ roles: "Default" }),
-      // strict equality ('Admin' !== 'Default') throws 403 Forbidden!
-      await expect(actualCheckRole({ roles: "Default" })).rejects.toThrow("Forbidden");
+      // checkRole has no built-in notion that "Admin" outranks every other
+      // role -- callers must explicitly include "Admin" in the allowed list
+      // (which is exactly what rolesForArea() does for every real admin
+      // service). Calling it directly with a list that omits "Admin" still
+      // locks an Admin out, by design.
+      await expect(actualCheckRole({ roles: ["Tech"] })).rejects.toThrow("Forbidden");
     });
   });
 

@@ -1,10 +1,11 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 import { checkRole } from "@/utils/checkRole";
+import { rolesForArea } from "@/utils/adminAccess";
 import { throwSupabaseError, AppError } from "@/lib/errors";
 import type { UserRole, UserRow, GetUsersOptions } from "../types";
 
 export async function getUserStats() {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("users") });
   const supabase = createSupabaseAdminClient();
 
   const { data, error } = await supabase
@@ -17,20 +18,18 @@ export async function getUserStats() {
   const total = users.length;
   const pending = users.filter((u) => u.role === "Pending").length;
   const organization = users.filter((u) => u.role === "Organization").length;
-  const defaultUsers = users.filter((u) => u.role === "Default").length;
   const admin = users.filter((u) => u.role === "Admin").length;
 
   return {
     total,
     pending,
     organization,
-    defaultUsers,
     admin,
   };
 }
 
 export async function getUsersForAdmin(options: GetUsersOptions = {}) {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("users") });
   const supabase = createSupabaseAdminClient();
 
   const page = Math.max(1, options.page ?? 1);
@@ -72,10 +71,10 @@ export async function getUsersForAdmin(options: GetUsersOptions = {}) {
 }
 
 export async function updateUserRole(userId: string, newRole: UserRole) {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("users") });
   const supabase = createSupabaseAdminClient();
 
-  const validRoles: UserRole[] = ["Admin", "Default", "Organization", "Pending"];
+  const validRoles: UserRole[] = ["Admin", "Organization", "Pending", "Tech", "SponsorsPartners", "Govs"];
   if (!validRoles.includes(newRole)) {
     throw new AppError("Invalid role provided", 400);
   }
@@ -108,7 +107,7 @@ export async function updateUserRole(userId: string, newRole: UserRole) {
 
   // Send approval notification email if user was approved
   if (
-    (newRole === "Organization" || newRole === "Default") &&
+    newRole === "Organization" &&
     updatedUser.email &&
     process.env.RESEND_API_KEY
   ) {
@@ -123,7 +122,7 @@ export async function updateUserRole(userId: string, newRole: UserRole) {
 }
 
 export async function deleteUserAccount(userId: string) {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("users") });
   const { createSupabaseServerClient } = await import("@/lib/supabase/server-client");
   const serverSupabase = await createSupabaseServerClient();
   const {

@@ -1,5 +1,6 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 import { checkRole } from "@/utils/checkRole";
+import { rolesForArea } from "@/utils/adminAccess";
 import { throwSupabaseError } from "@/lib/errors";
 import type { Database, Json } from "@/lib/supabase/database.types";
 import { randomUUID } from "crypto";
@@ -53,7 +54,7 @@ export async function logAdminActivity(
 }
 
 export async function getAuditLogsForAdmin(options: GetAuditLogsOptions = {}) {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("audit-logs") });
   const supabase = createSupabaseAdminClient();
 
   const page = Math.max(1, options.page ?? 1);

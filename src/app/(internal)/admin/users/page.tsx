@@ -10,7 +10,15 @@ import UserSearchBar from "./components/UserSearchBar";
 
 export const dynamic = "force-dynamic";
 
-const ROLE_OPTIONS = ["All", "Pending", "Organization", "Default", "Admin"] as const;
+const ROLE_OPTIONS = [
+  "All",
+  "Pending",
+  "Organization",
+  "Admin",
+  "Tech",
+  "SponsorsPartners",
+  "Govs",
+] as const;
 
 function UserStatCard({
   label,

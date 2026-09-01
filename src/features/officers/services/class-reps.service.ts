@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 import { throwSupabaseError } from "@/lib/errors";
 import { checkRole } from "@/utils/checkRole";
+import { rolesForArea } from "@/utils/adminAccess";
 import { DEFAULT_CLASS_REPRESENTATIVES } from "../data/class-representatives";
 import {
   ClassRepsContentSchema,
@@ -43,7 +44,7 @@ export async function getClassRepresentativesContent(): Promise<ClassRepsContent
 export async function saveClassRepresentativesContent(
   content: ClassRepsContent
 ): Promise<ClassRepsContent> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("officers") });
   const supabase = createSupabaseAdminClient();
   const serverSupabase = await createSupabaseServerClient();
   const {
@@ -90,7 +91,7 @@ export async function saveClassRepresentativesContent(
 export async function saveClassRepItem(
   item: ClassRepItemInput
 ): Promise<ClassRepsContent> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("officers") });
   const current = await getClassRepresentativesContent();
   const yearLevels = [...current];
 
@@ -122,7 +123,7 @@ export async function saveClassRepItem(
 }
 
 export async function deleteClassRepItem(id: string): Promise<ClassRepsContent> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("officers") });
   const current = await getClassRepresentativesContent();
   const yearLevels = current.map((y) => ({
     ...y,

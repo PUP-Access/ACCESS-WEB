@@ -12,9 +12,19 @@ type UserRoleSelectProps = {
 
 const ROLES: { value: UserRole; label: string; description: string }[] = [
   { value: "Organization", label: "Organization", description: "Eligible to borrow equipment" },
-  { value: "Default", label: "Default User", description: "Eligible to borrow equipment" },
   { value: "Pending", label: "Pending", description: "Ineligible (Cannot borrow)" },
-  { value: "Admin", label: "Admin", description: "Full admin access" },
+  { value: "Admin", label: "Admin", description: "Full admin dashboard access" },
+  { value: "Tech", label: "Tech", description: "Admin: borrow requests, inventory, contact messages" },
+  {
+    value: "SponsorsPartners",
+    label: "Sponsors & Partners",
+    description: "Admin: sponsors & partners, contact messages",
+  },
+  {
+    value: "Govs",
+    label: "Govs",
+    description: "Admin: landing, about, officers, FAQs, events, contact messages",
+  },
 ];
 
 export default function UserRoleSelect({

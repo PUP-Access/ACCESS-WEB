@@ -22,18 +22,20 @@ function getEligibilityBadge(role: UserRole | null) {
           Eligible (Org)
         </span>
       );
-    case "Default":
-      return (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/15 px-2.5 py-1 text-xs font-semibold text-cyan-300">
-          <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
-          Eligible (User)
-        </span>
-      );
     case "Admin":
       return (
         <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/15 px-2.5 py-1 text-xs font-semibold text-orange-300">
           <span className="h-1.5 w-1.5 rounded-full bg-orange-400" />
           Admin Access
+        </span>
+      );
+    case "Tech":
+    case "SponsorsPartners":
+    case "Govs":
+      return (
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/15 px-2.5 py-1 text-xs font-semibold text-purple-300">
+          <span className="h-1.5 w-1.5 rounded-full bg-purple-400" />
+          Staff Access ({role === "SponsorsPartners" ? "Sponsors & Partners" : role})
         </span>
       );
     case "Pending":

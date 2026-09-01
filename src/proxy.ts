@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware-client";
+import { canAccessArea, getAdminAreaForPath, getDefaultAdminPath, isAdminRole } from "@/utils/adminAccess";
 
 export async function proxy(request: NextRequest) {
   const { supabase, response } = createSupabaseMiddlewareClient(request);
@@ -43,8 +44,21 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
-  if (user && isAdminRoute && userRole !== "Admin") {
-    return NextResponse.rewrite(new URL("/404", request.url));
+  if (user && isAdminRoute) {
+    if (!isAdminRole(userRole)) {
+      return NextResponse.rewrite(new URL("/404", request.url));
+    }
+
+    const area = getAdminAreaForPath(pathname);
+    if (!canAccessArea(userRole, area)) {
+      // Bare "/admin" specifically is a common landing spot after login; send
+      // roles that can't see the dashboard to whatever they *can* see instead
+      // of a dead-end 404. Any other disallowed area still 404s.
+      if (pathname === "/admin") {
+        return NextResponse.redirect(new URL(getDefaultAdminPath(userRole), request.url));
+      }
+      return NextResponse.rewrite(new URL("/404", request.url));
+    }
   }
 
   const authEntryPaths = ["/auth", "/auth/login", "/auth/register"];

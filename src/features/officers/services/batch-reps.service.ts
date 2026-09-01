@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 import { throwSupabaseError } from "@/lib/errors";
 import { checkRole } from "@/utils/checkRole";
+import { rolesForArea } from "@/utils/adminAccess";
 import { DEFAULT_BATCH_REPRESENTATIVES } from "../data/batch-representatives";
 import {
   BatchRepsContentSchema,
@@ -43,7 +44,7 @@ export async function getBatchRepresentativesContent(): Promise<BatchRepsContent
 export async function saveBatchRepresentativesContent(
   content: BatchRepsContent
 ): Promise<BatchRepsContent> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("officers") });
   const supabase = createSupabaseAdminClient();
   const serverSupabase = await createSupabaseServerClient();
   const {
@@ -90,7 +91,7 @@ export async function saveBatchRepresentativesContent(
 export async function saveBatchRepItem(
   item: BatchRepItemInput
 ): Promise<BatchRepsContent> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("officers") });
   const current = await getBatchRepresentativesContent();
   const batches = [...current];
 
@@ -121,7 +122,7 @@ export async function saveBatchRepItem(
 }
 
 export async function deleteBatchRepItem(id: string): Promise<BatchRepsContent> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("officers") });
   const current = await getBatchRepresentativesContent();
   const batches = current.map((b) => ({
     ...b,

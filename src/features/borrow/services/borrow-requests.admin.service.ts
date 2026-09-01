@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 import { checkRole } from "@/utils/checkRole";
+import { rolesForArea } from "@/utils/adminAccess";
 import { AppError } from "@/lib/errors";
 import type { Json, Tables } from "@/lib/supabase/database.types";
 import {
@@ -26,7 +27,7 @@ export async function getBorrowRequestsForAdmin({
 }: BorrowRequestsFilter = {}) {
   const filters = AdminBorrowRequestsFilterSchema.parse({ status, page, limit });
 
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("borrow-requests") });
   const supabase = await createSupabaseServerClient();
 
   const maxRows = Math.min(filters.limit, 50);
@@ -58,7 +59,7 @@ export async function getBorrowRequestsForAdmin({
 export async function getBorrowRequestById(id: string): Promise<BorrowRequest> {
   BorrowRequestIdSchema.parse(id);
 
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("borrow-requests") });
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
@@ -73,7 +74,7 @@ export async function getBorrowRequestById(id: string): Promise<BorrowRequest> {
 }
 
 export async function getPendingBorrowRequestCount(): Promise<number> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("borrow-requests") });
   const supabase = await createSupabaseServerClient();
 
   const { count, error } = await supabase
@@ -86,7 +87,7 @@ export async function getPendingBorrowRequestCount(): Promise<number> {
 }
 
 export async function getRecentBorrowRequests(limit = 5): Promise<BorrowRequest[]> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("borrow-requests") });
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
@@ -149,7 +150,7 @@ async function notifyBorrower(request: BorrowRequest, status: string) {
 export async function approveBorrowRequest(id: string): Promise<BorrowRequest> {
   BorrowRequestIdSchema.parse(id);
 
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("borrow-requests") });
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -188,7 +189,7 @@ export async function rejectBorrowRequest(id: string, reason: string): Promise<B
   BorrowRequestIdSchema.parse(id);
   const { reason: validatedReason } = RejectBorrowRequestSchema.parse({ reason });
 
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("borrow-requests") });
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -231,7 +232,7 @@ export async function rejectBorrowRequest(id: string, reason: string): Promise<B
 export async function releaseBorrowRequest(id: string): Promise<BorrowRequest> {
   BorrowRequestIdSchema.parse(id);
 
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("borrow-requests") });
   const supabase = await createSupabaseServerClient();
 
   const request = await loadRequestForTransition(supabase, id, "Approved");
@@ -266,7 +267,7 @@ export async function releaseBorrowRequest(id: string): Promise<BorrowRequest> {
 export async function returnBorrowRequest(id: string): Promise<BorrowRequest> {
   BorrowRequestIdSchema.parse(id);
 
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("borrow-requests") });
   const supabase = await createSupabaseServerClient();
 
   const request = await loadRequestForTransition(supabase, id, "Active");
@@ -309,7 +310,7 @@ const OVERDUE_ACTION = "BORROW_REQUEST_OVERDUE_DETECTED";
  * lookup, not a DB column — "Active" stays the status of record).
  */
 export async function detectAndLogOverdueBorrowRequests(): Promise<BorrowRequest[]> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("borrow-requests") });
   const supabase = await createSupabaseServerClient();
 
   const nowIso = new Date().toISOString();
@@ -356,7 +357,7 @@ const SIGNED_URL_TTL_SECONDS = 60;
 
 export async function resolveBorrowRequestLetterUrl(id: string): Promise<ResolvedLetter> {
   BorrowRequestIdSchema.parse(id);
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("borrow-requests") });
 
   const request = await getBorrowRequestById(id);
   const letterFileUrl = request.letter_file_url;

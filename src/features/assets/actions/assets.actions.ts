@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getActionErrorMessage } from "@/lib/errors";
 import { checkRole } from "@/utils/checkRole";
+import { rolesForArea } from "@/utils/adminAccess";
 import {
   createAssetSchema,
   updateAssetSchema,
@@ -25,7 +26,7 @@ export async function createAssetAction(
   formData: FormData
 ): Promise<ActionState> {
   try {
-    await checkRole({ roles: "Admin" });
+    await checkRole({ roles: rolesForArea("inventory") });
 
     const rawData = Object.fromEntries(formData);
     const parsedData = { ...rawData, quantity: rawData.quantity ? parseInt(rawData.quantity as string, 10) : undefined };
@@ -68,7 +69,7 @@ export async function updateAssetAction(
   formData: FormData
 ): Promise<ActionState> {
   try {
-    await checkRole({ roles: "Admin" });
+    await checkRole({ roles: rolesForArea("inventory") });
 
     const rawData = Object.fromEntries(formData);
     const parsedData = { ...rawData, quantity: rawData.quantity ? parseInt(rawData.quantity as string, 10) : undefined };
@@ -108,7 +109,7 @@ export async function deleteAssetAction(
   formData: FormData
 ): Promise<ActionState> {
   try {
-    await checkRole({ roles: "Admin" });
+    await checkRole({ roles: rolesForArea("inventory") });
 
     const rawData = Object.fromEntries(formData);
     const result = deleteAssetSchema.safeParse(rawData);
@@ -141,7 +142,7 @@ export async function decrementAssetAction(
   formData: FormData
 ): Promise<ActionState> {
   try {
-    await checkRole({ roles: "Admin" });
+    await checkRole({ roles: rolesForArea("inventory") });
 
     const rawData = Object.fromEntries(formData);
     const result = deleteAssetSchema.safeParse(rawData);

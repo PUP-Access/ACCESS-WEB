@@ -56,7 +56,7 @@ export async function submitBorrowRequestAction(
 
     if (userError) throw userError;
 
-    if (!userRow?.role || !["Organization", "Default"].includes(userRow.role)) {
+    if (!userRow?.role || !["Organization"].includes(userRow.role)) {
       return {
         status: "error",
         message: "Your account is not authorized to submit borrow requests.",
@@ -263,7 +263,7 @@ export async function checkBorrowAvailabilityAction(
 
     if (userError) throw userError;
 
-    if (!userRow?.role || !["Organization", "Default"].includes(userRow.role)) {
+    if (!userRow?.role || !["Organization"].includes(userRow.role)) {
       return {
         status: "error",
         message: "Your account is not authorized to submit borrow requests.",

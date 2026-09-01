@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 import { checkRole } from "@/utils/checkRole";
+import { rolesForArea } from "@/utils/adminAccess";
 import {
   AdminEventsFilterSchema,
   CreateEventSchema,
@@ -18,7 +19,7 @@ export type EventsFilter = {
 export async function getEventsForAdmin({ status = "All", page = 1, limit = 10 }: EventsFilter = {}) {
   const filters = AdminEventsFilterSchema.parse({ status, page, limit });
 
-  await checkRole({roles: "Admin"});
+  await checkRole({ roles: rolesForArea("events") });
   const supabase = await createSupabaseServerClient();
 
   const max_rows = Math.min(filters.limit, 50);
@@ -54,7 +55,7 @@ export async function getEventsForAdmin({ status = "All", page = 1, limit = 10 }
 export async function getEventForAdminById(id: string) {
   EventIdSchema.parse(id);
 
-  await checkRole({roles: "Admin"});
+  await checkRole({ roles: rolesForArea("events") });
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
@@ -71,7 +72,7 @@ export async function getEventForAdminById(id: string) {
 export async function publishEventById(id: string) {
   EventIdSchema.parse(id);
 
-  await checkRole({roles: "Admin"});
+  await checkRole({ roles: rolesForArea("events") });
   const supabase = await createSupabaseServerClient();
 
   const { error } = await supabase
@@ -85,7 +86,7 @@ export async function publishEventById(id: string) {
 export async function unpublishEventById(id: string) {
   EventIdSchema.parse(id);
 
-  await checkRole({roles: "Admin"});
+  await checkRole({ roles: rolesForArea("events") });
   const supabase = await createSupabaseServerClient();
 
   const { error } = await supabase
@@ -99,7 +100,7 @@ export async function unpublishEventById(id: string) {
 export async function deleteEventById(id: string) {
   EventIdSchema.parse(id);
 
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("events") });
   const supabase = await createSupabaseServerClient();
 
   // Fetch the image_url before deleting
@@ -145,7 +146,7 @@ export type EventProps = {
 export async function postEvent(event: EventProps) {
   const validatedEvent = CreateEventSchema.parse(event);
 
-  await checkRole({roles: "Admin"});
+  await checkRole({ roles: rolesForArea("events") });
   const supabase = await createSupabaseServerClient();
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -202,7 +203,7 @@ export async function editEvent(id: string, event: UpdateEventProps) {
 
   const validatedEvent = UpdateEventSchema.parse(event);
 
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("events") });
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase

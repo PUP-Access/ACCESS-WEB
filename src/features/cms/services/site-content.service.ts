@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 import { getErrorMessage, isRlsPolicyError, throwSupabaseError } from "@/lib/errors";
 import { checkRole } from "@/utils/checkRole";
+import { rolesForArea, type AdminRole } from "@/utils/adminAccess";
 import {
   AboutContentSchema,
   DEFAULT_ABOUT_CONTENT,
@@ -19,6 +20,13 @@ import {
 } from "../schemas";
 
 type SiteContentKey = "hero" | "about" | "officers_section" | "sponsors_partners";
+
+const SITE_CONTENT_KEY_AREA = {
+  hero: "landing",
+  about: "about",
+  officers_section: "officers-section",
+  sponsors_partners: "sponsors-partners",
+} as const;
 
 async function getContentByKey<T>(
   key: SiteContentKey,
@@ -86,7 +94,7 @@ export async function updateSiteContent(
   key: SiteContentKey,
   value: HeroContent | AboutContent | OfficersSectionContent | SponsorsPartnersContent
 ) {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea(SITE_CONTENT_KEY_AREA[key]) });
   const supabase = createSupabaseAdminClient();
   const serverSupabase = await createSupabaseServerClient();
   const {
@@ -160,8 +168,11 @@ const OFFICERS_ROSTER_IMAGE_TYPES = new Set([
   "image/gif",
 ]);
 
-export async function uploadSiteContentImage(file: File): Promise<string> {
-  await checkRole({ roles: "Admin" });
+export async function uploadSiteContentImage(
+  file: File,
+  allowedRoles: AdminRole[] = ["Admin"]
+): Promise<string> {
+  await checkRole({ roles: allowedRoles });
 
   const ext = (file.name.split(".").pop() ?? "png").toLowerCase();
   const contentType = file.type || MIME_BY_EXT[ext];
@@ -183,8 +194,11 @@ export async function uploadSiteContentImage(file: File): Promise<string> {
   return uploadSiteContentFileToStorage(serverSupabase, file, contentType, ext);
 }
 
-export async function uploadOfficersRosterImage(file: File): Promise<string> {
-  await checkRole({ roles: "Admin" });
+export async function uploadOfficersRosterImage(
+  file: File,
+  allowedRoles: AdminRole[] = rolesForArea("officers-section")
+): Promise<string> {
+  await checkRole({ roles: allowedRoles });
 
   const ext = (file.name.split(".").pop() ?? "png").toLowerCase();
   const contentType = file.type || MIME_BY_EXT[ext];
@@ -207,6 +221,6 @@ export async function uploadOfficersRosterImage(file: File): Promise<string> {
 }
 
 export async function uploadSponsorLogoImage(file: File): Promise<string> {
-  return uploadSiteContentImage(file);
+  return uploadSiteContentImage(file, rolesForArea("sponsors-partners"));
 }
 

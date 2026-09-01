@@ -2,6 +2,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 import { AppError } from "@/lib/errors";
 import { Database } from "@/lib/supabase/database.types";
 import { checkRole } from "@/utils/checkRole";
+import { rolesForArea } from "@/utils/adminAccess";
 import {
   CreateOfficerInput,
   ReorderOfficersInput,
@@ -27,7 +28,7 @@ export type OfficersPaginationMeta = {
 export async function getOfficersForAdmin(
   { status = "All", search = "", page = 1, limit = 10 }: OfficersAdminFilter = {}
 ): Promise<{ data: Officer[]; meta: OfficersPaginationMeta }> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("officers") });
   const supabase = await createSupabaseServerClient();
 
   const safeLimit = Math.min(Math.max(limit, 1), 50);
@@ -72,7 +73,7 @@ export async function getOfficersForAdmin(
 }
 
 export async function getOfficerById(officerId: string): Promise<Officer> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("officers") });
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
@@ -87,7 +88,7 @@ export async function getOfficerById(officerId: string): Promise<Officer> {
 }
 
 export async function createOfficer(input: CreateOfficerInput): Promise<Officer> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("officers") });
   const supabase = await createSupabaseServerClient();
 
   const { data: maxOrder } = await supabase
@@ -126,7 +127,7 @@ export async function updateOfficer(
   officerId: string,
   input: UpdateOfficerInput
 ): Promise<Officer> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("officers") });
   const supabase = await createSupabaseServerClient();
 
   const updateData = {
@@ -153,7 +154,7 @@ export async function updateOfficer(
 }
 
 export async function deactivateOfficer(officerId: string): Promise<Officer> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("officers") });
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
@@ -169,7 +170,7 @@ export async function deactivateOfficer(officerId: string): Promise<Officer> {
 }
 
 export async function reorderOfficers(input: ReorderOfficersInput): Promise<Officer[]> {
-  await checkRole({ roles: "Admin" });
+  await checkRole({ roles: rolesForArea("officers") });
   const supabase = await createSupabaseServerClient();
 
   const updatedOfficers: Officer[] = [];
