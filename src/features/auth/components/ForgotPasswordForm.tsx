@@ -15,7 +15,7 @@ export function ForgotPasswordForm() {
       )}
       {state.status === "success" && (
         <p className="rounded-xl bg-green-500/20 border border-green-500/30 px-4 py-3 text-sm text-green-200">
-          Check your email for the reset link!
+          If an account exists for that email, a reset link is on its way.
         </p>
       )}
 

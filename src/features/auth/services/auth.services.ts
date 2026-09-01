@@ -106,6 +106,13 @@ export async function forgotPasswordService(email: string) {
   });
 
   if (error) {
+    // Don't leak whether an email is registered: log the real error server-side,
+    // but tell the caller it "succeeded" so responses are indistinguishable.
+    if (error.code === "user_not_found") {
+      console.warn(`Password reset requested for unregistered email: ${email}`);
+      return { success: true };
+    }
+
     console.error("Supabase admin recovery error:", error);
     throw new AppError(error.message, error.status ?? 400);
   }
