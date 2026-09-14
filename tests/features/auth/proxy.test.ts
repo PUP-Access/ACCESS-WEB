@@ -2,9 +2,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { proxy } from "@/proxy";
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware-client";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 
 vi.mock("@/lib/supabase/middleware-client", () => ({
   createSupabaseMiddlewareClient: vi.fn(),
+}));
+
+vi.mock("@/lib/supabase/admin-client", () => ({
+  createSupabaseAdminClient: vi.fn(),
 }));
 
 describe("Proxy / Middleware Route Protection", () => {
@@ -13,6 +18,7 @@ describe("Proxy / Middleware Route Protection", () => {
   let mockSelect: ReturnType<typeof vi.fn>;
   let mockEq: ReturnType<typeof vi.fn>;
   let mockMaybeSingle: ReturnType<typeof vi.fn>;
+  let mockAdminUpsertMaybeSingle: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -37,6 +43,18 @@ describe("Proxy / Middleware Route Protection", () => {
       supabase: mockSupabase as unknown as ReturnType<typeof createSupabaseMiddlewareClient>["supabase"],
       response: mockResponse,
     });
+
+    // Default: the admin client (used by ensureUserRow's self-heal path)
+    // resolves with no row, as if nothing needed backfilling. Individual
+    // tests override this to exercise the self-heal path.
+    mockAdminUpsertMaybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
+    vi.mocked(createSupabaseAdminClient).mockReturnValue({
+      from: vi.fn(() => ({
+        upsert: vi.fn(() => ({
+          select: vi.fn(() => ({ maybeSingle: mockAdminUpsertMaybeSingle })),
+        })),
+      })),
+    } as unknown as ReturnType<typeof createSupabaseAdminClient>);
   });
 
   const createRequest = (pathname: string) => {
@@ -203,6 +221,39 @@ describe("Proxy / Middleware Route Protection", () => {
 
     expect(res.status).toBe(307);
     expect(res.headers.get("location")).toBe("https://pupaccess.org/");
+  });
+
+  it("self-heals a missing Users row and uses the backfilled role for gating", async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: "orphan-1", email: "orphan@pupaccess.org", app_metadata: {} } },
+      error: null,
+    });
+    // No public.Users row exists for this session.
+    mockMaybeSingle.mockResolvedValue({ data: null });
+    // ensureUserRow's backfill insert succeeds with the default 'Pending' role.
+    mockAdminUpsertMaybeSingle.mockResolvedValue({ data: { role: "Pending" }, error: null });
+
+    const req = createRequest("/admin/users");
+    const res = await proxy(req);
+
+    // Pending has no admin access, so the backfilled role (not some stale
+    // app_metadata role) is what actually gates the request.
+    expect(res.headers.get("x-middleware-rewrite")).toContain("/404");
+  });
+
+  it("falls back to app_metadata role when the self-heal backfill fails", async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: "orphan-2", email: "orphan2@pupaccess.org", app_metadata: { role: "Admin" } } },
+      error: null,
+    });
+    mockMaybeSingle.mockResolvedValue({ data: null });
+    mockAdminUpsertMaybeSingle.mockResolvedValue({ data: null, error: { message: "boom" } });
+
+    const req = createRequest("/admin/users");
+    const res = await proxy(req);
+
+    expect(res.headers.get("x-middleware-rewrite")).toBeNull();
+    expect(res.headers.get("location")).toBeNull();
   });
 
   it("deletes auth cookie if getUser returns an error", async () => {
