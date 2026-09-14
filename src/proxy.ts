@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware-client";
 import { canAccessArea, getAdminAreaForPath, getDefaultAdminPath, isAdminRole } from "@/utils/adminAccess";
+import { ensureUserRow } from "@/utils/ensureUserRow";
 
 export async function proxy(request: NextRequest) {
   const { supabase, response } = createSupabaseMiddlewareClient(request);
@@ -33,6 +34,15 @@ export async function proxy(request: NextRequest) {
 
     if (userRow?.role) {
       userRole = userRow.role;
+    } else {
+      // A valid Auth session with no public.Users row means the
+      // on_auth_user_created trigger's insert never happened for this
+      // account. Backfill it so the account stops being invisible to
+      // /admin/users instead of relying on the app_metadata fallback above.
+      const healedRole = await ensureUserRow(user);
+      if (healedRole) {
+        userRole = healedRole;
+      }
     }
   }
 
