@@ -34,7 +34,14 @@ export async function getBatchRepresentativesContent(): Promise<BatchRepsContent
       return DEFAULT_BATCH_REPRESENTATIVES;
     }
 
-    return parsed.data;
+    return parsed.data.map((batch) => ({
+      ...batch,
+      description: /lorem\s+ipsum/i.test(batch.description || "") ? "" : batch.description,
+      representatives: batch.representatives.map((r) => ({
+        ...r,
+        bio: /lorem\s+ipsum/i.test(r.bio || "") ? "" : r.bio,
+      })),
+    }));
   } catch (error) {
     console.error("[getBatchRepresentativesContent] Error:", error);
     return DEFAULT_BATCH_REPRESENTATIVES;

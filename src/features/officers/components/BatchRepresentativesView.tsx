@@ -268,6 +268,12 @@ export default function BatchRepresentativesView({
   );
 }
 
+function cleanLorem(text?: string): string {
+  if (!text) return "";
+  if (/lorem\s+ipsum/i.test(text)) return "";
+  return text.trim();
+}
+
 // ── Year Overview Card (Screenshot 2) ──────────────────────────────────────
 function YearOverviewCard({
   batch,
@@ -276,11 +282,13 @@ function YearOverviewCard({
   batch: {
     id: string;
     label: string;
-    description: string;
+    description?: string;
     sealUrl?: string;
   };
   onClick: () => void;
 }) {
+  const desc = cleanLorem(batch.description);
+
   return (
     <div
       onClick={onClick}
@@ -317,9 +325,11 @@ function YearOverviewCard({
         <span className="font-bold text-[#e85e1e] text-xs uppercase tracking-wider mt-1 group-hover:underline">
           See More
         </span>
-        <p className="text-zinc-300 text-xs leading-relaxed mt-2.5 line-clamp-3">
-          {batch.description}
-        </p>
+        {desc ? (
+          <p className="text-zinc-300 text-xs leading-relaxed mt-2.5 line-clamp-3">
+            {desc}
+          </p>
+        ) : null}
       </div>
     </div>
   );
@@ -342,6 +352,8 @@ function BatchOfficerHierarchyCard({
   };
   onClick: () => void;
 }) {
+  const bio = cleanLorem(rep.bio);
+
   return (
     <div
       onClick={onClick}
@@ -387,9 +399,9 @@ function BatchOfficerHierarchyCard({
         <p className="font-extrabold text-[#e85e1e] text-xs uppercase tracking-wider mt-1 truncate w-full">
           {rep.role}
         </p>
-        {rep.bio?.trim() && !rep.hideBio && (
+        {bio && !rep.hideBio && (
           <p className="text-zinc-300 text-xs leading-relaxed mt-2 line-clamp-3">
-            {rep.bio}
+            {bio}
           </p>
         )}
       </div>

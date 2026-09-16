@@ -158,9 +158,9 @@ export default function ClassRepresentativesView({
                 <p className="font-extrabold text-[#e85e1e] text-xs uppercase tracking-wider mt-1">
                   {rep.section || rep.courseYear || "CLASS REPRESENTATIVE"}
                 </p>
-                {rep.bio?.trim() && !rep.hideBio && (
+                {cleanLorem(rep.bio) && !rep.hideBio && (
                   <p className="text-zinc-300 text-xs leading-relaxed mt-2.5 line-clamp-3">
-                    {rep.bio}
+                    {cleanLorem(rep.bio)}
                   </p>
                 )}
               </div>
@@ -242,6 +242,12 @@ export default function ClassRepresentativesView({
   );
 }
 
+function cleanLorem(text?: string): string {
+  if (!text) return "";
+  if (/lorem\s+ipsum/i.test(text)) return "";
+  return text.trim();
+}
+
 function YearCard({
   year,
   onClick,
@@ -249,6 +255,8 @@ function YearCard({
   year: YearLevelReps;
   onClick: () => void;
 }) {
+  const desc = cleanLorem(year.description);
+
   return (
     <div
       onClick={onClick}
@@ -294,9 +302,11 @@ function YearCard({
         <span className="font-bold text-[#e85e1e] text-xs uppercase tracking-wider mt-1 group-hover:underline">
           See More
         </span>
-        <p className="text-zinc-300 text-xs leading-relaxed mt-2.5 line-clamp-3">
-          {year.description}
-        </p>
+        {desc ? (
+          <p className="text-zinc-300 text-xs leading-relaxed mt-2.5 line-clamp-3">
+            {desc}
+          </p>
+        ) : null}
       </div>
     </div>
   );
