@@ -34,7 +34,14 @@ export async function getClassRepresentativesContent(): Promise<ClassRepsContent
       return DEFAULT_CLASS_REPRESENTATIVES as ClassRepsContent;
     }
 
-    return parsed.data;
+    return parsed.data.map((year) => ({
+      ...year,
+      description: /lorem\s+ipsum/i.test(year.description || "") ? "" : year.description,
+      representatives: year.representatives.map((r) => ({
+        ...r,
+        bio: /lorem\s+ipsum/i.test(r.bio || "") ? "" : r.bio,
+      })),
+    }));
   } catch (error) {
     console.error("[getClassRepresentativesContent] Error:", error);
     return DEFAULT_CLASS_REPRESENTATIVES as ClassRepsContent;

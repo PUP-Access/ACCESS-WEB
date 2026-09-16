@@ -157,7 +157,7 @@ export const ClassRepsContentSchema = z.array(
     id: z.string(),
     label: z.string(),
     yearNumber: z.string(),
-    description: z.string(),
+    description: z.string().optional().default(""),
     sealUrl: z.string().optional(),
     representatives: z.array(ClassRepItemSchema),
   })
@@ -191,7 +191,7 @@ export const BatchRepsContentSchema = z.array(
     id: z.string(),
     label: z.string(),
     batchNumber: z.string(),
-    description: z.string(),
+    description: z.string().optional().default(""),
     sealUrl: z.string().optional(),
     representatives: z.array(BatchRepItemSchema),
   })

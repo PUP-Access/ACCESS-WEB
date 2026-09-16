@@ -33,8 +33,15 @@ const LAVA_BANNER_BG = `
   linear-gradient(145deg, #100200 0%, #2a0501 35%, #140300 65%, #300803 100%)
 `;
 
+function cleanLorem(text?: string): string {
+  if (!text) return "";
+  if (/lorem\s+ipsum/i.test(text)) return "";
+  return text.trim();
+}
+
 export default function OfficerModal({ officer, onClose }: OfficerModalProps) {
   const [imageError, setImageError] = useState(false);
+  const bio = officer ? cleanLorem(officer.bio) : "";
 
   useEffect(() => {
     setImageError(false);
@@ -185,7 +192,7 @@ export default function OfficerModal({ officer, onClose }: OfficerModalProps) {
         </div>
 
         {/* ── Divider Line ─── */}
-        {(hasAnySocial || (Boolean(officer.bio?.trim()) && !officer.hideBio)) && (
+        {(hasAnySocial || (Boolean(bio) && !officer.hideBio)) && (
           <div className="border-t border-white/20 mx-5 sm:mx-6 mt-5 mb-4" />
         )}
 
@@ -193,7 +200,7 @@ export default function OfficerModal({ officer, onClose }: OfficerModalProps) {
         {hasAnySocial && (
           <div
             className={`flex items-center gap-4 px-5 sm:px-6 text-white/90 ${
-              officer.bio?.trim() && !officer.hideBio ? "" : "pb-6 sm:pb-7"
+              bio && !officer.hideBio ? "" : "pb-6 sm:pb-7"
             }`}
           >
             {/* Facebook */}
@@ -269,13 +276,13 @@ export default function OfficerModal({ officer, onClose }: OfficerModalProps) {
         )}
 
         {/* ── Bio / Description Paragraph (Only render if bio exists and is not hidden) ─── */}
-        {officer.bio?.trim() && !officer.hideBio && (
+        {bio && !officer.hideBio && (
           <p className="text-zinc-200 text-xs sm:text-[0.875rem] leading-relaxed px-5 sm:px-6 pt-3 pb-6 sm:pb-7">
-            {officer.bio}
+            {bio}
           </p>
         )}
 
-        {!hasAnySocial && (!officer.bio?.trim() || officer.hideBio) && (
+        {!hasAnySocial && (!bio || officer.hideBio) && (
           <div className="pb-4" />
         )}
       </div>

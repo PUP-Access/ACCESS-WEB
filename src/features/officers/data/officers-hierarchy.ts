@@ -26,8 +26,7 @@ export interface OfficerTier {
   officers: OfficerItem[];
 }
 
-const DEFAULT_BIO =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+const DEFAULT_BIO = "";
 
 export const ACCESS_OFFICERS_TIERS: OfficerTier[] = [
   {
