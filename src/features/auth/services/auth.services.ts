@@ -41,6 +41,12 @@ export async function registerOrganization(input: SignUpInput) {
   const { renderAccessEmail } = await import("@/lib/email/email-template");
   const resend = new Resend(process.env.RESEND_API_KEY);
 
+  // Link straight to our own callback so verification never depends on the
+  // Supabase dashboard's Site URL / redirect allowlist.
+  const confirmUrl = data.properties?.hashed_token
+    ? `${siteUrl}/auth/callback?token_hash=${data.properties.hashed_token}&type=signup&next=/auth/login`
+    : actionLink;
+
   const { error: resendError } = await resend.emails.send({
     from: "ACCESS \u003cnoreply@pupaccess.org\u003e",
     to: input.email,
@@ -54,7 +60,7 @@ export async function registerOrganization(input: SignUpInput) {
       secondaryParagraph: `To finalize your verification and enable equipment reservation features, please confirm your official email address by clicking the button below:`,
       cta: {
         text: "Confirm Organization Account",
-        url: actionLink,
+        url: confirmUrl,
       },
       notice: {
         title: "Account Activation Notice",

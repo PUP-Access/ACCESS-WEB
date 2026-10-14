@@ -63,6 +63,7 @@ describe("Auth Services", () => {
       mockGenerateLink.mockResolvedValue({
         data: {
           properties: {
+            hashed_token: "mock-hashed-signup-token",
             action_link: "https://pupaccess.org/auth/confirm?token=xyz",
           },
         },
@@ -91,6 +92,14 @@ describe("Auth Services", () => {
           redirectTo: "https://pupaccess.org/auth/login",
         },
       });
+
+      expect(mockRenderAccessEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cta: expect.objectContaining({
+            url: "https://pupaccess.org/auth/callback?token_hash=mock-hashed-signup-token&type=signup&next=/auth/login",
+          }),
+        })
+      );
 
       expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
