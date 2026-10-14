@@ -552,7 +552,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_borrowing: { Args: never; Returns: boolean }
+      can_manage_events_officers: { Args: never; Returns: boolean }
+      can_see_notification: {
+        Args: { notification_type: string }
+        Returns: boolean
+      }
       get_server_time: { Args: never; Returns: string }
+      has_role_in: {
+        Args: { allowed_roles: Database["public"]["Enums"]["user_role"][] }
+        Returns: boolean
+      }
       increment_rate_limit: {
         Args: { p_key: string; p_window_seconds: number }
         Returns: number

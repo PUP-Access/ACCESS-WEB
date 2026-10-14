@@ -174,6 +174,7 @@ export async function postEvent(event: EventProps) {
 }
 
 export async function uploadEventImage(file: File): Promise<string> {
+  await checkRole({ roles: rolesForArea("events") });
   const supabase = await createSupabaseServerClient();
 
   const { mimeType, extension } = await validateEventImage(file);

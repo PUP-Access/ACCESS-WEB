@@ -25,7 +25,11 @@ export const ADMIN_AREAS = [
 ] as const;
 export type AdminArea = (typeof ADMIN_AREAS)[number];
 
-/** "all" means every area; otherwise the explicit list of areas that role may access. */
+/**
+ * "all" means every area; otherwise the explicit list of areas that role may access.
+ * RLS mirrors this for areas served through the user-scoped client (see
+ * supabase/migrations/20261014022122_scoped_admin_role_rls.sql) — update both together.
+ */
 const ROLE_AREAS: Record<AdminRole, "all" | AdminArea[]> = {
   Admin: "all",
   Tech: ["borrow-requests", "inventory", "contact-messages"],

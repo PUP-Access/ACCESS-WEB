@@ -1,9 +1,16 @@
 import { createTestSupabaseClient } from "../helpers/test-supabase-client";
+import type { UserRole } from "@/utils/adminAccess";
 
 export const QA_ADMIN_EMAIL = "qa-admin@access-web.test";
 export const QA_ADMIN_PASSWORD = "QaAdminTest!2026";
 export const QA_BORROWER_EMAIL = "qa-borrower@access-web.test";
 export const QA_BORROWER_PASSWORD = "QaBorrowerTest!2026";
+export const QA_TECH_EMAIL = "qa-tech@access-web.test";
+export const QA_TECH_PASSWORD = "QaTechTest!2026";
+export const QA_GOVS_EMAIL = "qa-govs@access-web.test";
+export const QA_GOVS_PASSWORD = "QaGovsTest!2026";
+export const QA_SPONSORS_EMAIL = "qa-sponsors@access-web.test";
+export const QA_SPONSORS_PASSWORD = "QaSponsorsTest!2026";
 
 async function findUserByEmail(
   supabase: ReturnType<typeof createTestSupabaseClient>,
@@ -26,7 +33,7 @@ async function ensureUser(
   supabase: ReturnType<typeof createTestSupabaseClient>,
   email: string,
   password: string,
-  role: "Admin" | "Organization"
+  role: UserRole
 ): Promise<string> {
   let user = await findUserByEmail(supabase, email);
 
@@ -49,12 +56,15 @@ async function ensureUser(
   return user.id;
 }
 
-/** Idempotently ensures both QA test accounts exist with the right roles. Safe to call every run. */
+/** Idempotently ensures every QA test account exists with the right role. Safe to call every run. */
 export async function provisionTestUsers() {
   const supabase = createTestSupabaseClient();
 
   const adminId = await ensureUser(supabase, QA_ADMIN_EMAIL, QA_ADMIN_PASSWORD, "Admin");
   const borrowerId = await ensureUser(supabase, QA_BORROWER_EMAIL, QA_BORROWER_PASSWORD, "Organization");
+  const techId = await ensureUser(supabase, QA_TECH_EMAIL, QA_TECH_PASSWORD, "Tech");
+  const govsId = await ensureUser(supabase, QA_GOVS_EMAIL, QA_GOVS_PASSWORD, "Govs");
+  const sponsorsId = await ensureUser(supabase, QA_SPONSORS_EMAIL, QA_SPONSORS_PASSWORD, "SponsorsPartners");
 
-  return { adminId, borrowerId };
+  return { adminId, borrowerId, techId, govsId, sponsorsId };
 }
