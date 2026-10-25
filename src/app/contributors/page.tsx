@@ -2,6 +2,13 @@ import { ContributorsSection, FooterSection } from "@/features/landing"
 import Image from "next/image"
 import { CrystalDice3D, type CrystalConfig } from "@/features/effects"
 import Link from "next/link"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Contributors",
+  description:
+    "The students and contributors who built the PUP ACCESS web portal.",
+}
 
 const CONTRIBUTORS_CRYSTALS: CrystalConfig[] = [
   // Left wing

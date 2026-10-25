@@ -42,11 +42,15 @@ export default function FAQSection({ items }: FAQSectionProps) {
     setOpenIndex((prev) => (prev === i ? null : i));
   };
 
+  if (items.length === 0) {
+    return null;
+  }
+
   return (
     <section id="faq" className="landing-section scroll-mt-24 faq-section">
       <Reveal>
         <h2 className="mb-10 text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-widest title-header md:whitespace-nowrap">
-          Frequently Ask Questions
+          Frequently Asked Questions
         </h2>
       </Reveal>
 

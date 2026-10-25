@@ -5,9 +5,16 @@ import { getBatchRepresentativesContent } from "@/features/officers/services/bat
 import Image from "next/image";
 import { CrystalDice3D, type CrystalConfig } from "@/features/effects";
 import { unstable_noStore as noStore } from "next/cache";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  title: "Batch Representatives",
+  description:
+    "Batch representatives of PUP ACCESS, supporting Computer Engineering students by academic batch at the Polytechnic University of the Philippines.",
+};
 
 const OFFICERS_CRYSTALS: CrystalConfig[] = [
   // Left wing

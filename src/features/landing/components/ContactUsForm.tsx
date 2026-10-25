@@ -68,6 +68,7 @@ function validateForm(form: ContactFormData): FormErrors {
 
 type ContactUsFormProps = {
   onBack: () => void;
+  headingAs?: "h1" | "h2";
 };
 
 function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
@@ -111,7 +112,7 @@ function TextInput({
   );
 }
 
-export default function ContactUsForm({ onBack }: ContactUsFormProps) {
+export default function ContactUsForm({ onBack, headingAs = "h2" }: ContactUsFormProps) {
   const [form, setForm] = useState<ContactFormData>(INITIAL_FORM);
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
   const [showSuccess, setShowSuccess] = useState(false);
@@ -180,9 +181,15 @@ export default function ContactUsForm({ onBack }: ContactUsFormProps) {
         style={glassCardStyle}
       >
         <div className="text-center">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-wide title-header">
-            Contact Us
-          </h2>
+          {headingAs === "h1" ? (
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-wide title-header">
+              Contact Us
+            </h1>
+          ) : (
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-wide title-header">
+              Contact Us
+            </h2>
+          )}
           <p className="mt-2 text-sm text-white/90">
             Reach out to ACCESS anytime for inquiries, assistance, and concerns.
           </p>

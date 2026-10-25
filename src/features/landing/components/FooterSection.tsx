@@ -62,28 +62,15 @@ const RESOURCE_LINKS = [
   { label: "FAQs", href: "/#faq" },
 ];
 
-const BOTTOM_LINKS = [
-  { label: "Privacy Center", href: "#" },
-  { label: "Terms of Service", href: "#" },
-  { label: "Cookie Policy", href: "#" },
-];
-
 const ACCESS_ADDRESS =
   "Room 424, College of Engineering and Architecture Building, Pureza St. cor. Anonas St., Sta. Mesa, City of Manila, Metro Manila, Philippines.";
 
 function FooterAnchor({ href, label }: { href: string; label: string }) {
   const isExternal = href.startsWith("http");
 
-  const handleClick = (e: React.MouseEvent) => {
-    if (href === "#") {
-      e.preventDefault();
-    }
-  };
-
   return (
     <Link
       href={href}
-      onClick={handleClick}
       target={isExternal ? "_blank" : undefined}
       rel={isExternal ? "noopener noreferrer" : undefined}
       className="text-sm transition-colors duration-150 hover:text-white"
@@ -115,7 +102,7 @@ export default function FooterSection() {
               className="max-w-[260px] text-xs leading-relaxed text-justify sm:max-w-[280px]"
               style={{ color: "rgb(255, 255, 255)", fontFamily: `'Josefin Sans', sans-serif` }}
             >
-              Association of Concern Computer Engineering Students for Service — College of Engineering and Architecture,
+              Association of Concerned Computer Engineering Students for Service — College of Engineering and Architecture,
               Polytechnic University of the Philippines.
             </p>
             <address
@@ -200,19 +187,6 @@ export default function FooterSection() {
         </div>
       </Reveal>
 
-      <div
-        className="w-full"
-        style={{
-          background: "linear-gradient(90deg, #c45000 0%, #e07020 50%, #c45000 100%)",
-          fontFamily: `'Josefin Sans', sans-serif`,
-        }}
-      >
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center sm:justify-end gap-3 sm:gap-8 px-6 py-4 sm:flex-row sm:px-10 lg:px-16">
-          {BOTTOM_LINKS.map((link) => (
-            <FooterAnchor key={link.label} href={link.href} label={link.label} />
-          ))}
-        </div>
-      </div>
     </footer>
   );
 }

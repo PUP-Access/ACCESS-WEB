@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export const metadata = {
-  title: "Sponsors & Partners | PUP ACCESS",
+  title: "Sponsors & Partners",
   description:
     "Discover the valued sponsors, industry partners, and community organizations collaborating with the Association of Concerned Computer Engineering Students for Service (PUP ACCESS).",
 };

@@ -1,9 +1,11 @@
 import { ForgotPasswordForm } from "@/features/auth/components/ForgotPasswordForm";
 import Link from "next/link";
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: "Forgot Password | ACCESS Web Portal",
+export const metadata: Metadata = {
+  title: "Forgot Password",
   description: "Request a password reset link for your ACCESS account.",
+  robots: { index: false, follow: false },
 };
 
 export default async function ForgotPasswordPage() {

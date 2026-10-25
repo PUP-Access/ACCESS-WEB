@@ -21,9 +21,14 @@ import {
 import { getAllAssetsPublic } from "@/features/assets/services/assets.admin.service";
 import { CrystalDice3D, FloatingBlocks, type CrystalConfig } from "@/features/effects";
 import { unstable_noStore as noStore } from "next/cache";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const COMBINED_CRYSTALS: CrystalConfig[] = [
   // Left wing
@@ -64,20 +69,10 @@ export default async function LandingPage() {
 
   const groupedEquipments = Object.values(groupedEquipmentsMap).sort((a, b) => a.group.localeCompare(b.group));
 
-  const faqItems =
-    faqs.length > 0
-      ? faqs.map((item) => ({
-          question: item.question,
-          answer: item.answer,
-        }))
-      : [
-          {
-            question:
-              "Lorem ipsum dolor sit amet consectetur Lorem ipsum dolor sit amet consectetur",
-            answer:
-              "Lorem ipsum dolor sit amet consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-          },
-        ];
+  const faqItems = faqs.map((item) => ({
+    question: item.question,
+    answer: item.answer,
+  }));
 
   return (
     <div className="flex min-h-screen flex-col">

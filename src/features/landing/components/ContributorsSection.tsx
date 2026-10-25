@@ -80,7 +80,7 @@ export default function ContributorsSection() {
       <div className="relative z-20 mx-auto max-w-7xl w-full flex flex-col items-center">
         
         {/* Title */}
-        <h2 
+        <h1 
           className="mb-6 text-center text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-widest drop-shadow-xl title-header"
           style={{
              WebkitBackgroundClip: 'text',
@@ -89,7 +89,7 @@ export default function ContributorsSection() {
           }}
         >
           The Minds Behind the Work
-        </h2>
+        </h1>
         
         {/* Subtitle */}
         <div className="mb-10 text-center text-xs sm:text-sm md:text-base max-w-3xl mx-auto leading-loose text-white font-medium relative flex flex-col items-center gap-2">

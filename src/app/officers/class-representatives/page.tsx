@@ -5,9 +5,16 @@ import { getClassRepresentativesContent } from "@/features/officers/services/cla
 import Image from "next/image";
 import { CrystalDice3D, type CrystalConfig } from "@/features/effects";
 import { unstable_noStore as noStore } from "next/cache";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  title: "Class Representatives",
+  description:
+    "Class representatives of PUP ACCESS, serving Computer Engineering students across year levels at the Polytechnic University of the Philippines.",
+};
 
 const OFFICERS_CRYSTALS: CrystalConfig[] = [
   // Left wing

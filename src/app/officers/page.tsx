@@ -5,9 +5,16 @@ import OfficersHierarchyView from "@/features/officers/components/OfficersHierar
 import Image from "next/image";
 import { CrystalDice3D, type CrystalConfig } from "@/features/effects";
 import { unstable_noStore as noStore } from "next/cache";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  title: "Officers",
+  description:
+    "Meet the ACCESS officers leading the official Computer Engineering student organization at the Polytechnic University of the Philippines.",
+};
 
 const OFFICERS_CRYSTALS: CrystalConfig[] = [
   // Left wing

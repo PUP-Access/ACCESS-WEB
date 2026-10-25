@@ -1,6 +1,13 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 import { notFound, redirect } from "next/navigation";
 import { ResetPasswordForm } from "@/features/auth/components/ResetPasswordForm";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Reset Password",
+  description: "Set a new password for your ACCESS account.",
+  robots: { index: false, follow: false },
+};
 
 type AMREntry = string | { method: string; timestamp: number };
 

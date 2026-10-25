@@ -22,7 +22,7 @@ interface NavbarProps {
 export const landingNavItems: NavItem[] = [
   { label: "Home", href: "/#home" },
   { label: "About", href: "/#about" },
-  { label: "Partners", href: "/#partners" },
+  { label: "Partners", href: "/partners" },
   { label: "Events", href: "/#events" },
   { label: "Officers", href: "/#officers" },
   { label: "Borrow", href: "/#borrow" },
