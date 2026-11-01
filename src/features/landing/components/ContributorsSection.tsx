@@ -11,65 +11,83 @@ interface Contributor {
 
 const CONTRIBUTORS: Contributor[] = [
   {
-    name: "Zachary Ralf Crescel Charles DG. Nudalo",
+    name: "Zachary Ralf\nCrescel Charles\nDG. Nudalo",
     role: "Project Manager",
     backdropImage: "/BG-ACCESS.webp",
     image: "/collaborators-image/Charles.jpg",
   },
   {
-    name: "Gerald S. Berongoy",
+    name: "Gerald S.\nBerongoy",
     role: "System/Business Analyst",
     backdropImage: "/BG-ACCESS.webp",
     image: "/collaborators-image/Gerald.jpg",
   },
   {
-    name: "Ren Fernandez Zapanta",
+    name: "Ren Fernandez\nZapanta",
     role: "Scrum Master",
     backdropImage: "/BG-ACCESS.webp",
     image: "/collaborators-image/SM.jpg",
   },
   {
-    name: "Renz Tyrone F. Arcilla",
+    name: "Renz Tyrone F.\nArcilla",
     role: "Lead Backend Developer",
     backdropImage: "/BG-ACCESS.webp",
     image: "/collaborators-image/Renz.jpg",
   },
   {
-    name: "Arvie Lastra",
+    name: "Arvie\nLastra",
     role: "Backend Developer",
     backdropImage: "/BG-ACCESS.webp",
     image: "/collaborators-image/Arviee.jpg",
   },
   {
-    name: "Earl Clyde M. Bañez",
+    name: "Earl Clyde M.\nBañez",
     role: "Lead Frontend Developer",
     backdropImage: "/BG-ACCESS.webp",
     image: "/collaborators-image/Earl.jpg",
   },
   {
-    name: "Elton James U. Donato",
+    name: "Elton James U.\nDonato",
     role: "Frontend Developer",
     backdropImage: "/BG-ACCESS.webp",
     image: "/collaborators-image/Elton.jpg",
   },
   {
-    name: "Sophia Lim",
+    name: "Sophia\nLim",
     role: "Lead UI/UX",
     backdropImage: "/BG-ACCESS.webp",
     image: "/collaborators-image/Phia.jpg",
   },
   {
-    name: "Blessie Jane Alba",
+    name: "Blessie Jane\nAlba",
     role: "UI/UX",
     backdropImage: "/BG-ACCESS.webp",
     image: "/collaborators-image/Blessie.jpg",
   },
   {
-    name: "Clark Jao Alarcon",
+    name: "Clark Jao\nAlarcon",
     role: "QA & Data Integrity",
     backdropImage: "/BG-ACCESS.webp",
     image: "/collaborators-image/Clark.jpg",
   },
+];
+
+interface OtherCollaborator {
+  name: string
+  role: string
+}
+
+const OTHER_COLLABORATORS: OtherCollaborator[] = [
+  {
+    name: "Romulo Ramos Jr.",
+    role: "Backend & RBAC",
+  },
+  {
+    name: "Jaiqouse Layag",
+    role: "Quality Assurance & Data Integrity",
+  },
+  // Add other collaborators here:
+  // { name: "Full Name", role: "Role / Contribution" },
 ];
 
 export default function ContributorsSection() {
@@ -87,29 +105,9 @@ export default function ContributorsSection() {
              WebkitTextFillColor: 'transparent',
              backgroundClip: 'text',
           }}
-        >
-          The Minds Behind the Work
+        >Collaborators
+          
         </h2>
-        
-        {/* Subtitle */}
-        <div className="mb-10 text-center text-xs sm:text-sm md:text-base max-w-3xl mx-auto leading-loose text-white font-medium relative flex flex-col items-center gap-2">
-          <span className="relative inline-block pb-1 px-2">
-            Recognizing the individuals whose dedication and collaboration made this project possible. Together, their work shaped the outcome of this project.
-          </span>
-            
-        </div>
-
-        {/* Second Title */}
-        <h3 
-          className="mb-12 text-center text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-widest title-header"
-          style={{
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}
-        >
-          Contributors
-        </h3>
 
         {/* Cards Wrapper */}
         <div className="flex flex-wrap justify-center items-center gap-0 w-full" style={{ gap: '6px' }}>
@@ -183,12 +181,17 @@ export default function ContributorsSection() {
                       transform: 'skewY(-11deg)'
                     }}
                   />
+                </div>
 
-                  {/* Name */}
-                  <div className="relative z-30 pb-7 pr-10 w-full text-center">
-                    <p className="font-bold text-white text-sm leading-tight drop-shadow-md px-2">
+                {/* Name Overlay */}
+                <div className="absolute inset-x-0 bottom-0 z-30 pb-6 flex justify-center items-end pointer-events-none">
+                  <div 
+                    style={{ transform: 'skewX(11deg)' }}
+                    className="w-full max-w-[136px] px-1 text-center"
+                  >
+                    <p className="font-bold text-white text-xs sm:text-[13px] leading-snug drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                        {contributor.name.split('\n').map((line, i) => (
-                        <span key={i} className="block">{line}</span>
+                        <span key={i} className="block whitespace-nowrap">{line}</span>
                       ))}
                     </p>
                   </div>
@@ -205,26 +208,34 @@ export default function ContributorsSection() {
           ))}
         </div>
 
-        {/* Text-Only Contributors Section 
-        <div className="mt-24 w-full flex flex-col items-center max-w-5xl mx-auto border-t border-white/10 pt-12">
-          <h4 className="mb-8 text-center text-2xl sm:text-3xl font-bold tracking-widest text-zinc-100 title-header">
-            Additional Contributors
-          </h4>
-          
-          <div className="text-center">
-            <p className="text-zinc-400 text-sm sm:text-base italic max-w-2xl mx-auto">
-              This space is dedicated to future contributors who will help maintain and grow the project. They will be listed here in recognition of their efforts.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-x-12 gap-y-6">
-              <div className="flex flex-col">
-                <span className="font-bold text-zinc-200">Charles Nudalo</span>
-                <span className="text-xs text-[#E3835B]">Kupal</span>
-              </div>
-            </div> 
-          
+        {/* Text-Only Other Collaborators Section */}
+        {OTHER_COLLABORATORS.length > 0 && (
+          <div className="mt-24 w-full flex flex-col items-center max-w-5xl mx-auto border-t border-white/10 pt-12">
+            <h4 
+              className="mb-4 text-center text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-widest title-header"
+              style={{
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              Special Thanks to
+            </h4>
+
+            <ul className="flex flex-col items-center gap-3 w-full max-w-xl mx-auto px-4">
+              {OTHER_COLLABORATORS.map((collab, idx) => (
+                <li
+                  key={idx}
+                  className="flex flex-wrap items-center justify-center gap-2 rounded-full border border-white/10 bg-black/40 backdrop-blur-md px-6 py-2.5 text-sm sm:text-base shadow-md"
+                >
+                  <span className="font-bold text-white tracking-wide">{collab.name}</span>
+                  <span className="text-zinc-500 font-light">-</span>
+                  <span className="font-medium text-[#E3835B] tracking-wide">{collab.role}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
-        */}
+        )}
       </div>
     </section>
   )
