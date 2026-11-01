@@ -14,61 +14,61 @@ const CONTRIBUTORS: Contributor[] = [
     name: "Zachary Ralf Crescel Charles DG. Nudalo",
     role: "Project Manager",
     backdropImage: "/BG-ACCESS.webp",
-    image: "/Charles.webp",
+    image: "/collaborators-image/Charles.jpg",
   },
   {
     name: "Gerald S. Berongoy",
     role: "System/Business Analyst",
     backdropImage: "/BG-ACCESS.webp",
-    image: "/Geraldv2.webp",
+    image: "/collaborators-image/Gerald.jpg",
   },
   {
     name: "Ren Fernandez Zapanta",
     role: "Scrum Master",
     backdropImage: "/BG-ACCESS.webp",
-    image: "/SM.webp",
+    image: "/collaborators-image/SM.jpg",
   },
   {
     name: "Renz Tyrone F. Arcilla",
     role: "Lead Backend Developer",
     backdropImage: "/BG-ACCESS.webp",
-    image: "/Renz.webp",
+    image: "/collaborators-image/Renz.jpg",
   },
   {
     name: "Arvie Lastra",
     role: "Backend Developer",
     backdropImage: "/BG-ACCESS.webp",
-    image: "/Arviee.webp",
+    image: "/collaborators-image/Arviee.jpg",
   },
   {
     name: "Earl Clyde M. Bañez",
     role: "Lead Frontend Developer",
     backdropImage: "/BG-ACCESS.webp",
-    image: "/Earl.webp",
+    image: "/collaborators-image/Earl.jpg",
   },
   {
     name: "Elton James U. Donato",
     role: "Frontend Developer",
     backdropImage: "/BG-ACCESS.webp",
-    image: "/Elton.webp",
+    image: "/collaborators-image/Elton.jpg",
   },
   {
     name: "Sophia Lim",
     role: "Lead UI/UX",
     backdropImage: "/BG-ACCESS.webp",
-    image: "/Phia.webp",
+    image: "/collaborators-image/Phia.jpg",
   },
   {
     name: "Blessie Jane Alba",
     role: "UI/UX",
     backdropImage: "/BG-ACCESS.webp",
-    image: "/Blessie.webp",
+    image: "/collaborators-image/Blessie.jpg",
   },
   {
     name: "Clark Jao Alarcon",
     role: "QA & Data Integrity",
     backdropImage: "/BG-ACCESS.webp",
-    image: "/Clark.webp",
+    image: "/collaborators-image/Clark.jpg",
   },
 ];
 
@@ -120,57 +120,72 @@ export default function ContributorsSection() {
                 className="relative overflow-hidden group transition-all duration-300 hover:-translate-y-2 z-10"
                 style={{
                   width: '160px',
-                  height: '340px',
-                  transform: 'skewX(-11deg)',
-                  background: '#140502',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+                  height: '345px',
+                  transform: 'skewX(-11deg) translateZ(0)',
+                  background: '#12161a',
+                  border: '1px solid rgba(255,255,255,0.18)',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                  WebkitMaskImage: '-webkit-radial-gradient(white, black)',
+                  isolation: 'isolate',
                 }}
               >
                 {/* Content un-skewed */}
                 <div 
-                  className="absolute inset-0 flex flex-col justify-end"
-                  style={{ transform: 'skewX(11deg) scale(1.18)', transformOrigin: 'center' }}
+                  className="absolute flex flex-col justify-end overflow-hidden"
+                  style={{ 
+                    left: '-38px',
+                    right: '-38px',
+                    top: '-15px',
+                    bottom: '-15px',
+                    transform: 'skewX(11deg)',
+                    transformOrigin: 'center'
+                  }}
                 >
-                  <div className="absolute inset-0 bg-black" />
+                  <div 
+                    className="absolute inset-0"
+                    style={{
+                      background: 'radial-gradient(circle at 50% 30%, #252e35 0%, #161c20 50%, #0e1215 100%)'
+                    }}
+                  />
                 
                   
                   {/* Backdrop Photo */}
                   {contributor.backdropImage && (
-                    <div className="absolute inset-0 z-0">
+                    <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
                        <Image 
                           src={contributor.backdropImage} 
-                          alt={`${contributor.name} backdrop`} 
+                          alt="" 
                           fill
-                          className="object-cover object-[center_top] opacity-50"
+                          className="object-cover object-[center_top] opacity-40"
                        />
                     </div>
                   )}
                   
                   {/* Person Photo */}
-                  <div className="absolute inset-0 z-10 flex justify-center items-end">
+                  <div 
+                    className="absolute inset-0 z-10 flex justify-center items-end"
+                    style={{ transform: 'translateY(22px)' }}
+                  >
                      <Image 
                         src={contributor.image} 
                         alt={contributor.name} 
                         fill
-                        className="object-cover object-[center_top] opacity-95"
+                        className="object-cover object-top opacity-95"
                      />
                   </div>
 
-                  {/* Alternating Skewed Gradient */}
+                  {/* Skewed Gradient - all in below */}
                   <div 
                     className="absolute z-20 pointer-events-none" 
                     style={{
-                      left: '-20%', right: '-20%', top: '-20%', bottom: '-20%',
-                      background: idx % 2 === 0
-                        ? 'linear-gradient(to top, rgba(230,80,20,1) 0%, rgba(230,80,20,0.85) 15%, transparent 55%)'
-                        : 'linear-gradient(to bottom, rgba(230,80,20,1) 0%, rgba(230,80,20,0.85) 15%, transparent 55%)',
+                      left: '-20%', right: '-20%', bottom: '-10%', height: '70%',
+                      background: 'linear-gradient(to top, rgba(230,80,20,1) 0%, rgba(230,80,20,0.85) 25%, rgba(230,80,20,0.3) 50%, transparent 100%)',
                       transform: 'skewY(-11deg)'
                     }}
                   />
 
                   {/* Name */}
-                  <div className="relative z-30 pb-9 pr-10 w-full text-center">
+                  <div className="relative z-30 pb-7 pr-10 w-full text-center">
                     <p className="font-bold text-white text-sm leading-tight drop-shadow-md px-2">
                        {contributor.name.split('\n').map((line, i) => (
                         <span key={i} className="block">{line}</span>
