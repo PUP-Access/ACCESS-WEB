@@ -88,7 +88,8 @@ function DynamicPerspectiveMarquee({ items }: { items: SponsorPartnerItem[] }) {
       if (containerRef.current) {
         const containerWidth = containerRef.current.offsetWidth || window.innerWidth || 1400;
         const centerX = containerWidth / 2;
-        const cardSpacing = 245; // generous spacing between cards
+        const isMobile = containerWidth < 640;
+        const cardSpacing = isMobile ? 175 : 245; // tighter spacing on mobile to avoid empty gaps
         const totalTrackWidth = displayList.length * cardSpacing;
 
         cardWrapperRefs.current.forEach((el, index) => {
@@ -99,14 +100,15 @@ function DynamicPerspectiveMarquee({ items }: { items: SponsorPartnerItem[] }) {
 
           // Normalized distance from horizontal center (-1 to 1)
           const itemCenterX = x + cardSpacing / 2;
-          const distNorm = (itemCenterX - centerX) / (containerWidth / 2);
+          const falloffWidth = Math.max(containerWidth, isMobile ? 480 : 700) / 2;
+          const distNorm = (itemCenterX - centerX) / falloffWidth;
           const absDist = Math.min(1.2, Math.abs(distNorm));
 
           // ── Small to Big Perspective Curve ──
           // Cards start small at ends (scale: ~0.50) and grow large in center (scale: 1.0)
-          const scale = Math.max(0.48, 1 - 0.48 * Math.pow(Math.min(1, absDist), 1.5));
+          const scale = Math.max(0.55, 1 - 0.45 * Math.pow(Math.min(1, absDist), 1.5));
           // Fade opacity near the screen edges
-          const opacity = Math.max(0.06, 1 - 0.90 * Math.pow(Math.min(1, absDist), 2.2));
+          const opacity = Math.max(0.12, 1 - 0.88 * Math.pow(Math.min(1, absDist), 2.0));
 
           el.style.transform = `translate3d(${x}px, -50%, 0) scale(${scale})`;
           el.style.opacity = `${opacity}`;
@@ -156,7 +158,7 @@ function DynamicPerspectiveMarquee({ items }: { items: SponsorPartnerItem[] }) {
             }}
           >
             <div
-              className="relative flex w-[175px] sm:w-[205px] h-[98px] sm:h-[112px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] p-3.5 backdrop-blur-md select-none cursor-default"
+              className="relative flex w-[155px] sm:w-[205px] h-[92px] sm:h-[112px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] p-2.5 sm:p-3.5 backdrop-blur-md select-none cursor-default"
               style={{
                 boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.08)",
               }}
