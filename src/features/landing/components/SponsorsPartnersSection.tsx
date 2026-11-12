@@ -67,11 +67,6 @@ function SponsorIconPlaceholder({ index }: { index: number }) {
 
 function DynamicPerspectiveMarquee({ items }: { items: SponsorPartnerItem[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const isHoveredRef = useRef(false);
-  const isDraggingRef = useRef(false);
-  const startPointerXRef = useRef(0);
-  const lastPointerXRef = useRef(0);
-  const dragVelocityRef = useRef(0);
   const cardWrapperRefs = useRef<(HTMLDivElement | null)[]>([]);
   const offsetRef = useRef(0);
   const animFrameIdRef = useRef<number | null>(null);
@@ -87,22 +82,14 @@ function DynamicPerspectiveMarquee({ items }: { items: SponsorPartnerItem[] }) {
       const delta = (now - lastTime) / 1000;
       lastTime = now;
 
-      // Handle interactive dragging & inertia physics
-      if (isDraggingRef.current) {
-        // Dragging is updating offset directly via pointer events
-      } else {
-        if (Math.abs(dragVelocityRef.current) > 0.4) {
-          offsetRef.current += dragVelocityRef.current;
-          dragVelocityRef.current *= 0.92; // smooth inertia damping
-        } else if (!isHoveredRef.current) {
-          offsetRef.current += autoSpeed * delta;
-        }
-      }
+      // Unconditionally advance every frame so slideshow never stops on hover or pointer interaction
+      offsetRef.current += autoSpeed * delta;
 
       if (containerRef.current) {
         const containerWidth = containerRef.current.offsetWidth || window.innerWidth || 1400;
         const centerX = containerWidth / 2;
-        const cardSpacing = 245; // generous spacing between cards
+        const isMobile = containerWidth < 640;
+        const cardSpacing = isMobile ? 175 : 245; // tighter spacing on mobile to avoid empty gaps
         const totalTrackWidth = displayList.length * cardSpacing;
 
         cardWrapperRefs.current.forEach((el, index) => {
@@ -113,14 +100,15 @@ function DynamicPerspectiveMarquee({ items }: { items: SponsorPartnerItem[] }) {
 
           // Normalized distance from horizontal center (-1 to 1)
           const itemCenterX = x + cardSpacing / 2;
-          const distNorm = (itemCenterX - centerX) / (containerWidth / 2);
+          const falloffWidth = Math.max(containerWidth, isMobile ? 480 : 700) / 2;
+          const distNorm = (itemCenterX - centerX) / falloffWidth;
           const absDist = Math.min(1.2, Math.abs(distNorm));
 
           // ── Small to Big Perspective Curve ──
           // Cards start small at ends (scale: ~0.50) and grow large in center (scale: 1.0)
-          const scale = Math.max(0.48, 1 - 0.48 * Math.pow(Math.min(1, absDist), 1.5));
+          const scale = Math.max(0.55, 1 - 0.45 * Math.pow(Math.min(1, absDist), 1.5));
           // Fade opacity near the screen edges
-          const opacity = Math.max(0.06, 1 - 0.90 * Math.pow(Math.min(1, absDist), 2.2));
+          const opacity = Math.max(0.12, 1 - 0.88 * Math.pow(Math.min(1, absDist), 2.0));
 
           el.style.transform = `translate3d(${x}px, -50%, 0) scale(${scale})`;
           el.style.opacity = `${opacity}`;
@@ -136,39 +124,10 @@ function DynamicPerspectiveMarquee({ items }: { items: SponsorPartnerItem[] }) {
     };
   }, [displayList.length]);
 
-  // Touch / Pointer Drag Scrubbing Handlers
-  const handlePointerDown = (e: React.PointerEvent) => {
-    isDraggingRef.current = true;
-    startPointerXRef.current = e.clientX;
-    lastPointerXRef.current = e.clientX;
-    dragVelocityRef.current = 0;
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDraggingRef.current) return;
-    const delta = e.clientX - lastPointerXRef.current;
-    lastPointerXRef.current = e.clientX;
-    dragVelocityRef.current = delta;
-    offsetRef.current += delta;
-  };
-
-  const handlePointerUp = () => {
-    isDraggingRef.current = false;
-  };
-
   return (
     <div
       ref={containerRef}
-      onMouseEnter={() => (isHoveredRef.current = true)}
-      onMouseLeave={() => {
-        isHoveredRef.current = false;
-        isDraggingRef.current = false;
-      }}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerUp}
-      className="relative w-full h-[145px] sm:h-[160px] overflow-hidden select-none cursor-grab active:cursor-grabbing touch-pan-y"
+      className="relative w-full h-[145px] sm:h-[160px] overflow-hidden select-none cursor-default"
       style={{
         maskImage:
           "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
@@ -186,7 +145,7 @@ function DynamicPerspectiveMarquee({ items }: { items: SponsorPartnerItem[] }) {
       />
 
       {/* Conveyor Track */}
-      <div className="absolute inset-0 w-full h-full z-10">
+      <div className="absolute inset-0 w-full h-full z-10 pointer-events-none">
         {displayList.map((item, index) => (
           <div
             key={`${item.id}-${index}`}
@@ -198,14 +157,13 @@ function DynamicPerspectiveMarquee({ items }: { items: SponsorPartnerItem[] }) {
               transformOrigin: "center center",
             }}
           >
-            <Link
-              href="/partners"
-              className="group/card relative flex w-[175px] sm:w-[205px] h-[98px] sm:h-[112px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] p-3.5 backdrop-blur-md transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-1 hover:border-[#F26223]/70 hover:bg-[#F26223]/15 hover:shadow-[0_0_35px_rgba(242,98,35,0.45),0_12px_28px_rgba(0,0,0,0.5)] select-none"
+            <div
+              className="relative flex w-[155px] sm:w-[205px] h-[92px] sm:h-[112px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] p-2.5 sm:p-3.5 backdrop-blur-md select-none cursor-default"
               style={{
                 boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.08)",
               }}
             >
-              <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-white/5 border border-white/10 transition-all duration-300 group-hover/card:scale-110 group-hover/card:border-[#F26223]/50 group-hover/card:bg-[#F26223]/20 overflow-hidden">
+              <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-white/5 border border-white/10 overflow-hidden">
                 {item.logoUrl ? (
                   <Image
                     src={item.logoUrl}
@@ -219,16 +177,16 @@ function DynamicPerspectiveMarquee({ items }: { items: SponsorPartnerItem[] }) {
                 )}
               </div>
 
-              <p className="mt-2 text-center text-xs sm:text-[13px] font-bold tracking-wider text-white/90 uppercase truncate w-full px-2 transition-colors duration-200 group-hover/card:text-white">
+              <p className="mt-2 text-center text-xs sm:text-[13px] font-bold tracking-wider text-white/90 uppercase truncate w-full px-2">
                 {item.name}
               </p>
 
               {item.category && (
-                <span className="text-[10px] text-[#FFB89A]/75 font-semibold tracking-wider truncate max-w-full leading-none mt-0.5 group-hover/card:text-[#FFB89A]">
+                <span className="text-[10px] text-[#FFB89A]/75 font-semibold tracking-wider truncate max-w-full leading-none mt-0.5">
                   {item.category}
                 </span>
               )}
-            </Link>
+            </div>
           </div>
         ))}
       </div>
@@ -322,9 +280,21 @@ export default function SponsorsPartnersSection({ content }: SponsorsPartnersSec
         </Reveal>
       </div>
 
-      {/* ── Extended Full-Width Dynamic Perspective Marquee (Small to Big + Isolated Hover Glow) ── */}
+      {/* ── Extended Full-Width Dynamic Perspective Marquee (Small to Big + Continuous Glide) ── */}
       <div className="relative z-10 mt-7 sm:mt-9 w-full overflow-hidden">
         <DynamicPerspectiveMarquee items={displayItems} />
+      </div>
+
+      {/* View All Hyperlink */}
+      <div className="relative z-10 mt-6 sm:mt-8 flex justify-center">
+        <Reveal>
+          <Link
+            href="/partners"
+            className="inline-flex items-center text-sm sm:text-base font-semibold text-[#F26223] transition-colors duration-200 hover:text-[#ff824d] underline underline-offset-4 decoration-[#F26223]/50 hover:decoration-[#ff824d]"
+          >
+            View all
+          </Link>
+        </Reveal>
       </div>
     </section>
   );

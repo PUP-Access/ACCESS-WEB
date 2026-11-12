@@ -22,12 +22,12 @@ function CircularLogoBadge({
 }) {
   const sizeClasses =
     size === "lg"
-      ? "w-24 h-24 sm:w-28 sm:h-28"
-      : "w-20 h-20 sm:w-24 sm:h-24";
+      ? "w-20 h-20 sm:w-28 sm:h-28"
+      : "w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24";
 
   return (
     <div
-      className={`relative flex items-center justify-center rounded-full bg-white shadow-[0_8px_25px_rgba(0,0,0,0.45)] border-2 border-white/80 overflow-hidden flex-shrink-0 transition-transform duration-300 group-hover:scale-105 ${sizeClasses}`}
+      className={`relative flex items-center justify-center rounded-full bg-white shadow-[0_6px_20px_rgba(0,0,0,0.45)] border border-white/80 overflow-hidden shrink-0 transition-transform duration-300 group-hover:scale-105 ${sizeClasses}`}
     >
       {logoUrl ? (
         <Image
@@ -35,14 +35,15 @@ function CircularLogoBadge({
           alt={name}
           fill
           className="object-contain p-2 sm:p-3"
+          unoptimized={logoUrl.startsWith("http")}
         />
       ) : (
-        <div className="flex flex-col items-center justify-center text-center px-2">
-          <span className="text-black font-black text-xs sm:text-sm tracking-tighter uppercase leading-none">
+        <div className="flex flex-col items-center justify-center text-center px-1 sm:px-2">
+          <span className="text-black font-black text-[10px] sm:text-xs md:text-sm tracking-tighter uppercase leading-none">
             {name.split(" ")[0] || "PARTNER"}
           </span>
           {name.split(" ")[1] && (
-            <span className="text-[#f26223] font-bold text-[9px] sm:text-[10px] tracking-widest uppercase">
+            <span className="text-[#f26223] font-bold text-[8px] sm:text-[9px] md:text-[10px] tracking-widest uppercase">
               {name.split(" ")[1]}
             </span>
           )}
@@ -61,15 +62,15 @@ function SponsorCard({
 }) {
   const CardContent = (
     <div
-      className={`group relative flex flex-col items-center justify-center text-center transition-all duration-300 rounded-[28px] border backdrop-blur-xl ${
+      className={`group relative flex flex-col items-center justify-center text-center transition-all duration-300 rounded-2xl sm:rounded-[28px] border backdrop-blur-xl ${
         isFeatured
-          ? "w-full max-w-[280px] sm:max-w-[320px] h-[230px] sm:h-[260px] p-6 border-white/20 bg-gradient-to-b from-white/10 to-white/[0.04] shadow-[0_0_40px_rgba(242,98,35,0.25)] hover:shadow-[0_0_55px_rgba(242,98,35,0.45)] hover:border-[#F26223]/70 hover:-translate-y-1.5"
-          : "w-full h-[210px] sm:h-[240px] p-5 border-white/10 bg-white/[0.04] shadow-[0_12px_32px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_40px_rgba(242,98,35,0.25)] hover:border-[#F26223]/50 hover:bg-[#F26223]/10 hover:-translate-y-1.5"
+          ? "w-full max-w-[260px] sm:max-w-[320px] min-h-[190px] sm:min-h-[250px] p-4 sm:p-6 border-white/20 bg-gradient-to-b from-white/10 to-white/[0.04] shadow-[0_0_35px_rgba(242,98,35,0.25)] hover:shadow-[0_0_55px_rgba(242,98,35,0.45)] hover:border-[#F26223]/70 hover:-translate-y-1.5"
+          : "w-full h-full min-h-[150px] sm:min-h-[200px] md:min-h-[220px] p-3 sm:p-4 md:p-5 border-white/10 bg-white/[0.04] shadow-[0_8px_24px_rgba(0,0,0,0.35)] hover:shadow-[0_16px_40px_rgba(242,98,35,0.25)] hover:border-[#F26223]/50 hover:bg-[#F26223]/10 hover:-translate-y-1.5"
       }`}
     >
       {/* Featured Tier Badge */}
       {isFeatured && (
-        <div className="absolute -top-3 px-3.5 py-1 rounded-full bg-gradient-to-r from-[#F26223] to-[#ff8c00] text-[10px] font-extrabold uppercase tracking-widest text-white shadow-[0_4px_12px_rgba(242,98,35,0.4)]">
+        <div className="absolute -top-3 px-3 py-0.5 sm:px-3.5 sm:py-1 rounded-full bg-gradient-to-r from-[#F26223] to-[#ff8c00] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest text-white shadow-[0_4px_12px_rgba(242,98,35,0.4)]">
           {item.category || "Principal Sponsor"}
         </div>
       )}
@@ -82,20 +83,20 @@ function SponsorCard({
       />
 
       {/* Partner / Sponsor Name */}
-      <h3 className="mt-4 text-sm sm:text-base font-extrabold uppercase tracking-widest text-white group-hover:text-[#FFD4BC] transition-colors duration-200 truncate w-full px-2">
+      <h3 className="mt-2.5 sm:mt-3.5 text-xs sm:text-sm md:text-base font-extrabold uppercase tracking-wider text-white group-hover:text-[#FFD4BC] transition-colors duration-200 line-clamp-2 w-full px-1">
         {item.name}
       </h3>
 
       {/* Subcategory or Tag */}
       {item.category && !isFeatured && (
-        <p className="mt-1 text-[11px] font-semibold text-white/50 tracking-wider uppercase truncate max-w-full">
+        <p className="mt-0.5 sm:mt-1 text-[9px] sm:text-[11px] font-semibold text-white/50 tracking-wider uppercase truncate max-w-full">
           {item.category}
         </p>
       )}
 
       {item.websiteUrl && (
-        <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-[#FFB89A]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          Visit Facebook Page ↗
+        <span className="mt-1 sm:mt-2 inline-flex items-center gap-1 text-[9px] sm:text-[11px] font-medium text-[#FFB89A]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          Visit Page ↗
         </span>
       )}
     </div>
@@ -107,7 +108,7 @@ function SponsorCard({
         href={item.websiteUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="block"
+        className="block h-full"
       >
         {CardContent}
       </a>
@@ -130,7 +131,7 @@ export default function PartnersPageClient({ content }: PartnersPageClientProps)
   const standardSponsors = sponsors.filter((s) => s.id !== featuredSponsor?.id);
 
   return (
-    <div className="flex flex-col items-center gap-20 sm:gap-28">
+    <div className="flex flex-col items-center gap-14 sm:gap-20 md:gap-28">
       {/* ── 1. ACCESS SPONSORS SECTION ── */}
       {!content.hideSponsors && (
         <section className="w-full flex flex-col items-center text-center">
@@ -140,10 +141,10 @@ export default function PartnersPageClient({ content }: PartnersPageClientProps)
             transition={{ duration: 0.5 }}
             className="flex flex-col items-center"
           >
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-widest title-header">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-widest title-header">
               {content.sponsorsTitle || "ACCESS Sponsors"}
             </h1>
-            <p className="mt-3.5 text-sm sm:text-base text-white/70 max-w-xl mx-auto leading-relaxed">
+            <p className="mt-2.5 sm:mt-3.5 text-xs sm:text-base text-white/70 max-w-xl mx-auto leading-relaxed px-2">
               {content.sponsorsSubtitle ||
                 "Empowering computer engineering students through state-of-the-art technological resources and event support."}
             </p>
@@ -155,7 +156,7 @@ export default function PartnersPageClient({ content }: PartnersPageClientProps)
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.15 }}
-              className="mt-12 flex justify-center w-full"
+              className="mt-8 sm:mt-12 flex justify-center w-full px-2"
             >
               <SponsorCard item={featuredSponsor} isFeatured={true} />
             </motion.div>
@@ -167,7 +168,7 @@ export default function PartnersPageClient({ content }: PartnersPageClientProps)
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.25 }}
-              className="mt-10 grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl"
+              className="mt-6 sm:mt-10 grid w-full grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-5 max-w-4xl px-1 sm:px-0"
             >
               {standardSponsors.map((sponsor) => (
                 <SponsorCard key={sponsor.id} item={sponsor} />
@@ -193,10 +194,10 @@ export default function PartnersPageClient({ content }: PartnersPageClientProps)
             transition={{ duration: 0.5 }}
             className="flex flex-col items-center"
           >
-            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-widest title-header">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-widest title-header">
               {content.partnersTitle || "ACCESS Partners"}
             </h2>
-            <p className="mt-3.5 text-sm sm:text-base text-white/70 max-w-xl mx-auto leading-relaxed">
+            <p className="mt-2.5 sm:mt-3.5 text-xs sm:text-base text-white/70 max-w-xl mx-auto leading-relaxed px-2">
               {content.partnersSubtitle ||
                 "Collaborating with industry leaders, student organizations, and academic institutions."}
             </p>
@@ -209,7 +210,7 @@ export default function PartnersPageClient({ content }: PartnersPageClientProps)
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.15 }}
-              className="mt-12 grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl"
+              className="mt-6 sm:mt-12 grid w-full grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-5 max-w-4xl px-1 sm:px-0"
             >
               {partners.map((partner) => (
                 <SponsorCard key={partner.id} item={partner} />
