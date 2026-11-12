@@ -18,7 +18,6 @@ export default function OfficersRosterMedia({
       width={1400}
       height={900}
       className={className}
-      unoptimized={url.startsWith("http")}
     />
   );
 }

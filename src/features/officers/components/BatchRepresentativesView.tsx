@@ -313,7 +313,6 @@ function YearOverviewCard({
             fill
             sizes="96px"
             className="object-cover p-1 transition-transform duration-300 group-hover:scale-105"
-            unoptimized
           />
         </div>
       </div>
@@ -379,7 +378,6 @@ function BatchOfficerHierarchyCard({
               fill
               sizes="88px"
               className="object-cover transition-transform duration-300 group-hover:scale-105"
-              unoptimized
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#f26223] via-[#a33515] to-[#501308] text-white font-extrabold text-lg">

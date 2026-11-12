@@ -61,7 +61,6 @@ export default async function AdminOfficersTemplatePage({
             alt="Officers section template"
             fill
             className="object-cover"
-            unoptimized={content.templateImageUrl.startsWith("http")}
           />
         </div>
       </AdminCard>
