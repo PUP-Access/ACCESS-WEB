@@ -34,7 +34,7 @@ function CircularLogoBadge({
           src={logoUrl}
           alt={name}
           fill
-          className="object-contain p-3"
+          className="object-contain p-2 sm:p-3"
         />
       ) : (
         <div className="flex flex-col items-center justify-center text-center px-2">
