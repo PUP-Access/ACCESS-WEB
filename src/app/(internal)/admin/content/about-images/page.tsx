@@ -63,7 +63,6 @@ export default async function AdminAboutImagesPage({
                         src={currentImg}
                         alt={`About Image ${index + 1}`}
                         fill
-                        unoptimized
                         className="object-cover"
                       />
                     </div>

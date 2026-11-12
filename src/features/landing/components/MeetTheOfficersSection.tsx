@@ -25,7 +25,6 @@ export default function MeetTheOfficersSection({ content }: MeetTheOfficersSecti
           src={content.templateImageUrl}
           alt=""
           fill
-          unoptimized={content.templateImageUrl.startsWith("http")}
           className="object-cover object-center"
           style={{
             opacity: 0.8,

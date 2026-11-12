@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import sharp from "sharp";
 import { updateUserRole, deleteUserAccount } from "../services/users.admin.service";
 import { getErrorMessage } from "@/lib/errors";
 import type { UserRole, UserActionState } from "../types";
@@ -96,16 +97,31 @@ export async function updateUserProfileAction(input: {
           const adminClient = createSupabaseAdminClient();
           const matches = input.avatarUrl.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
           if (matches) {
-            const mimeType = matches[1];
             const base64Data = matches[2];
-            const buffer = Buffer.from(base64Data, "base64");
-            const ext = mimeType.split("/")[1] || "png";
-            const filePath = `avatars/${user.id}_${Date.now()}.${ext}`;
+            const rawBuffer = Buffer.from(base64Data, "base64");
+            let uploadBuffer: Buffer;
+            let finalMime = "image/webp";
+            let finalExt = "webp";
+
+            try {
+              uploadBuffer = await sharp(rawBuffer)
+                .resize({ width: 300, height: 300, fit: "cover", position: "center", withoutEnlargement: true })
+                .webp({ quality: 80 })
+                .toBuffer();
+            } catch (err) {
+              console.warn("Avatar compression fallback:", err);
+              uploadBuffer = rawBuffer;
+              finalMime = matches[1];
+              finalExt = finalMime.split("/")[1] || "png";
+            }
+
+            const filePath = `avatars/${user.id}_${Date.now()}.${finalExt}`;
 
             const { error: uploadError } = await adminClient.storage
               .from("access_web_assets")
-              .upload(filePath, buffer, {
-                contentType: mimeType,
+              .upload(filePath, uploadBuffer, {
+                contentType: finalMime,
+                cacheControl: "31536000, immutable",
                 upsert: true,
               });
 

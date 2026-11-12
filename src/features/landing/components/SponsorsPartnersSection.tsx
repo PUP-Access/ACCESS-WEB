@@ -213,7 +213,6 @@ function DynamicPerspectiveMarquee({ items }: { items: SponsorPartnerItem[] }) {
                     width={40}
                     height={40}
                     className="h-full w-full object-contain p-1"
-                    unoptimized={item.logoUrl.startsWith("http")}
                   />
                 ) : (
                   <SponsorIconPlaceholder index={index} />

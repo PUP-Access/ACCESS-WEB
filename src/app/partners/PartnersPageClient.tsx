@@ -35,7 +35,6 @@ function CircularLogoBadge({
           alt={name}
           fill
           className="object-contain p-3"
-          unoptimized={logoUrl.startsWith("http")}
         />
       ) : (
         <div className="flex flex-col items-center justify-center text-center px-2">
