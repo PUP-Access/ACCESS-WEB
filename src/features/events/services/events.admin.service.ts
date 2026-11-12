@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
+import sharp from "sharp";
 import { checkRole } from "@/utils/checkRole";
 import { rolesForArea } from "@/utils/adminAccess";
 import {
@@ -178,21 +179,38 @@ export async function uploadEventImage(file: File): Promise<string> {
   const supabase = await createSupabaseServerClient();
 
   const { mimeType, extension } = await validateEventImage(file);
-  const fileName = `${crypto.randomUUID()}.${extension}`;
+  let uploadData: Buffer | File = file;
+  let finalMime = mimeType;
+  let finalExt = extension;
+
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    uploadData = await sharp(buffer)
+      .resize({ width: 1600, withoutEnlargement: true })
+      .webp({ quality: 82 })
+      .toBuffer();
+    finalMime = "image/webp";
+    finalExt = "webp";
+  } catch (err) {
+    console.warn("Event image compression fallback:", err);
+  }
+
+  const fileName = `${crypto.randomUUID()}.${finalExt}`;
   const filePath = `events/${fileName}`;
 
   const { error: uploadError } = await supabase.storage
-    .from("access_web_assets") // replace with your bucket name
-    .upload(filePath, file, {
-      contentType: mimeType,
+    .from("access_web_assets")
+    .upload(filePath, uploadData, {
+      contentType: finalMime,
+      cacheControl: "31536000, immutable",
       upsert: false,
     });
 
   if (uploadError) throw uploadError;
 
   const { data } = supabase.storage
-  .from("access_web_assets")
-  .getPublicUrl(filePath);
+    .from("access_web_assets")
+    .getPublicUrl(filePath);
 
   return data.publicUrl;
 }

@@ -154,6 +154,7 @@ export async function submitBorrowRequestAction(
       .from("request-letters")
       .upload(filePath, letterFile, {
         contentType,
+        cacheControl: "31536000, immutable",
         upsert: false,
       });
 

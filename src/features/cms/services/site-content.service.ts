@@ -1,4 +1,5 @@
 import { unstable_noStore as noStore } from "next/cache";
+import sharp from "sharp";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 import { getErrorMessage, isRlsPolicyError, throwSupabaseError } from "@/lib/errors";
@@ -144,13 +145,32 @@ async function uploadSiteContentFileToStorage(
   contentType: string,
   ext: string
 ): Promise<string> {
-  const fileName = `${crypto.randomUUID()}.${ext}`;
+  let uploadData: Buffer | File = file;
+  let finalContentType = contentType;
+  let finalExt = ext;
+
+  if (contentType.startsWith("image/") && !contentType.includes("svg")) {
+    try {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      uploadData = await sharp(buffer)
+        .resize({ width: 1600, withoutEnlargement: true })
+        .webp({ quality: 82 })
+        .toBuffer();
+      finalContentType = "image/webp";
+      finalExt = "webp";
+    } catch (err) {
+      console.warn("CMS image compression fallback:", err);
+    }
+  }
+
+  const fileName = `${crypto.randomUUID()}.${finalExt}`;
   const filePath = `site-content/${fileName}`;
 
   const { error: uploadError } = await supabase.storage
     .from("access_web_assets")
-    .upload(filePath, file, {
-      contentType,
+    .upload(filePath, uploadData, {
+      contentType: finalContentType,
+      cacheControl: "31536000, immutable",
       upsert: false,
     });
 

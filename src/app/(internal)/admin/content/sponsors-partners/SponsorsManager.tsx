@@ -329,7 +329,6 @@ export default function SponsorsManager({ initialItems }: SponsorsManagerProps) 
                 alt="Preview"
                 fill
                 className="object-contain"
-                unoptimized
               />
             </div>
             <button
@@ -489,7 +488,6 @@ export default function SponsorsManager({ initialItems }: SponsorsManagerProps) 
                           alt={item.name}
                           fill
                           className="object-contain"
-                          unoptimized
                         />
                       ) : (
                         <span className="text-[10px] font-bold text-black uppercase">

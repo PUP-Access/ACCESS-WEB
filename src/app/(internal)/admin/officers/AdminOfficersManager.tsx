@@ -1561,7 +1561,6 @@ function OfficerCardAdmin({
                 fill
                 sizes="56px"
                 className="object-cover"
-                unoptimized
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#f26223] to-[#862520] text-white font-extrabold text-sm">
@@ -1846,7 +1845,6 @@ function EditModalShell({
                       alt=""
                       fill
                       className="object-cover"
-                      unoptimized
                     />
                   ) : null}
                 </div>
@@ -1867,7 +1865,6 @@ function EditModalShell({
                           fill
                           sizes="72px"
                           className="object-cover"
-                          unoptimized
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#f26223] to-[#862520] text-white font-extrabold text-base">

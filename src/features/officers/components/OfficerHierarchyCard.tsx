@@ -73,7 +73,6 @@ export default function OfficerHierarchyCard({
                 sizes="(max-width: 640px) 80px, 84px"
                 className="object-cover"
                 onError={() => setImageError(true)}
-                unoptimized
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#f26223] via-[#a33515] to-[#501308] text-white font-extrabold text-lg tracking-wider">

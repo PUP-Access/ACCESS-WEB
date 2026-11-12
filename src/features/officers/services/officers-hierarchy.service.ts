@@ -1,4 +1,5 @@
 import { unstable_noStore as noStore } from "next/cache";
+import sharp from "sharp";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 import { throwSupabaseError } from "@/lib/errors";
@@ -93,15 +94,41 @@ export async function uploadOfficerAsset(file: File, folder = "officers"): Promi
   await checkRole({ roles: rolesForArea("officers") });
   const supabase = createSupabaseAdminClient();
 
-  const ext = (file.name.split(".").pop() ?? "png").toLowerCase();
-  const contentType = file.type || `image/${ext}`;
-  const fileName = `${crypto.randomUUID()}.${ext}`;
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const isBanner = folder === "banners";
+
+  // Compress and resize images using sharp to prevent large file uploads and high egress
+  let processedBuffer: Buffer;
+  let contentType = "image/webp";
+  let fileName = `${crypto.randomUUID()}.webp`;
+
+  try {
+    if (isBanner) {
+      processedBuffer = await sharp(buffer)
+        .resize({ width: 1600, withoutEnlargement: true })
+        .webp({ quality: 82 })
+        .toBuffer();
+    } else {
+      processedBuffer = await sharp(buffer)
+        .resize({ width: 500, height: 500, fit: "cover", position: "center", withoutEnlargement: true })
+        .webp({ quality: 82 })
+        .toBuffer();
+    }
+  } catch (err) {
+    console.warn("Image optimization fallback:", err);
+    processedBuffer = buffer;
+    const ext = (file.name.split(".").pop() ?? "png").toLowerCase();
+    contentType = file.type || `image/${ext}`;
+    fileName = `${crypto.randomUUID()}.${ext}`;
+  }
+
   const filePath = `${folder}/${fileName}`;
 
   const { error: uploadError } = await supabase.storage
     .from("access_web_assets")
-    .upload(filePath, file, {
+    .upload(filePath, processedBuffer, {
       contentType,
+      cacheControl: "31536000, immutable",
       upsert: false,
     });
 
