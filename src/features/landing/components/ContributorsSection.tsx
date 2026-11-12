@@ -83,7 +83,7 @@ const OTHER_COLLABORATORS: OtherCollaborator[] = [
     role: "Backend & RBAC",
   },
   {
-    name: "Jaiqouse Layag",
+    name: "Jaiquose L. Layag",
     role: "Quality Assurance & Data Integrity",
   },
   // Add other collaborators here:
